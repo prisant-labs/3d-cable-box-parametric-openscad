@@ -1,0 +1,8 @@
+* @jprisant
+
+# Model source
+/*.scad @jprisant
+
+# Documentation set and docs site config
+/docs/ @jprisant
+/mkdocs.yml @jprisant

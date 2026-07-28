@@ -1,0 +1,18 @@
+name: scad-smoke
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "**/*.scad"
+      - ".github/workflows/scad-smoke.yml"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OpenSCAD
+        run: sudo apt-get update && sudo apt-get install -y openscad
+      - name: Run smoke script
+        run: bash scripts/scad-smoke.sh

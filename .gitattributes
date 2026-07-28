@@ -1,0 +1,12 @@
+* text=auto eol=lf
+
+# CAD/source files
+*.scad text
+
+# Binary artifacts
+*.stl binary
+*.3mf binary
+*.obj binary
+*.amf binary
+*.step binary
+*.iges binary

@@ -1,0 +1,32 @@
+# Private scratch, agent working notes, and session logs
+_local/
+_NOTES/
+_jp-notes/
+AGENTS/
+
+# Local tool state
+.memsearch/
+
+# CAD outputs
+*.stl
+*.3mf
+*.obj
+*.amf
+*.step
+*.iges
+exports/
+renders/
+site/
+ci-smoke-out/
+
+# Keep curated release artifacts versionable in-library/examples.
+!library/**/*.stl
+!examples/**/*.stl
+
+# Tool/editor/system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
