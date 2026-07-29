@@ -6,6 +6,11 @@ repo_name: prisant-labs/3d-cable-box-parametric-openscad
 
 docs_dir: docs
 
+# Internal planning docs live in the repo but are not published to the site.
+# exclude_docs uses .gitignore pattern syntax and implies not_in_nav.
+exclude_docs: |
+  internal/
+
 theme:
   name: material
   features:
