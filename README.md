@@ -4,7 +4,7 @@ Parametric OpenSCAD model for printable cable-management boxes with configurable
 
 - Repository: `https://github.com/prisant-labs/3d-cable-box-parametric-openscad`
 - Primary model: `cable-box-parametric.scad`
-- License: `CC BY-NC-SA 4.0`
+- License: `MIT`
 
 ## Features
 
@@ -83,7 +83,7 @@ Smoke scenarios cover baseline rendering, lid rendering, slicing rendering, and 
 
 ## Licensing
 
-Repository content is licensed under `CC BY-NC-SA 4.0` unless otherwise noted.
+Repository content is licensed under `MIT` unless otherwise noted.
 
 - Full license text: `LICENSE`
 - Third-party attribution and license details: `THIRD_PARTY_NOTICES.md`

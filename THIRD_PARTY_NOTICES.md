@@ -12,4 +12,4 @@ If BOSL2-derived code is present in source files, retain original attribution an
 
 ## Licensing Interaction Note
 
-Repository-level licensing is `CC BY-NC-SA 4.0`, while included third-party code remains under its own original license terms.
+Repository-level licensing is `MIT`. Included third-party code remains under its own original license terms, which MIT does not override.

@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-07-29
+
+### Fixed
+- Side openings anchored flush with the box floor produced a non-manifold solid.
+  The cut stopped exactly on the box bottom plane, leaving a zero-thickness
+  tangency that CGAL reports as `Simple: no` and a slicer may reject. The cut is
+  now sunk `SPACER` below its own bottom edge so it crosses that plane with real
+  cross-section. Caught by the new geometry test harness on its first run.
+
+### Changed
+- **Licence changed from `CC BY-NC-SA 4.0` to `MIT`.** The NonCommercial clause
+  blocked selling printed copies, blocked print-on-demand, and was at best
+  ambiguous on platforms with creator rewards. MIT matches Gridfinity's own
+  licence, suits a model that is really source code, and is GPL-compatible for
+  a future browser customizer.
+
+### Added
+- `Model_Version` constant, echoed at render, so an exported STL can be traced
+  back to the source that produced it.
+- `scripts/check-version.sh`: fails the build when `Model_Version`, the top
+  `CHANGELOG.md` section, and the git tag disagree. Handles `-rc` suffixes.
+- `tests/`: a data-driven geometry regression harness. 39 scenarios asserting
+  exit code, assertion text, manifoldness, disconnected-solid count, absence of
+  warnings, and point probes against the exported mesh. Every defect fixed in
+  1.1.0 has a regression scenario.
+
 ## [1.1.0] - 2026-07-28
 
 First release published under `prisant-labs`. Fixes four geometry defects that

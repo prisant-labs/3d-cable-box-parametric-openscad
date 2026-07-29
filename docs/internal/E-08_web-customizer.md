@@ -61,11 +61,11 @@ live, export STL.
 - **Payload size.** OpenSCAD WASM plus bundled libraries is a large download.
   Lazy-load, and do not put it on the docs landing page.
 - **Licensing.** OpenSCAD is GPL, so the WASM build and any derived UI carry
-  GPL obligations. Your model content is `CC BY-NC-SA 4.0`. Hosting a GPL
-  application that loads CC-licensed model files is mere aggregation and is
-  fine, but keep the licenses clearly separated in the deploy and do not
-  relicense either. Note this interacts with the open license question in
-  [E-11 (distribution)](E-11_distribution.md).
+  GPL obligations. The model is MIT, which is GPL-compatible, so this is
+  straightforward: bundling or aggregating is fine, and the combined deploy just
+  needs both notices preserved. See
+  [E-11 (distribution)](E-11_distribution.md), where the licence decision is
+  recorded.
 - **Version drift.** WASM OpenSCAD may not match the desktop version's output
   exactly. Test the same parameter set both ways before advertising the tool as
   authoritative.

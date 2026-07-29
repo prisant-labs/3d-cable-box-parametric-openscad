@@ -136,4 +136,4 @@ Use `community/` for user-contributed builds, remixes, and showcase assets.
 
 ## What license applies to this repository?
 
-`CC BY-NC-SA 4.0` for project content, with third-party portions retaining their original licenses (see `THIRD_PARTY_NOTICES.md`).
+`MIT` for project content, with third-party portions retaining their original licenses (see `THIRD_PARTY_NOTICES.md`).

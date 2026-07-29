@@ -1,0 +1,295 @@
+{
+  "_comment": [
+    "Geometry regression scenarios. Adding a test is a JSON entry, not new code.",
+    "",
+    "Model defaults these coordinates assume: Box 100 x 75 x 50, Wall_Thickness 1.85,",
+    "Post_Diameter 15, side openings 10 wide x 30 tall anchored at the box floor.",
+    "",
+    "Front wall band spans y -37.5 (outer) to -35.65 (inner), so probes at y -37.3",
+    "with depth 1.4 sit strictly inside the wall and cannot pick up interior floor.",
+    "Probes are 1 mm wide on x so they stay inside the opening's rounded ends;",
+    "a wider probe clips the corner arc and reads material as a false negative.",
+    "",
+    "solids counts disconnected bodies. Any unexpected increase means geometry has",
+    "detached, which looks normal in a render and fails in a slicer."
+  ],
+
+  "scenarios": [
+    {
+      "name": "baseline_box_only",
+      "defines": ["Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "baseline_lid_only",
+      "defines": ["Part_To_Render=\"Lid Only\""],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "baseline_box_and_lid",
+      "defines": ["Part_To_Render=\"Box and Lid\""],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+
+    {
+      "name": "regression_openings_full_height",
+      "_why": "v1.1.0: the cut was centred on the box floor, so only its top half",
+      "_why2": "intersected the model and a requested 30 mm opening delivered 15 mm.",
+      "_why3": "z=20 is the discriminator: material under the bug, empty when fixed.",
+      "defines": ["Part_To_Render=\"Box Only\""],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [-0.5, -37.3, 15], "size": [1, 1.4, 0.2], "expect": "empty",
+            "why": "front wall mid-opening" },
+          { "translate": [-0.5, -37.3, 20], "size": [1, 1.4, 0.2], "expect": "empty",
+            "why": "front wall at z=20, halved-opening detector" },
+          { "translate": [-0.5, -37.3, 35], "size": [1, 1.4, 0.2], "expect": "material",
+            "why": "front wall above the opening" }
+        ]
+      }
+    },
+    {
+      "name": "regression_openings_offset_up",
+      "defines": ["Part_To_Render=\"Box Only\"", "All_Openings_Up=10"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [-0.5, -37.3, 5], "size": [1, 1.4, 0.2], "expect": "material",
+            "why": "below a lifted opening" },
+          { "translate": [-0.5, -37.3, 25], "size": [1, 1.4, 0.2], "expect": "empty",
+            "why": "inside a lifted opening" },
+          { "translate": [-0.5, -37.3, 45], "size": [1, 1.4, 0.2], "expect": "material",
+            "why": "above a lifted opening" }
+        ]
+      }
+    },
+    {
+      "name": "regression_bottom_count_zero_blocked",
+      "_why": "v1.1.0: [0:-1] iterated as -1 then 0 under OpenSCAD's deprecated",
+      "_why2": "reverse-range rule, cutting two openings that detached the post.",
+      "defines": ["Enable_Bottom_Openings=true", "Bottom_Openings_Count=0"],
+      "expect": { "rc": 1, "message": "Bottom_Openings_Count must be >= 1" }
+    },
+    {
+      "name": "regression_bottom_count_one",
+      "defines": ["Enable_Bottom_Openings=true", "Bottom_Openings_Count=1"],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "regression_corner_radius_above_old_ceiling",
+      "_why": "v1.1.0: clamp was derived from the outer shell but reused for the",
+      "_why2": "inner cavity, so anything above 35.65 aborted inside BOSL2.",
+      "defines": ["Box_Corner_Radius=40"],
+      "expect": { "rc": 0, "solids": 1, "clean": false }
+    },
+    {
+      "name": "regression_corner_radius_square_box",
+      "defines": ["Box_Width=60", "Box_Depth=60", "Box_Corner_Radius=30"],
+      "expect": { "rc": 0, "solids": 1, "clean": false }
+    },
+    {
+      "name": "regression_closed_post_caps_bottom",
+      "_why": "v1.1.0: Closed_Post shortened the bore from the top, capping the",
+      "_why2": "post's upper end and leaving the floor open.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Closed_Post=true"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [-3, -3, 0.5], "size": [6, 6, 1], "expect": "material",
+            "why": "post floor must be solid when Closed_Post" },
+          { "translate": [-3, -3, 48.5], "size": [6, 6, 1], "expect": "empty",
+            "why": "post top must stay open" }
+        ]
+      }
+    },
+    {
+      "name": "regression_open_post_bore_through",
+      "defines": ["Part_To_Render=\"Box Only\"", "Closed_Post=false"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [-3, -3, 0.5], "size": [6, 6, 1], "expect": "empty",
+            "why": "open post must bore through the floor" },
+          { "translate": [-3, -3, 48.5], "size": [6, 6, 1], "expect": "empty",
+            "why": "open post must be open at the top" }
+        ]
+      }
+    },
+    {
+      "name": "regression_clip_one_bonds_to_material",
+      "_why": "v1.1.0: at Clips_Per_Edge=1 the clip landed over the open post bore",
+      "_why2": "with nothing to bond to and exported as a third, loose solid.",
+      "defines": ["Enable_Slicing=true", "Slice_Count=2", "Clips_Per_Edge=1",
+                  "Slice_Piece_To_Render=0", "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+    {
+      "name": "regression_clip_one_lid",
+      "defines": ["Enable_Slicing=true", "Slice_Count=2", "Clips_Per_Edge=1",
+                  "Slice_Piece_To_Render=0", "Part_To_Render=\"Lid Only\""],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+    {
+      "name": "regression_clip_one_closed_post",
+      "defines": ["Enable_Slicing=true", "Slice_Count=2", "Clips_Per_Edge=1",
+                  "Slice_Piece_To_Render=0", "Part_To_Render=\"Box Only\"",
+                  "Closed_Post=true"],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+
+    {
+      "name": "slicing_preview_two_box",
+      "defines": ["Enable_Slicing=true", "Slice_Count=2", "Slice_Piece_To_Render=0",
+                  "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+    {
+      "name": "slicing_preview_three_box",
+      "defines": ["Enable_Slicing=true", "Slice_Count=3", "Slice_Piece_To_Render=0",
+                  "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 3 }
+    },
+    {
+      "name": "slicing_single_piece",
+      "defines": ["Enable_Slicing=true", "Slice_Count=2", "Slice_Piece_To_Render=1",
+                  "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "slicing_clips_three",
+      "defines": ["Enable_Slicing=true", "Slice_Count=2", "Clips_Per_Edge=3",
+                  "Slice_Piece_To_Render=0", "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+    {
+      "name": "slicing_index_out_of_range_blocked",
+      "defines": ["Enable_Slicing=true", "Slice_Count=2", "Slice_Piece_To_Render=3"],
+      "expect": { "rc": 1, "message": "Slice piece to render must be an integer" }
+    },
+    {
+      "name": "slicing_index_fractional_blocked",
+      "defines": ["Enable_Slicing=true", "Slice_Count=2", "Slice_Piece_To_Render=1.5"],
+      "expect": { "rc": 1, "message": "Slice piece to render must be an integer" }
+    },
+
+    {
+      "name": "bottom_openings_along_x",
+      "defines": ["Enable_Bottom_Openings=true", "Bottom_Opening_Axis=\"Along X\""],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "bottom_openings_along_y_distributed",
+      "defines": ["Enable_Bottom_Openings=true", "Bottom_Opening_Axis=\"Along Y\"",
+                  "Bottom_Opening_Alignment_Primary=\"Distributed\""],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "bottom_openings_custom_alignment",
+      "defines": ["Enable_Bottom_Openings=true",
+                  "Bottom_Opening_Alignment_Primary=\"Custom\"",
+                  "Bottom_Opening_Alignment_Secondary=\"Custom\""],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "bottom_openings_no_post",
+      "defines": ["Enable_Bottom_Openings=true", "Enable_Post=false"],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+
+    {
+      "name": "stabilizers_distributed_all_walls",
+      "defines": ["Stabilizers_Front_Back_Alignment=\"Distributed\"",
+                  "Stabilizers_Left_Right_Count=3",
+                  "Stabilizers_Left_Right_Alignment=\"Distributed\""],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "stabilizers_custom_all_walls",
+      "defines": ["Stabilizers_Front_Back_Alignment=\"Custom\"",
+                  "Stabilizers_Left_Right_Count=2",
+                  "Stabilizers_Left_Right_Alignment=\"Custom\""],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "stabilizers_disabled",
+      "defines": ["Enable_Stabilizers=false"],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "stabilizers_single_fin",
+      "defines": ["Stabilizers_Front_Back_Count=1", "Stabilizers_Left_Right_Count=1"],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+
+    {
+      "name": "openings_square_corners",
+      "defines": ["All_Opening_Corner_Radius=0"],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "openings_all_disabled",
+      "defines": ["Opening_On_Left=false", "Opening_On_Right=false",
+                  "Opening_On_Front=false", "Opening_On_Back=false"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [-0.5, -37.3, 15], "size": [1, 1.4, 0.2], "expect": "material",
+            "why": "front wall must be solid when openings are off" }
+        ]
+      }
+    },
+    {
+      "name": "openings_per_side_overrides",
+      "defines": ["Override_Opening_Width_Front=25", "Override_Opening_Height_Front=20",
+                  "Override_Opening_Corner_Radius_Front=3"],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+
+    {
+      "name": "validation_wall_too_thick_blocked",
+      "defines": ["Wall_Thickness=60"],
+      "expect": { "rc": 1, "message": "Wall_Thickness is too large" }
+    },
+    {
+      "name": "validation_negative_box_blocked",
+      "defines": ["Box_Width=-50"],
+      "expect": { "rc": 1, "message": "must be > 0" }
+    },
+    {
+      "name": "validation_stabilizer_too_tall_blocked",
+      "defines": ["Stabilizer_Height=200"],
+      "expect": { "rc": 1, "message": "Stabilizer_Height plus the floor exceeds" }
+    },
+    {
+      "name": "validation_stabilizer_too_deep_blocked",
+      "defines": ["Stabilizer_Depth=200"],
+      "expect": { "rc": 1, "message": "Stabilizer_Depth is too large" }
+    },
+    {
+      "name": "validation_opening_taller_than_box_blocked",
+      "defines": ["All_Opening_Height=200"],
+      "expect": { "rc": 1, "message": "All_Opening_Height must not exceed" }
+    },
+    {
+      "name": "validation_post_too_large_blocked",
+      "defines": ["Post_Diameter=200"],
+      "expect": { "rc": 1, "message": "Post_Diameter must fit inside" }
+    },
+    {
+      "name": "validation_negative_stabilizer_count_blocked",
+      "defines": ["Stabilizers_Front_Back_Count=-2"],
+      "expect": { "rc": 1, "message": "Stabilizer counts must be >= 0" }
+    },
+    {
+      "name": "validation_post_without_wall_blocked",
+      "defines": ["Post_Diameter=3"],
+      "expect": { "rc": 1, "message": "Post_Diameter must exceed" }
+    }
+  ]
+}

@@ -6,7 +6,7 @@ This document is the canonical reference for every Customizer section and parame
 
 - Model source: `cable-box-parametric.scad`
 - Repository: `https://github.com/prisant-labs/3d-cable-box-parametric-openscad`
-- License: `CC BY-NC-SA 4.0`
+- License: `MIT`
 - Third-party attribution: `THIRD_PARTY_NOTICES.md`
 
 If this document and the SCAD file ever disagree, treat the SCAD file as the functional source and update this document.

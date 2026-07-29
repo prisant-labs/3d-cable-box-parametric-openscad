@@ -39,16 +39,15 @@ Effort key: S = under a day, M = a few days, L = a week or more.
    **E-05 (size by contents)**.
 6. **E-07 (preset library)** and **E-08 (web customizer)** last. Both are
    multipliers on a feature set, so they are worth more once the features exist.
-7. **E-11 (distribution)** has one blocking decision (the NonCommercial license)
-   that is worth resolving early even if publishing happens late.
+7. **E-11 (distribution)** is unblocked now that the licence is settled, so it
+   can go whenever the assets are ready.
 
 ## Cross-cutting decisions still open
 
-- **License.** `CC BY-NC-SA 4.0` is NonCommercial. See
-  [E-11 (distribution)](E-11_distribution.md) for how that interacts with
-  MakerWorld's rewards programme and with people selling prints. This decision
-  gates distribution and is hard to reverse once contributors have signed on to
-  the current terms.
+- ~~**License.**~~ **Resolved 2026-07-29: MIT.** Reasoning recorded in
+  [E-11 (distribution)](E-11_distribution.md). Matches Gridfinity's own licence,
+  suits a model that is really source code, and is GPL-compatible for
+  [E-08 (web customizer)](E-08_web-customizer.md).
 - **Single-file versus library dependency.** See
   [E-02 (BOSL2 migration)](E-02_bosl2-migration.md). Affects E-08 and E-11.
 - **Whether `Model_Version` lives in the SCAD.** See

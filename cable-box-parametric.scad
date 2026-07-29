@@ -1,8 +1,8 @@
 /*
 Parametric Cable Management Box (OpenSCAD)
 Repository: https://github.com/prisant-labs/3d-cable-box-parametric-openscad
-License: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
-SPDX-License-Identifier: CC-BY-NC-SA-4.0
+License: MIT
+SPDX-License-Identifier: MIT
 
 See README.md for usage, docs/PARAMETER_REFERENCE.md for full parameter docs,
 and THIRD_PARTY_NOTICES.md for third-party attributions.
@@ -209,6 +209,13 @@ Clip_Tab_Height = 3;
 Slice_Preview_Spacing = 5;
 
 /* [Hidden] */
+// Model version. Must match the git tag and the top CHANGELOG.md section on a
+// release build; CI enforces that. Echoed at render so an exported STL can be
+// traced back to the source that produced it, which matters for a model
+// distributed as loose files.
+Model_Version = "1.1.1";
+echo(str("cable-box-parametric ", Model_Version));
+
 $fn = 40;
 SPACER=0.04;
 
@@ -1293,13 +1300,18 @@ module m_opening (side, width, height, corner_radius) {
         min(max(corner_radius, 0), max_corner_radius);
     side_wall = (side == "Right" || side == "Left");
 
-    up(height / 2)
+    // Sink the cut SPACER below its own bottom edge. With the opening anchored
+    // flush to the box floor, a cut that stops exactly on z=0 is tangent to the
+    // box bottom plane, which leaves a zero-thickness knife edge and makes the
+    // whole solid non-manifold ("Simple: no"). Sinking it means the cut crosses
+    // that plane with real cross-section instead of touching it.
+    up(height / 2 - SPACER)
     if (effective_corner_radius <= 0) {
         // Square opening
         if (side_wall)
-            cube([new_thickness, width, height], center = true);
+            cube([new_thickness, width, height + SPACER * 2], center = true);
         else
-            cube([width, new_thickness, height], center = true);
+            cube([width, new_thickness, height + SPACER * 2], center = true);
     } else {
         // Rounded-rectangle opening
         x_offset = width/2 - effective_corner_radius;

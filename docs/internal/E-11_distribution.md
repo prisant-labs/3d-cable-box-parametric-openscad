@@ -1,49 +1,42 @@
 # E-11: Distribution
 
-**Handle:** Distribution. Publishing to MakerWorld and Printables, and the
-licensing decision that gates it.
+**Handle:** Distribution. Publishing to MakerWorld and Printables.
 
-**Effort:** S once the license question is settled
+**Effort:** S
 **Depends on:** benefits from [E-02 (BOSL2 migration)](E-02_bosl2-migration.md)
 and [E-07 (preset library)](E-07_preset-library.md).
 
-## The blocking question: NonCommercial
+## Licence: RESOLVED, MIT (2026-07-29)
 
-The repo is `CC BY-NC-SA 4.0`. The **NC** clause is worth a deliberate decision
-before publishing anywhere, because it is effectively irreversible once
-contributors have submitted work under it.
+**Decision: the project is MIT.** This unblocks everything below. The reasoning
+is kept here because it is the kind of decision that gets relitigated.
 
-What NC does in practice for a 3D model:
+MIT is the right fit for three reasons:
 
-- A person who prints your box and sells it at a market is in breach.
-- A print-on-demand service cannot offer it.
-- **MakerWorld runs a rewards and points programme.** Uploading NC-licensed work
-  to a platform that pays creators is at minimum ambiguous and worth checking
-  against their current terms before relying on it.
-- NC is generally discouraged in the 3D printing community and reduces remixing,
-  which is the main way a model spreads.
+1. **It is what this ecosystem uses.** Gridfinity itself, which this project
+   aims to interoperate with, was released by Zack Freedman under MIT
+   specifically as a framework for the community to extend. Matching the
+   ecosystem's licence removes friction from exactly the integration
+   [E-01 (Gridfinity promotion)](E-01_gridfinity-promotion.md) is building.
+2. **The model is code.** A `.scad` file is a program. MIT is the default for
+   permissive source, and it is unambiguous about derivative works in a way
+   Creative Commons licences are not when applied to software.
+3. **It is GPL-compatible**, which matters for
+   [E-08 (web customizer)](E-08_web-customizer.md), where OpenSCAD's GPL WASM
+   build sits alongside the model.
 
-What NC does not do: it does not prevent anyone from using the model, modifying
-it, or printing it for themselves. The ShareAlike clause already forces
-derivatives to stay open.
+What this replaced, and why the old licence was a problem:
 
-**Options**
+- `CC BY-NC-SA 4.0` was **NonCommercial**. Anyone printing the box and selling
+  it at a market was in breach, print-on-demand services could not offer it, and
+  uploading to a platform with a creator rewards programme was at best
+  ambiguous.
+- Creative Commons themselves recommend against using CC licences for software.
+- NC is broadly discouraged for 3D models and suppresses remixing, which is the
+  main way a model spreads.
 
-| License | Effect |
-|---|---|
-| Keep `CC BY-NC-SA 4.0` | Maximum control, minimum reach. Blocks commercial printing and complicates reward platforms. |
-| `CC BY-SA 4.0` | Drops NC. Derivatives stay open, commercial use allowed. The usual choice for models intended to spread. |
-| `GPL-3.0` | Common for OpenSCAD source specifically, since the model is code. Strong copyleft on derivatives. |
-| Dual: code GPL, artifacts CC BY-SA | Precise but more explanation than most people will read. |
-
-**Recommendation:** decide explicitly, and if reach matters at all, drop the NC.
-Note that BOSL2 is BSD-2-Clause and imposes nothing either way, so this is
-purely your call. Also note that
-[E-08 (web customizer)](E-08_web-customizer.md) introduces GPL components,
-making a coherent license story more valuable.
-
-Whatever you choose, record the reasoning in an ADR so it does not get quietly
-relitigated.
+BOSL2 is BSD-2-Clause and imposes nothing either way, so this was purely an
+owner's choice.
 
 ## MakerWorld
 
@@ -95,7 +88,7 @@ The repo currently has none of these at publication quality:
 
 ## Acceptance criteria
 
-- [ ] License decision made and recorded as an ADR.
+- [x] Licence decision made and recorded (MIT, 2026-07-29).
 - [ ] README leads with a photo of a printed box.
 - [ ] Repo social preview set.
 - [ ] MakerWorld parametric listing live and rendering correctly in their

@@ -2,17 +2,32 @@ name: scad-smoke
 
 on:
   workflow_dispatch:
+  pull_request:
   push:
-    paths:
-      - "**/*.scad"
-      - ".github/workflows/scad-smoke.yml"
+    branches: [ main ]
+    tags: [ 'v*' ]
+
+# No paths filter. The previous "**/*.scad" filter meant a change to the test
+# harness, the scenarios, or the smoke scripts could not trigger the run that
+# validates it, and docs-only pushes silently skipped model validation.
 
 jobs:
   smoke:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Install OpenSCAD
         run: sudo apt-get update && sudo apt-get install -y openscad
-      - name: Run smoke script
+
+      - name: Record OpenSCAD version
+        run: openscad --version
+
+      - name: Check version consistency
+        run: bash scripts/check-version.sh
+
+      - name: Smoke render
         run: bash scripts/scad-smoke.sh
+
+      - name: Geometry regression tests
+        run: python3 tests/run_tests.py

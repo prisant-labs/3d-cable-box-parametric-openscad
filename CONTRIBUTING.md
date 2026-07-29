@@ -24,6 +24,6 @@ This project contains OpenSCAD source and supporting docs for a parametric cable
 
 By submitting a contribution, you agree your contribution is licensed under:
 
-- `CC BY-NC-SA 4.0` for this repository.
+- `MIT` for this repository.
 
 If you include third-party code/assets, include proper attribution and license notices in `THIRD_PARTY_NOTICES.md`.
