@@ -208,12 +208,52 @@ Clip_Tab_Height = 3;
 // Spacing between slices when previewing all parts (mm).
 Slice_Preview_Spacing = 5;
 
+/*[Gridfinity]*/
+// Add a Gridfinity base under the box so it drops into a 42mm baseplate.
+Enable_Gridfinity_Bottom = false;
+// Add a Gridfinity baseplate profile on top of the lid so bins stack on it.
+Enable_Gridfinity_Lid_Top = false;
+// Fit clearance on Gridfinity mating profiles (mm). Increase if the fit is tight.
+Gridfinity_Profile_Clearance = 0.25;
+// Keepout from the model edges before the first cell (mm). Avoids thin corners.
+Gridfinity_Edge_Keepout = 4;
+// Add magnet pockets and screw holes to Gridfinity features.
+Enable_Gridfinity_Magnet_Screw = false;
+// Magnet pocket diameter (mm).
+Gridfinity_Magnet_Diameter = 6.2;
+// Magnet pocket depth (mm).
+Gridfinity_Magnet_Depth = 2.4;
+// Through screw hole diameter (mm).
+Gridfinity_Screw_Diameter = 3.2;
+
 /* [Hidden] */
+
+// ---- Gridfinity specification constants ----
+// These describe the Gridfinity standard itself rather than a user preference,
+// so they are hidden from the Customizer: changing one produces a part that no
+// longer mates with anyone else's Gridfinity gear. They remain overridable with
+// -D or a parameter set for anyone who genuinely needs to.
+// Gridfinity is by Zack Freedman and is MIT licensed. See THIRD_PARTY_NOTICES.md.
+GF_PITCH               = 42;    // grid spacing
+GF_BASE_HEIGHT         = 4.75;  // height the base profile adds below the box
+GF_BASE_CELL           = 41.5;  // outer square of one base cell
+GF_CAVITY_ENTRY_SIZE   = 39.4;  // lower (wider) mating cavity
+GF_CAVITY_UPPER_SIZE   = 37.2;  // upper (narrower) mating cavity
+GF_CAVITY_ENTRY_DEPTH  = 3.2;
+GF_CAVITY_TOTAL_DEPTH  = 4.3;
+GF_LIDTOP_BASE_HEIGHT  = 2.2;   // lower stud stage on the lid
+GF_LIDTOP_TOP_HEIGHT   = 2.3;   // upper stud stage on the lid
+GF_LIDTOP_BASE_SIZE    = 39.4;
+GF_LIDTOP_TOP_SIZE     = 37.2;
+GF_HOLE_OFFSET         = 13;    // magnet/screw offset from cell centre
+GF_MIN_FLOOR           = 0.8;   // solid material kept above magnet pockets
+GF_SCREW_CBORE_DIA     = 6.5;
+GF_SCREW_CBORE_DEPTH   = 2.2;
 // Model version. Must match the git tag and the top CHANGELOG.md section on a
 // release build; CI enforces that. Echoed at render so an exported STL can be
 // traced back to the source that produced it, which matters for a model
 // distributed as loose files.
-Model_Version = "1.1.1";
+Model_Version = "1.2.0";
 echo(str("cable-box-parametric ", Model_Version));
 
 $fn = 40;
@@ -253,6 +293,64 @@ function clear_post_opening(y, clearance, limit) =
     (clearance <= limit) ? (y < 0 ? -clearance : clearance) :
     y;
 
+// ---- Gridfinity derived values ----
+
+// Lid footprint, needed to lay cells out on the lid top.
+Lid_Outer_Width = Box_Width + Wall_Thickness*2 + Lid_Lip_Gap;
+Lid_Outer_Depth = Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap;
+
+// Which lid face ends up on top when the box is closed.
+//
+// The lid is modelled as it prints: a solid panel spanning z 0..Lid_Height,
+// then an engagement lip ring from Lid_Height to Lid_Height+Lid_Lip_Gap_Height
+// that exists only around the perimeter. That lip is what drops onto the box,
+// so in use the lid is inverted and the panel's z=0 face is the exposed top.
+//
+// Gridfinity features therefore grow DOWNWARD from z=0, and the lid is lifted
+// by their height at render time, exactly as the box is lifted over its base.
+// Putting them at Lid_Height+Lid_Lip_Gap_Height instead would bury them inside
+// the closed box, on the mating face.
+GF_LID_TOTAL_HEIGHT = GF_LIDTOP_BASE_HEIGHT + GF_LIDTOP_TOP_HEIGHT;
+
+// How many whole 42 mm cells fit across a span once the edge keepout is taken
+// off both sides. Arbitrary box sizes rarely land on a grid multiple, so the
+// array is clipped and centred rather than forcing the user's dimensions.
+function gf_cell_count(span) = max(0, floor((span - 2 * Gridfinity_Edge_Keepout) / GF_PITCH));
+function gf_cell_start(count) = -(count - 1) * GF_PITCH / 2;
+
+GF_Bottom_Cells_X = Enable_Gridfinity_Bottom ? gf_cell_count(Box_Width) : 0;
+GF_Bottom_Cells_Y = Enable_Gridfinity_Bottom ? gf_cell_count(Box_Depth) : 0;
+GF_Lid_Cells_X    = Enable_Gridfinity_Lid_Top ? gf_cell_count(Lid_Outer_Width) : 0;
+GF_Lid_Cells_Y    = Enable_Gridfinity_Lid_Top ? gf_cell_count(Lid_Outer_Depth) : 0;
+
+GF_Bottom_Active = GF_Bottom_Cells_X > 0 && GF_Bottom_Cells_Y > 0;
+GF_Lid_Active    = GF_Lid_Cells_X > 0 && GF_Lid_Cells_Y > 0;
+
+// The base is ADDED below the box rather than carved out of the floor, so
+// Box_Height keeps meaning "the box body" and enabling Gridfinity never
+// silently steals interior height. Carving instead would require a separate
+// Floor_Thickness threaded through stabilizer, bottom-opening, clip, and post
+// placement, all of which currently treat Wall_Thickness as "the floor".
+//
+// The whole box is then lifted by this offset at render time so the printed
+// object still sits on z=0 and "opening flush with the box bottom" keeps
+// meaning what it says.
+//
+// Gated on GF_Bottom_Active: with no cells there is nothing under the box, and
+// lifting it anyway would leave it floating.
+Gridfinity_Base_Offset = GF_Bottom_Active ? GF_BASE_HEIGHT : 0;
+Gridfinity_Lid_Offset  = GF_Lid_Active ? GF_LID_TOTAL_HEIGHT : 0;
+
+// A box too small for even one cell is a silent no-op otherwise.
+if (Enable_Gridfinity_Bottom && !GF_Bottom_Active)
+    echo(str("Gridfinity bottom enabled but no 42mm cell fits in ",
+             Box_Width, " x ", Box_Depth,
+             " with a ", Gridfinity_Edge_Keepout, "mm keepout; base omitted"));
+if (Enable_Gridfinity_Lid_Top && !GF_Lid_Active)
+    echo(str("Gridfinity lid top enabled but no 42mm cell fits in ",
+             Lid_Outer_Width, " x ", Lid_Outer_Depth,
+             " with a ", Gridfinity_Edge_Keepout, "mm keepout; studs omitted"));
+
 // Validation
 assert(Box_Width > 0 && Box_Depth > 0 && Box_Height > 0, "Box_Width, Box_Depth, and Box_Height must be > 0");
 assert(Wall_Thickness > 0, "Wall_Thickness must be > 0");
@@ -277,6 +375,13 @@ assert(!Enable_Slicing || Slice_Count >= 2, "Slice count must be >= 2 when slici
 assert(!Enable_Slicing || Clips_Per_Edge >= 1, "Clips per edge must be >= 1");
 assert(Clip_Tolerance >= 0, "Clip tolerance must be >= 0");
 assert(Clip_Tab_Width > 0 && Clip_Tab_Depth > 0 && Clip_Tab_Height > 0, "Clip tab dimensions must be > 0");
+assert(!(Enable_Gridfinity_Bottom && Enable_Bottom_Openings), "Gridfinity bottom and bottom openings are mutually exclusive; the base would cover the cutouts");
+assert(!Enable_Gridfinity_Bottom || !Enable_Post || Closed_Post, "Gridfinity bottom requires Closed_Post=true; the base would block an open post bore");
+assert(Gridfinity_Profile_Clearance >= 0, "Gridfinity_Profile_Clearance must be >= 0");
+assert(Gridfinity_Edge_Keepout >= 0, "Gridfinity_Edge_Keepout must be >= 0");
+assert(!Enable_Gridfinity_Lid_Top || Lid_Height + Lid_Lip_Gap_Height > 0, "Lid is too thin for the lid-top Gridfinity interface");
+assert(!Enable_Gridfinity_Magnet_Screw || GF_HOLE_OFFSET < GF_PITCH/2, "Gridfinity hole offset must fit inside one cell");
+assert(!Enable_Gridfinity_Magnet_Screw || Gridfinity_Magnet_Diameter > 0, "Gridfinity_Magnet_Diameter must be > 0");
 
 // Report a corner radius the geometry had to reduce, so the difference between
 // the requested and the built shape is visible rather than silent.
@@ -1074,6 +1179,116 @@ module m_place_lid_clips(x_pos, is_male) {
 }
 
 // ============================================
+// GRIDFINITY INTERFACES
+// ============================================
+//
+// Two independent interfaces, both optional:
+//
+//   Bottom   a Gridfinity base profile ADDED below the box floor, so the box
+//            drops into a standard 42 mm baseplate.
+//   Lid top  a Gridfinity baseplate profile on the closed lid, so other
+//            Gridfinity bins stack on top of the box. This is the one that
+//            turns the lid into usable desk area.
+//
+// Geometry is self-contained rather than pulling a Gridfinity library, because
+// MakerWorld's parametric customizer permits only its own bundled libraries.
+
+// Lays children out on the clipped, centred cell grid for a given footprint.
+module m_gridfinity_cells(count_x, count_y) {
+    if (count_x > 0 && count_y > 0)
+        for (ix = [0:count_x-1])
+            for (iy = [0:count_y-1])
+                translate([gf_cell_start(count_x) + ix * GF_PITCH,
+                           gf_cell_start(count_y) + iy * GF_PITCH,
+                           0])
+                    children();
+}
+
+// Solid stock for the base, sitting directly under the box floor (z -h .. 0).
+module m_gridfinity_bottom_solid() {
+    cell = min(GF_BASE_CELL, GF_PITCH - Gridfinity_Profile_Clearance);
+    m_gridfinity_cells(GF_Bottom_Cells_X, GF_Bottom_Cells_Y)
+        translate([0, 0, -GF_BASE_HEIGHT/2])
+            cube([cell, cell, GF_BASE_HEIGHT], center = true);
+}
+
+// The two-stage mating cavity cut up into each base cell from below.
+module m_gridfinity_bottom_cavities() {
+    entry_depth = min(GF_CAVITY_ENTRY_DEPTH, GF_CAVITY_TOTAL_DEPTH - 0.01);
+    upper_depth = GF_CAVITY_TOTAL_DEPTH - entry_depth;
+    entry_size = GF_CAVITY_ENTRY_SIZE + Gridfinity_Profile_Clearance;
+    upper_size = GF_CAVITY_UPPER_SIZE + Gridfinity_Profile_Clearance;
+
+    m_gridfinity_cells(GF_Bottom_Cells_X, GF_Bottom_Cells_Y) {
+        translate([0, 0, -GF_BASE_HEIGHT + entry_depth/2])
+            cube([entry_size, entry_size, entry_depth + SPACER*2], center = true);
+
+        if (upper_depth > 0.01)
+            translate([0, 0, -GF_BASE_HEIGHT + entry_depth + upper_depth/2])
+                cube([upper_size, upper_size, upper_depth + SPACER*2], center = true);
+    }
+}
+
+// Magnet pockets and screw holes, cut downward from the base's top face so
+// GF_MIN_FLOOR of material always remains between the pocket and the box floor.
+module m_gridfinity_bottom_holes() {
+    usable = max(0, GF_BASE_HEIGHT - GF_MIN_FLOOR);
+    magnet_depth = min(Gridfinity_Magnet_Depth, usable);
+    cbore_depth = min(GF_SCREW_CBORE_DEPTH, usable);
+
+    if (usable > 0.2)
+        m_gridfinity_cells(GF_Bottom_Cells_X, GF_Bottom_Cells_Y)
+            for (sx = [-1, 1], sy = [-1, 1])
+                translate([sx * GF_HOLE_OFFSET, sy * GF_HOLE_OFFSET, SPACER])
+                rotate([180, 0, 0]) {
+                    cylinder(d = Gridfinity_Screw_Diameter + Gridfinity_Profile_Clearance,
+                             h = usable + SPACER*3);
+                    if (cbore_depth > 0.05)
+                        cylinder(d = GF_SCREW_CBORE_DIA + Gridfinity_Profile_Clearance,
+                                 h = cbore_depth + SPACER*3);
+                    if (magnet_depth > 0.05)
+                        cylinder(d = Gridfinity_Magnet_Diameter + Gridfinity_Profile_Clearance,
+                                 h = magnet_depth + SPACER*3);
+                }
+}
+
+// Two-stage profile on the lid's exposed face, grown downward from z=0 (see
+// GF_LID_TOTAL_HEIGHT above for why that face and that direction).
+module m_gridfinity_lid_top_solid() {
+    base_size = min(GF_LIDTOP_BASE_SIZE - Gridfinity_Profile_Clearance,
+                    GF_PITCH - Gridfinity_Profile_Clearance);
+    top_size = min(GF_LIDTOP_TOP_SIZE - Gridfinity_Profile_Clearance, base_size);
+
+    m_gridfinity_cells(GF_Lid_Cells_X, GF_Lid_Cells_Y) {
+        // Wider stage against the lid panel, so the profile is continuous with it.
+        translate([0, 0, -GF_LIDTOP_BASE_HEIGHT/2])
+            cube([base_size, base_size, GF_LIDTOP_BASE_HEIGHT], center = true);
+
+        translate([0, 0, -GF_LIDTOP_BASE_HEIGHT - GF_LIDTOP_TOP_HEIGHT/2])
+            cube([top_size, top_size, GF_LIDTOP_TOP_HEIGHT], center = true);
+    }
+}
+
+module m_gridfinity_lid_top_holes() {
+    magnet_depth = min(Gridfinity_Magnet_Depth, GF_LID_TOTAL_HEIGHT);
+    cbore_depth = min(GF_SCREW_CBORE_DEPTH, GF_LID_TOTAL_HEIGHT);
+
+    m_gridfinity_cells(GF_Lid_Cells_X, GF_Lid_Cells_Y)
+        for (sx = [-1, 1], sy = [-1, 1])
+            translate([sx * GF_HOLE_OFFSET, sy * GF_HOLE_OFFSET, SPACER])
+            rotate([180, 0, 0]) {
+                cylinder(d = Gridfinity_Screw_Diameter + Gridfinity_Profile_Clearance,
+                         h = GF_LID_TOTAL_HEIGHT + SPACER*2);
+                if (cbore_depth > 0.05)
+                    cylinder(d = GF_SCREW_CBORE_DIA + Gridfinity_Profile_Clearance,
+                             h = cbore_depth + SPACER*2);
+                if (magnet_depth > 0.05)
+                    cylinder(d = Gridfinity_Magnet_Diameter + Gridfinity_Profile_Clearance,
+                             h = magnet_depth + SPACER*2);
+            }
+}
+
+// ============================================
 // ORIGINAL BOX MODULES
 // ============================================
 
@@ -1102,8 +1317,18 @@ module m_box_base() {
 
                 // Add stabilizers (v5)
                 m_stabilizers();
+
+                if (GF_Bottom_Active)
+                    color("#7A5CFF")
+                    m_gridfinity_bottom_solid();
             }
         }
+
+        if (GF_Bottom_Active)
+            m_gridfinity_bottom_cavities();
+
+        if (GF_Bottom_Active && Enable_Gridfinity_Magnet_Screw)
+            m_gridfinity_bottom_holes();
 
         // Post bore. Closed_Post closes the BOTTOM, so the cut has to start
         // above the floor. Shortening the cut from the top instead would leave
@@ -1237,7 +1462,13 @@ module m_lid () {
                     anchor = [0, 0, -1]);
             }
 
+            if (GF_Lid_Active)
+                color("#7A5CFF")
+                m_gridfinity_lid_top_solid();
         }
+
+        if (GF_Lid_Active && Enable_Gridfinity_Magnet_Screw)
+            m_gridfinity_lid_top_holes();
 
         if (Enable_Post) {
             color("#F65156")
@@ -1334,6 +1565,19 @@ module m_opening (side, width, height, corner_radius) {
 // MAIN RENDER MODULE
 // ============================================
 
+// The box body is modelled from z=0 up, with any Gridfinity base hanging below
+// it in negative z. Lifting the box by that offset here is what keeps the
+// exported object sitting on the build plate, and keeps every z-coordinate
+// inside the box modules measured from the box floor regardless of whether a
+// base is attached. The lid needs no lift: nothing is added below it.
+module m_box_placed() {
+    up(Gridfinity_Base_Offset) children();
+}
+
+module m_lid_placed() {
+    up(Gridfinity_Lid_Offset) children();
+}
+
 module full_render() {
     if (Enable_Slicing) {
         if (Slice_Piece_To_Render == 0) {
@@ -1342,32 +1586,32 @@ module full_render() {
 
                 translate([x_offset, 0, 0]) {
                     if (Part_To_Render != "Lid Only") {
-                        m_box_slice(i);
+                        m_box_placed() m_box_slice(i);
                     }
                     if (Part_To_Render != "Box Only") {
                         lid_slice_width = (Box_Width + Wall_Thickness*2 + Lid_Lip_Gap) / Slice_Count;
                         lid_x_offset = (i - 1) * (lid_slice_width + Slice_Preview_Spacing) - (Slice_Count - 1) * (lid_slice_width + Slice_Preview_Spacing) / 2;
                         translate([lid_x_offset - x_offset, Box_Depth + 20, 0])
-                            m_lid_slice(i);
+                            m_lid_placed() m_lid_slice(i);
                     }
                 }
             }
         } else {
             if (Part_To_Render != "Lid Only") {
-                m_box_slice(Slice_Piece_To_Render);
+                m_box_placed() m_box_slice(Slice_Piece_To_Render);
             }
             if (Part_To_Render != "Box Only") {
                 translate([0, Box_Depth + 20, 0])
-                    m_lid_slice(Slice_Piece_To_Render);
+                    m_lid_placed() m_lid_slice(Slice_Piece_To_Render);
             }
         }
     } else {
         if (Part_To_Render != "Box Only") {
             right((Part_To_Render != "Lid Only") ? Box_Width + 20 : 0)
-                m_lid();
+                m_lid_placed() m_lid();
         }
         if (Part_To_Render != "Lid Only") {
-            m_box_with_openings();
+            m_box_placed() m_box_with_openings();
         }
     }
 }

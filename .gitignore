@@ -30,3 +30,4 @@ ci-smoke-out/
 Thumbs.db
 *.tmp
 *.bak
+*.stackdump

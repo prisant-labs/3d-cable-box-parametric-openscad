@@ -290,6 +290,102 @@
       "name": "validation_post_without_wall_blocked",
       "defines": ["Post_Diameter=3"],
       "expect": { "rc": 1, "message": "Post_Diameter must exceed" }
+    },
+
+    {
+      "name": "gridfinity_bottom",
+      "_why": "Base is ADDED below the box and the box is lifted, so the model",
+      "_why2": "still sits on z=0. Cells land at x=+/-21 on the default footprint.",
+      "_why3": "Base occupies z 0..4.75; mating cavity is cut z 0..4.3.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Closed_Post=true"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [-24, -3, 0.5], "size": [6, 6, 0.3], "expect": "empty",
+            "why": "mating cavity at cell centre" },
+          { "translate": [-24, -3, 3.7], "size": [6, 6, 0.3], "expect": "empty",
+            "why": "upper mating cavity at cell centre" },
+          { "translate": [-24, -3, 4.45], "size": [6, 6, 0.2], "expect": "material",
+            "why": "solid base stock above the cavity" },
+          { "translate": [-24, -3, 5.5], "size": [6, 6, 0.3], "expect": "material",
+            "why": "box floor sits on top of the base" },
+          { "translate": [-24, -3, 10], "size": [6, 6, 0.5], "expect": "empty",
+            "why": "box interior still hollow" }
+        ]
+      }
+    },
+    {
+      "name": "gridfinity_bottom_magnets",
+      "defines": ["Part_To_Render=\"Box Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Closed_Post=true", "Enable_Gridfinity_Magnet_Screw=true"],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "gridfinity_lid_top",
+      "_why": "The lid's lip is its mating face, so z=0 is the exposed top and",
+      "_why2": "the profile grows downward from there, with the lid lifted 4.5.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Lid_Top=true"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [-24, -3, 1.0], "size": [6, 6, 0.3], "expect": "material",
+            "why": "profile present on the exposed lid face" },
+          { "translate": [-1, -3, 1.0], "size": [2, 6, 0.3], "expect": "empty",
+            "why": "gap between cells" },
+          { "translate": [-24, -3, 6.0], "size": [6, 6, 0.3], "expect": "material",
+            "why": "lid panel above the profile" },
+          { "translate": [-24, -3, 14.0], "size": [6, 6, 0.3], "expect": "empty",
+            "why": "lip ring is perimeter only, so centre is open" }
+        ]
+      }
+    },
+    {
+      "name": "gridfinity_lid_top_magnets",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Lid_Top=true",
+                  "Enable_Gridfinity_Magnet_Screw=true"],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "gridfinity_both",
+      "defines": ["Part_To_Render=\"Box and Lid\"", "Enable_Gridfinity_Bottom=true",
+                  "Enable_Gridfinity_Lid_Top=true", "Closed_Post=true"],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+    {
+      "name": "gridfinity_bottom_sliced",
+      "defines": ["Enable_Gridfinity_Bottom=true", "Closed_Post=true",
+                  "Enable_Slicing=true", "Slice_Count=2", "Slice_Piece_To_Render=0",
+                  "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+    {
+      "name": "gridfinity_too_small_box_not_floating",
+      "_why": "No 42mm cell fits, so the base is omitted. The lift must be",
+      "_why2": "suppressed too, otherwise the box hangs 4.75mm above z=0.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Box_Width=40", "Box_Depth=40",
+                  "Box_Corner_Radius=5", "Enable_Gridfinity_Bottom=true",
+                  "Closed_Post=true"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [-1, -19.5, 0.05], "size": [2, 1.5, 0.2], "expect": "material",
+            "why": "box wall must still start at z=0, not float above it" }
+        ]
+      }
+    },
+    {
+      "name": "gridfinity_conflict_bottom_openings_blocked",
+      "defines": ["Enable_Gridfinity_Bottom=true", "Enable_Bottom_Openings=true"],
+      "expect": { "rc": 1, "message": "mutually exclusive" }
+    },
+    {
+      "name": "gridfinity_conflict_open_post_blocked",
+      "defines": ["Enable_Gridfinity_Bottom=true"],
+      "expect": { "rc": 1, "message": "requires Closed_Post" }
     }
   ]
 }

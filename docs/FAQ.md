@@ -137,3 +137,29 @@ Use `community/` for user-contributed builds, remixes, and showcase assets.
 ## What license applies to this repository?
 
 `MIT` for project content, with third-party portions retaining their original licenses (see `THIRD_PARTY_NOTICES.md`).
+
+## Can this box work with Gridfinity?
+
+Yes, in two independent ways. `Enable_Gridfinity_Bottom` puts a 42 mm base under
+the box so it drops into a Gridfinity baseplate. `Enable_Gridfinity_Lid_Top`
+puts the profile on the lid's exposed face so the closed box joins a stack. Turn
+on either, both, or neither.
+
+## Why does Gridfinity require `Closed_Post`?
+
+An open post bores through the box floor. A Gridfinity base sits directly under
+that floor and would block the bore, so the model asserts rather than producing
+a passage that goes nowhere. Set `Closed_Post=true`, or turn the post off.
+
+## I enabled Gridfinity but nothing appeared
+
+Your box is probably too small for a single 42 mm cell once
+`Gridfinity_Edge_Keepout` is taken off each side. The model says so via `echo`
+in the OpenSCAD console. At the default `4 mm` keepout you need roughly `50 mm`
+in both directions for one cell.
+
+## Does enabling Gridfinity shrink the inside of my box?
+
+No. The base is added below the box rather than carved out of the floor, so
+`Box_Height` still describes the box body and interior volume is unchanged.
+Total printed height grows by `4.75 mm`.

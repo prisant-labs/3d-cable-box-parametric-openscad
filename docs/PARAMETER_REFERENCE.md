@@ -36,7 +36,8 @@ If this document and the SCAD file ever disagree, treat the SCAD file as the fun
 14. Bottom Openings - Alignment
 15. Bottom Openings - Custom Margins
 16. Slicing - For Smaller Print Beds
-17. Hidden
+17. Gridfinity
+18. Hidden
 
 ## 1) Overall
 
@@ -266,11 +267,53 @@ If this document and the SCAD file ever disagree, treat the SCAD file as the fun
 | `0` | Renders all slices in a preview layout. |
 | `1..Slice_Count` | Renders only the selected slice index (box and/or lid based on `Part_To_Render`). |
 
-## 17) Hidden
+## 17) Gridfinity
+
+Two independent, optional interfaces that let the box join a Gridfinity setup.
+Both default to off and change no geometry when disabled.
+
+| Parameter | Type | Default | Description | Interactions |
+|---|---|---:|---|---|
+| `Enable_Gridfinity_Bottom` | boolean | `false` | Adds a 42 mm Gridfinity base under the box so it drops into a baseplate. | Mutually exclusive with `Enable_Bottom_Openings`. Requires `Closed_Post=true` when the post is enabled. Adds `4.75 mm` to total height. |
+| `Enable_Gridfinity_Lid_Top` | boolean | `false` | Adds the Gridfinity profile to the lid's exposed face so the closed box joins a stack. | Adds `4.5 mm` to lid height. |
+| `Gridfinity_Profile_Clearance` | number | `0.25` | Fit clearance on mating profiles. | Increase if the base is tight in your baseplate. |
+| `Gridfinity_Edge_Keepout` | number | `4` | Margin from the model edge before the first cell. | Prevents thin, fragile cells at the perimeter. Raising it can reduce the cell count. |
+| `Enable_Gridfinity_Magnet_Screw` | boolean | `false` | Adds magnet pockets and screw holes to whichever interfaces are enabled. | |
+| `Gridfinity_Magnet_Diameter` | number | `6.2` | Magnet pocket diameter. | `6 mm` magnets are the Gridfinity convention; the extra is clearance. |
+| `Gridfinity_Magnet_Depth` | number | `2.4` | Magnet pocket depth. | Capped so `0.8 mm` of material always remains above the pocket. |
+| `Gridfinity_Screw_Diameter` | number | `3.2` | Through screw hole diameter. | Sized for M3. |
+
+### How the grid is laid out
+
+Box dimensions rarely land on a 42 mm multiple. Rather than forcing your
+dimensions, the model fits as many whole cells as it can inside the footprint
+minus `Gridfinity_Edge_Keepout` on each side, then centres that array. A box too
+small for even one cell renders normally with the interface omitted and an
+`echo` explaining why.
+
+At the default `100 x 75` footprint you get a 2 x 1 grid.
+
+### Height convention
+
+The base is **added below** the box, not carved out of the floor. `Box_Height`
+continues to describe the box body, so enabling Gridfinity never silently
+reduces interior volume; it increases total height instead. The model is lifted
+so the exported object still sits on `z=0`.
+
+### Why `Closed_Post` is required
+
+With an open post, the bore runs through the box floor. A Gridfinity base under
+that floor would block it, leaving a bore that goes nowhere. Rather than
+silently produce that, the model asserts. Set `Closed_Post=true`, or disable the
+post.
+
+## 18) Hidden
 
 | Parameter | Type | Default | Description |
 |---|---|---:|---|
+| `Model_Version` | string | current release | Echoed at render so an exported STL can be traced back to its source. |
 | `$fn` | integer | `40` | Circle/arc resolution for cylinders and rounded geometry. |
+| `GF_*` | various | Gridfinity spec | Gridfinity standard dimensions (pitch, cell and cavity sizes, profile stages). Hidden because changing one produces a part that no longer mates with other Gridfinity gear, but still overridable with `-D` if you need to. |
 | `SPACER` | number | `0.04` | Internal modeling offset used for robust boolean operations and tiny clearances. |
 
 ## Built-In Validation

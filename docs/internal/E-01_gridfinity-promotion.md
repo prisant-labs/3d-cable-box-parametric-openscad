@@ -3,7 +3,7 @@
 **Handle:** Gridfinity promotion. Ship the already-prototyped Gridfinity
 interfaces on the box underside and the lid topside.
 
-**Status:** prototype complete, unmerged
+**Status:** MERGED in v1.2.0-rc.1 (2026-07-30). Awaiting print validation.
 **Effort:** S (promotion and documentation, not construction)
 **Depends on:** nothing. Benefits from [E-09 (testing automation)](E-09_testing-automation.md).
 
@@ -66,32 +66,51 @@ it is a real implementation, not a sketch.
   exclusive, enforced by assertion. That is correct. The lid-top interface has
   no equivalent conflict.
 
-## Open questions to resolve during promotion
+## Resolved during promotion
 
-1. **Does the lid-top interface survive slicing?** The prototype claims slicing
-   support, but the smoke matrix should be re-read to confirm the lid-top
-   profile is cut correctly across a seam, not just the bottom adapter.
-2. **Magnet pocket sizing.** Confirm which magnet the pockets target
-   (6 x 2 mm is the Gridfinity convention). Expose diameter and depth rather
-   than hardcoding.
-3. **Does the bottom adapter interact with `Closed_Post`?** An open post bore
-   plus a Gridfinity base could leave the post opening into a grid cavity.
-4. **Height implications.** A Gridfinity base adds height below the floor.
-   Decide whether `Box_Height` stays the outer total or becomes the box body
-   with the adapter added on top of it. Document whichever you pick; this is
-   exactly the kind of ambiguity that produced the opening-height bug.
+1. **Height convention: ADD, not carve.** Carving would have required a separate
+   `Floor_Thickness` threaded through stabilizer, bottom-opening, clip, and post
+   placement, all of which treat `Wall_Thickness` as the floor. Adding is a pure
+   union below the existing solid and touches none of them. The box is lifted by
+   the base height at render so the export still sits on z=0.
+2. **The lid interface was on the wrong face.** The prototype placed it at
+   `Lid_Height + Lid_Lip_Gap_Height`. Mapping the lid's cross-section showed its
+   solid panel spans z 0..Lid_Height with the lip ring above it at the perimeter
+   only. The lip is the mating face, so z=0 is the exposed top. As prototyped the
+   profile would have been buried inside the closed box. It now grows downward
+   from z=0 with the lid lifted to match.
+3. **Post interaction.** An open post bore would be blocked by the base, so
+   Gridfinity bottom now asserts `Closed_Post`.
+4. **Empty grid.** A box too small for one cell omits the interface, and the
+   render-time lift is suppressed with it, otherwise the box floated 4.75mm
+   above z=0. Covered by a test.
+5. **Parameter surface.** The prototype exposed 30 Gridfinity parameters. The
+   spec dimensions are now hidden `GF_*` constants, since changing one produces
+   a part that no longer mates with anyone else's gear. Eight user-facing
+   parameters remain.
+
+## Open questions still to resolve
+
+**Profile direction on the lid.** The implemented lid profile is a positive
+two-stage stud (39.4 then 37.2). A Gridfinity *baseplate* is a socket, the
+negative of a bin base. Which one the lid should carry depends on the intent:
+
+- positive stud, so the closed box behaves like a bin and sits in a baseplate
+- socket, so Gridfinity bins sit on top of the closed box
+
+E-01 originally described the second. The first is what the prototype built and
+what shipped in rc.1. **Resolve from the print test**, then adjust if needed.
 
 ## Acceptance criteria
 
-- [ ] Both interfaces toggle independently and default to off.
-- [ ] Box underside mates with a standard 42 mm Gridfinity baseplate.
-- [ ] Lid topside accepts a standard Gridfinity bin.
-- [ ] Bottom Gridfinity plus bottom openings asserts with a model-level message.
-- [ ] All existing smoke scenarios still pass unchanged with Gridfinity off.
-- [ ] Geometry with Gridfinity off is byte-identical (normalised) to the
-      pre-merge model. This is the key regression guard; see
-      [E-09 (testing automation)](E-09_testing-automation.md).
-- [ ] Parameter reference, FAQ, and validation rules updated in the same commit.
+- [x] Both interfaces toggle independently and default to off.
+- [ ] Box underside mates with a standard 42 mm Gridfinity baseplate. **Print test.**
+- [ ] Lid topside behaves as intended. **Print test, and see the open profile-direction question above.**
+- [x] Bottom Gridfinity plus bottom openings asserts with a model-level message.
+- [x] All existing smoke scenarios still pass unchanged with Gridfinity off (48/48).
+- [x] Geometry with Gridfinity off is byte-identical (normalised) to the
+      pre-merge model, across all three `Part_To_Render` modes.
+- [x] Parameter reference and FAQ updated in the same commit.
 - [ ] At least one library preset added showing the feature.
 
 ## Human smoke test (cannot be automated)

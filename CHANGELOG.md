@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-07-30
+
+Adds optional Gridfinity interfaces. Geometry with both toggles off is
+byte-identical to 1.1.1, verified by normalised STL comparison across all three
+`Part_To_Render` modes.
+
+### Added
+- **Gridfinity base under the box** (`Enable_Gridfinity_Bottom`). Adds a 42 mm
+  grid of base cells with the two-stage mating cavity so the box drops into a
+  standard Gridfinity baseplate.
+- **Gridfinity profile on the lid** (`Enable_Gridfinity_Lid_Top`). Puts the
+  interface on the lid's exposed face so the closed box participates in a
+  Gridfinity stack.
+- Optional magnet pockets and screw holes on both interfaces
+  (`Enable_Gridfinity_Magnet_Screw`), keeping `GF_MIN_FLOOR` of material between
+  a pocket and the box floor.
+- `Gridfinity_Profile_Clearance` and `Gridfinity_Edge_Keepout` for fit tuning.
+- Assertions: Gridfinity bottom conflicts with bottom openings, and requires
+  `Closed_Post` because the base would otherwise block an open post bore.
+- Nine Gridfinity test scenarios, including probes that confirm the mating
+  cavity is actually cut and that a box too small for one cell does not float.
+
+### Notes on the height convention
+The base is **added below** the box rather than carved out of the floor, so
+`Box_Height` keeps meaning "the box body" and enabling Gridfinity never silently
+steals interior height. Carving instead would have required a separate
+`Floor_Thickness` threaded through stabilizer, bottom-opening, clip, and post
+placement, all of which currently treat `Wall_Thickness` as the floor. The whole
+box is lifted by the base height at render time so the exported object still
+sits on z=0.
+
+The same reasoning applies to the lid. Its lip is the mating face, so z=0 is the
+exposed top, and the profile grows downward from there with the lid lifted to
+match. The original prototype placed it on the lip side, which would have buried
+it inside the closed box.
+
+Gridfinity is by Zack Freedman and is MIT licensed. See `THIRD_PARTY_NOTICES.md`.
+
 ## [1.1.1] - 2026-07-29
 
 ### Fixed
