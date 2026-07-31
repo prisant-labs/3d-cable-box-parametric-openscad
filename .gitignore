@@ -31,3 +31,6 @@ Thumbs.db
 *.tmp
 *.bak
 *.stackdump
+
+# Generated standalone bundle
+dist/

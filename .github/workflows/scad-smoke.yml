@@ -11,6 +11,11 @@ on:
 # harness, the scenarios, or the smoke scripts could not trigger the run that
 # validates it, and docs-only pushes silently skipped model validation.
 
+env:
+  # Pinned so a BOSL2 change cannot silently alter geometry between runs.
+  # Bump deliberately, and re-run the geometry suite when you do.
+  BOSL2_REF: afe82db884ee4409aa76ecfcfbbf54d446964af1
+
 jobs:
   smoke:
     runs-on: ubuntu-latest
@@ -20,7 +25,15 @@ jobs:
       - name: Install OpenSCAD
         run: sudo apt-get update && sudo apt-get install -y openscad
 
-      - name: Record OpenSCAD version
+      - name: Install BOSL2 (pinned)
+        run: |
+          mkdir -p "$HOME/.local/share/OpenSCAD/libraries"
+          git clone --no-checkout https://github.com/BelfrySCAD/BOSL2.git \
+            "$HOME/.local/share/OpenSCAD/libraries/BOSL2"
+          git -C "$HOME/.local/share/OpenSCAD/libraries/BOSL2" checkout -q "$BOSL2_REF"
+          grep -m1 BOSL_VERSION "$HOME/.local/share/OpenSCAD/libraries/BOSL2/version.scad"
+
+      - name: Record versions
         run: openscad --version
 
       - name: Check version consistency
@@ -31,3 +44,25 @@ jobs:
 
       - name: Geometry regression tests
         run: python3 tests/run_tests.py
+
+      - name: Build standalone bundle
+        run: python3 scripts/build_bundle.py
+
+      - name: Verify the bundle renders with no library installed
+        run: |
+          # Move BOSL2 out of reach, so a bundle that still depends on it fails
+          # here rather than in a user's hands.
+          mv "$HOME/.local/share/OpenSCAD/libraries/BOSL2" /tmp/BOSL2-hidden
+          openscad -o /tmp/bundle.stl dist/cable-box-parametric-bundled.scad 2>&1 | tee /tmp/bundle.log
+          mv /tmp/BOSL2-hidden "$HOME/.local/share/OpenSCAD/libraries/BOSL2"
+          if grep -qE 'ERROR|WARNING' /tmp/bundle.log; then
+            echo "bundle did not render cleanly standalone"; exit 1
+          fi
+          test -s /tmp/bundle.stl || { echo "bundle produced no STL"; exit 1; }
+          echo "bundle renders standalone"
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v5
+        with:
+          name: standalone-bundle
+          path: dist/

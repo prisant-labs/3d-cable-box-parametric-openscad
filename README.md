@@ -22,9 +22,23 @@ the desk slides straight in.*
 Nine presets cover the common jobs, from a compact desk tidy to a six-outlet
 surge strip split for a 180 mm bed. No software needed beyond your slicer.
 
-**Want to change something?** Open `cable-box-parametric.scad` in
-[OpenSCAD](https://openscad.org/) (2021.01 or newer), press <kbd>F3</kbd> for
-the Customizer, adjust, <kbd>F6</kbd> to render, then export an STL.
+**Want to change something?** The model needs
+[BOSL2](https://github.com/BelfrySCAD/BOSL2):
+
+```bash
+# Windows and macOS
+git clone https://github.com/BelfrySCAD/BOSL2.git ~/Documents/OpenSCAD/libraries/BOSL2
+
+# Linux
+git clone https://github.com/BelfrySCAD/BOSL2.git ~/.local/share/OpenSCAD/libraries/BOSL2
+```
+
+Then open `cable-box-parametric.scad` in [OpenSCAD](https://openscad.org/)
+(2021.01 or newer), press <kbd>F3</kbd> for the Customizer, adjust,
+<kbd>F6</kbd> to render, then export an STL.
+
+Would rather not install anything? Every release attaches a **standalone
+bundle** with BOSL2 inlined.
 
 **Want to see what everything does first?** Open the
 [visual options guide](docs/options-guide.html). Every parameter is rendered

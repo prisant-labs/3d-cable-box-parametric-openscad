@@ -12,7 +12,7 @@ commits, issues, and chat: "E-01 (Gridfinity promotion)", never a bare "E-01".
 | ID | Handle | Scope | Effort | Depends on |
 |---|---|---|---|---|
 | [E-01](E-01_gridfinity-promotion.md) | **Gridfinity promotion** | Ship the prototyped box-underside and lid-topside Gridfinity interfaces | S | none |
-| [E-02](E-02_bosl2-migration.md) | **BOSL2 migration** | Replace the embedded 2022 subset with a real BOSL2 dependency, adopt attachments | L | none |
+| [E-02](E-02_bosl2-migration.md) | **BOSL2 migration** | Phase 1 DONE (v1.3.0). Phases 2-3 (rabbit_clip, attachments) open | L | none |
 | [E-03](E-03_openings-array.md) | **Openings array** | Replace 4 fixed per-wall openings with an array-driven spec | M | E-02 (easier after) |
 | [E-04](E-04_quick-wins.md) | **Quick wins** | Edge treatment, lid removal relief, magnet retention | S | none |
 | [E-05](E-05_size-by-contents.md) | **Size by contents** | Size the box from what goes in it, not from outer dimensions | M | none |
@@ -48,7 +48,8 @@ Effort key: S = under a day, M = a few days, L = a week or more.
   [E-11 (distribution)](E-11_distribution.md). Matches Gridfinity's own licence,
   suits a model that is really source code, and is GPL-compatible for
   [E-08 (web customizer)](E-08_web-customizer.md).
-- **Single-file versus library dependency.** See
-  [E-02 (BOSL2 migration)](E-02_bosl2-migration.md). Affects E-08 and E-11.
-- **Whether `Model_Version` lives in the SCAD.** See
-  [E-10 (versioning)](E-10_versioning.md).
+- ~~**Single-file versus library dependency.**~~ **Resolved 2026-07-31:** real
+  BOSL2 dependency, with a two-file bundle attached to releases. See
+  [E-02 (BOSL2 migration)](E-02_bosl2-migration.md).
+- ~~**Whether `Model_Version` lives in the SCAD.**~~ **Resolved:** yes, added in
+  v1.1.1 with a CI consistency gate. See [E-10 (versioning)](E-10_versioning.md).

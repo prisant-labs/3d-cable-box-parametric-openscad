@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-07-31
+
+Replaces the embedded BOSL2 copy with a real dependency. Dimensionally identical:
+mesh volumes match the previous release to four decimal places across every
+configuration tested, with only corner-rounding tessellation differing.
+
+### Changed
+- **BOSL2 is now a dependency, not embedded.** The model declares
+  `include <BOSL2/std.scad>`. This removes a single 214,500-character line that
+  was 79 percent of the file and froze the project on a February 2022 snapshot;
+  CI pins BOSL2 2.0.747. The model file drops from 271 KB to 72 KB and is
+  reviewable, diffable, and searchable for the first time.
+  - MakerWorld's parametric customizer bundles BOSL2, so this also makes the
+    model publishable there. A local `lib/` split would not have been, since
+    MakerWorld forbids custom library uploads.
+  - Local users install BOSL2 once; see the README. Releases attach a standalone
+    bundle for anyone who would rather not.
+
+### Fixed
+- **The lid was relying on coplanar-face fusion.** Its lip ring and post collar
+  both met the lid panel on a shared plane with zero overlap. Whether such a
+  pair fuses into one body is kernel-dependent: the 2022 BOSL2 fused them, the
+  current one does not, so the lid exported as three detached solids. Both now
+  overlap into the panel by a `WELD` allowance. The same applied to the
+  Gridfinity base and lid profile.
+
+  This was a latent defect, not a migration regression. Any BOSL2 or CGAL change
+  could have triggered it, and it would have shipped a lid in three pieces
+  without a single error message. Caught by the geometry suite's
+  disconnected-solid assertion.
+
+### Added
+- `scripts/build_bundle.py` produces a standalone model with BOSL2 inlined,
+  verified in CI to render with no library installed.
+  - The bundle is two files: the model plus `builtins.scad`. That file cannot be
+    inlined. BOSL2 pulls it in with `use` rather than `include` because it wraps
+    OpenSCAD's builtins (`module _translate(v) translate(v) children();`).
+    `use` scopes it so `translate` resolves to the builtin; inlining it makes
+    the body resolve to BOSL2's own `translate`, and the two recurse forever.
+- CI installs a pinned BOSL2, builds the bundle, and verifies the bundle renders
+  with BOSL2 moved out of reach.
+
 ## [1.2.0] - 2026-07-30
 
 Adds optional Gridfinity interfaces. Geometry with both toggles off is
