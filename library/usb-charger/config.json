@@ -1,0 +1,13 @@
+{
+  "fileFormatVersion": "1",
+  "parameterSets": {
+    "usb-charger": {
+      "Box_Width": "120",
+      "Box_Depth": "75",
+      "Box_Height": "45",
+      "All_Opening_Width": "12",
+      "All_Opening_Height": "26",
+      "Post_Diameter": "12"
+    }
+  }
+}

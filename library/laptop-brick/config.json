@@ -1,0 +1,13 @@
+{
+  "fileFormatVersion": "1",
+  "parameterSets": {
+    "laptop-brick": {
+      "Box_Width": "175",
+      "Box_Depth": "105",
+      "Box_Height": "70",
+      "All_Opening_Width": "16",
+      "All_Opening_Height": "38",
+      "Stabilizers_Front_Back_Count": "4"
+    }
+  }
+}

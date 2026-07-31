@@ -31,6 +31,7 @@ nav:
   - Home: index.md
   - Getting Started:
       - Docs Index: DOCS_INDEX.md
+      - Options Guide: OPTIONS_GUIDE.md
       - Workflows: WORKFLOWS.md
       - Printing: PRINTING.md
   - Model Reference:

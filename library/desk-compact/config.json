@@ -1,0 +1,12 @@
+{
+  "fileFormatVersion": "1",
+  "parameterSets": {
+    "desk-compact": {
+      "Box_Width": "140",
+      "Box_Depth": "80",
+      "Box_Height": "55",
+      "All_Opening_Width": "14",
+      "All_Opening_Height": "32"
+    }
+  }
+}

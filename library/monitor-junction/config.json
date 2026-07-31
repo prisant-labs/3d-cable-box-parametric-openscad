@@ -1,0 +1,13 @@
+{
+  "fileFormatVersion": "1",
+  "parameterSets": {
+    "monitor-junction": {
+      "Box_Width": "210",
+      "Box_Depth": "95",
+      "Box_Height": "62",
+      "All_Opening_Width": "18",
+      "All_Opening_Height": "36",
+      "Stabilizers_Front_Back_Count": "4"
+    }
+  }
+}

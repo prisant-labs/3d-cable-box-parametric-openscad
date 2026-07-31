@@ -1,0 +1,14 @@
+{
+  "fileFormatVersion": "1",
+  "parameterSets": {
+    "router-shelf": {
+      "Box_Width": "230",
+      "Box_Depth": "130",
+      "Box_Height": "75",
+      "All_Opening_Width": "22",
+      "All_Opening_Height": "45",
+      "Stabilizers_Front_Back_Count": "4",
+      "Stabilizers_Left_Right_Count": "2"
+    }
+  }
+}

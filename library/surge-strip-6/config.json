@@ -1,0 +1,13 @@
+{
+  "fileFormatVersion": "1",
+  "parameterSets": {
+    "surge-strip-6": {
+      "Box_Width": "265",
+      "Box_Depth": "100",
+      "Box_Height": "62",
+      "All_Opening_Width": "20",
+      "All_Opening_Height": "38",
+      "Stabilizers_Front_Back_Count": "5"
+    }
+  }
+}
