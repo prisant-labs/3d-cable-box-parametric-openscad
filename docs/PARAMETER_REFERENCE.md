@@ -258,7 +258,8 @@ If this document and the SCAD file ever disagree, treat the SCAD file as the fun
 | `Clip_Tab_Width` | number | `10` | Clip extent along split edge. | Increase for strength; reduce if edge space is limited. |
 | `Clip_Tab_Depth` | number | `4` | Clip insertion depth. | Deeper clips improve retention but may over-constrain fit. |
 | `Clip_Tab_Height` | number | `3` | Clip tab height. | Larger values increase engagement force. |
-| `Slice_Preview_Spacing` | number | `5` | Gap between pieces in all-slices preview. | Visual layout only; does not affect exported single-part geometry. |
+| `Slice_Preview_Spacing` | number | `5` | Gap between pieces in all-slices preview. | Visual layout only; does not affect exported single-part geometry. Snap clips add their travel on top, so pieces never touch in the preview. |
+| `Clip_Style` | enum | `"Tab"` | `"Tab"` is the original friction fit; `"Snap"` is a BOSL2 cantilever snap clip. | See the snap clip section below. |
 
 ### Slice rendering behavior
 
@@ -266,6 +267,34 @@ If this document and the SCAD file ever disagree, treat the SCAD file as the fun
 |---|---|
 | `0` | Renders all slices in a preview layout. |
 | `1..Slice_Count` | Renders only the selected slice index (box and/or lid based on `Part_To_Render`). |
+
+### Snap clips (`Clip_Style = "Snap"`)
+
+The original `"Tab"` clip is a rectangle in a slightly larger rectangular hole,
+held by friction. `Clip_Tolerance` is its only tuning knob and it trades "will
+not go in" against "falls apart" with nothing in between.
+
+`"Snap"` uses a real cantilever clip with an engagement bump. The arm flexes, so
+it absorbs print inaccuracy instead of jamming, and the bump resists pull-out
+rather than relying on interference.
+
+| Parameter | Type | Default | Description |
+|---|---|---:|---|
+| `Clip_Snap_Length` | number | `8` | How far the clip travels into its socket. **Must exceed `Clip_Tab_Width / 2`**; below that the arm has no room to flex and the geometry cannot be built. |
+| `Clip_Snap` | number | `0.4` | Depth of the engagement bump. Larger holds harder and is harder to separate. |
+| `Clip_Arm_Thickness` | number | `1.0` | Arm thickness, which sets stiffness. Too thin snaps off; too thick will not flex. |
+| `Clip_Compression` | number | `0.1` | Extra width on the ears for a tighter fit. |
+| `Clip_Lock` | boolean | `false` | Makes the joint effectively permanent once assembled. |
+
+Under `"Snap"`, `Clip_Tab_Width` becomes the clip's base width, `Clip_Tab_Height`
+its extrusion depth, and `Clip_Tolerance` the clearance added to the socket.
+`Clip_Tab_Depth` is not used; snap clips need their own travel, which is what
+`Clip_Snap_Length` provides.
+
+The default is deliberately still `"Tab"`. Clip geometry is the one part of this
+model whose correctness cannot be established by rendering it: manifoldness,
+solid counts, and probes all pass for a joint far too tight to assemble or too
+loose to hold. `"Snap"` becomes the default once a print says it should.
 
 ## 17) Gridfinity
 
@@ -312,6 +341,7 @@ post.
 | Parameter | Type | Default | Description |
 |---|---|---:|---|
 | `Model_Version` | string | current release | Echoed at render so an exported STL can be traced back to its source. |
+| `Render_On_Include` | boolean | `true` | Set `false` to use the file as a library: modules and anchors become available without geometry appearing. See the attachment section in `MODULE_REFERENCE.md`. |
 | `$fn` | integer | `40` | Circle/arc resolution for cylinders and rounded geometry. |
 | `GF_*` | various | Gridfinity spec | Gridfinity standard dimensions (pitch, cell and cavity sizes, profile stages). Hidden because changing one produces a part that no longer mates with other Gridfinity gear, but still overridable with `-D` if you need to. |
 | `SPACER` | number | `0.04` | Internal modeling offset used for robust boolean operations and tiny clearances. |

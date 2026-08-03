@@ -158,6 +158,47 @@ Cuts the box into one slice and applies seam clip logic.
 
 Cuts the lid into one slice and applies seam clip logic.
 
+## Attachment Interface
+
+`m_box()` and `m_lid_part()` expose the box and lid as BOSL2 attachables, so
+accessories can be placed against a named feature rather than a coordinate
+expression.
+
+```scad
+Render_On_Include = false;   // or pass -D Render_On_Include=false
+include <cable-box-parametric.scad>
+
+m_box()
+    attach("wall-back")
+        my_bracket();
+```
+
+### `m_box(anchor, spin, orient)`
+
+Defaults to `anchor=BOTTOM`, which reproduces the standard placement with the
+box sitting on `z=0`. The declared envelope includes any Gridfinity base.
+
+| Anchor | Where it is |
+|---|---|
+| standard `TOP`, `BOTTOM`, `LEFT`, `RIGHT`, `FRONT`, `BACK` | the outer bounding volume |
+| `"floor"` | interior floor surface, pointing up |
+| `"rim"` | top of the wall, pointing up |
+| `"wall-front"`, `"wall-back"`, `"wall-left"`, `"wall-right"` | inner face of that wall at floor level, pointing into the interior |
+| `"post-top"` | top of the centre post, pointing up |
+
+### `m_lid_part(anchor, spin, orient)`
+
+| Anchor | Where it is |
+|---|---|
+| `"lid-face"` | the face that ends up **exposed** when the box is closed, pointing away from the lid |
+| `"lip"` | the engagement lip that drops into the box |
+
+`"lid-face"` is worth understanding. The lid prints face-down: its engagement
+lip points up, into the box, so the exposed face is the model's `z=0` face and
+anything mounted on it grows downward. Getting this backwards is a real bug this
+project has already shipped once, in the v1.2.0 Gridfinity lid interface. The
+anchor exists so nobody has to re-derive it.
+
 ## Final Dispatcher
 
 ### `full_render()`

@@ -13,6 +13,7 @@ and THIRD_PARTY_NOTICES.md for third-party attributions.
 // attached to each GitHub Release, which has BOSL2 inlined and needs nothing.
 // BOSL2 is BSD-2-Clause; see THIRD_PARTY_NOTICES.md.
 include <BOSL2/std.scad>
+include <BOSL2/joiners.scad>
 
 /*[Overall]*/
 // Which model output to render.
@@ -209,6 +210,21 @@ Clip_Tab_Depth = 4;
 Clip_Tab_Height = 3;
 // Spacing between slices when previewing all parts (mm).
 Slice_Preview_Spacing = 5;
+// Seam joint style. Snap is a real cantilever clip; Tab is the original friction fit.
+Clip_Style = "Tab"; //["Tab", "Snap"]
+
+/*[Slicing - Snap Clip Tuning]*/
+// Only used when Clip_Style is Snap.
+// How far the clip travels into its socket (mm). Must exceed half of Clip_Tab_Width.
+Clip_Snap_Length = 8;
+// Depth of the engagement bump that resists pull-out (mm). Larger holds harder.
+Clip_Snap = 0.4;
+// Thickness of the clip arm (mm). Too thin snaps off, too thick will not flex.
+Clip_Arm_Thickness = 1.0;
+// Extra width on the clip ears for a tighter fit (mm).
+Clip_Compression = 0.1;
+// Make the joint effectively permanent once assembled.
+Clip_Lock = false;
 
 /*[Gridfinity]*/
 // Add a Gridfinity base under the box so it drops into a 42mm baseplate.
@@ -258,6 +274,12 @@ GF_SCREW_CBORE_DEPTH   = 2.2;
 Model_Version = "1.3.0";
 echo(str("cable-box-parametric ", Model_Version));
 
+// Render the model when this file is opened or included. Set false (usually via
+// -D on the command line) to use the file as a library: the modules and anchors
+// become available without geometry appearing, so you can attach to m_box() and
+// m_lid_part() from your own file.
+Render_On_Include = true;
+
 $fn = 40;
 // SPACER breaks tangency on a CUT: a cut that stops exactly on a face leaves a
 // zero-thickness edge. WELD is the opposite case, joining two solids that would
@@ -282,6 +304,20 @@ Slice_Width = Box_Width / max(Slice_Count, 1);
 // through that BOSL2 then rejects.
 Max_Corner_Radius = max(0, (min(Box_Width, Box_Depth) - Wall_Thickness * 2) / 2 - 1e-6);
 Corner_Radius = min(Box_Corner_Radius, Max_Corner_Radius);
+
+// Gap to leave between pieces in the all-slices preview.
+//
+// Slice_Preview_Spacing is the gap the user asked for, but a clip protrudes
+// past its slice edge into that gap. A snap clip travels far enough
+// (Clip_Snap_Length, default 8) to cross the default 5 mm spacing and touch the
+// neighbouring piece, fusing the preview into one body: visually confusing, and
+// it makes a solid count meaningless.
+//
+// Only Snap gets the extra allowance, so Tab previews lay out exactly as they
+// did before. This affects preview layout only; a single-piece export is
+// unchanged either way.
+Slice_Preview_Gap = Slice_Preview_Spacing +
+    (Clip_Style == "Snap" ? Clip_Snap_Length : 0);
 
 // Smallest |y| at which a seam clip sits on real material. A clip centred
 // inside the post opening has nothing to bond to and exports as a loose solid.
@@ -384,6 +420,16 @@ assert(!Enable_Slicing || Slice_Count >= 2, "Slice count must be >= 2 when slici
 assert(!Enable_Slicing || Clips_Per_Edge >= 1, "Clips per edge must be >= 1");
 assert(Clip_Tolerance >= 0, "Clip tolerance must be >= 0");
 assert(Clip_Tab_Width > 0 && Clip_Tab_Depth > 0 && Clip_Tab_Height > 0, "Clip tab dimensions must be > 0");
+assert(Clip_Style == "Tab" || Clip_Style == "Snap", "Clip_Style must be Tab or Snap");
+assert(Clip_Style != "Snap" || Clip_Snap > 0, "Clip_Snap must be > 0 for snap clips");
+// rabbit_clip cannot build an arm shorter than half its width; it aborts with an
+// internal message that names neither parameter. Catch it here instead. Measured
+// against BOSL2 2.0.747: the floor is exactly Clip_Tab_Width/2, and comfortable
+// flex wants noticeably more.
+assert(Clip_Style != "Snap" || Clip_Snap_Length > Clip_Tab_Width / 2, "Clip_Snap_Length must exceed half of Clip_Tab_Width; a snap clip needs travel to flex. Try Clip_Snap_Length >= Clip_Tab_Width * 0.8, or reduce Clip_Tab_Width.");
+assert(Clip_Style != "Snap" || Clip_Arm_Thickness > 0, "Clip_Arm_Thickness must be > 0 for snap clips");
+assert(Clip_Style != "Snap" || Clip_Compression >= 0, "Clip_Compression must be >= 0");
+assert(Clip_Style != "Snap" || Clip_Arm_Thickness * 2 < Clip_Tab_Width, "Clip_Arm_Thickness is too large for Clip_Tab_Width; the arm would fill the clip");
 assert(!(Enable_Gridfinity_Bottom && Enable_Bottom_Openings), "Gridfinity bottom and bottom openings are mutually exclusive; the base would cover the cutouts");
 assert(!Enable_Gridfinity_Bottom || !Enable_Post || Closed_Post, "Gridfinity bottom requires Closed_Post=true; the base would block an open post bore");
 assert(Gridfinity_Profile_Clearance >= 0, "Gridfinity_Profile_Clearance must be >= 0");
@@ -1118,14 +1164,62 @@ module m_place_openings_avoid_post_y(opening_size, x_pos) {
 // SIMPLE FLOOR/CEILING CLIP MODULES
 // ============================================
 
+// Seam clips come in two styles.
+//
+// "Tab" is the original: a rectangle in a slightly larger rectangular hole,
+// held by friction alone. Clip_Tolerance is the only tuning knob and it trades
+// "will not go in" against "falls apart" with nothing in between.
+//
+// "Snap" uses BOSL2's rabbit_clip, a real cantilever snap with an engagement
+// bump. The arm flexes, so it absorbs print inaccuracy instead of jamming, and
+// the bump resists pull-out rather than relying on interference.
+//
+// The clips protrude along X, across the seam. rabbit_clip builds its pin
+// pointing UP with width on X and depth on Y, so it needs both orient and spin:
+//
+//   orient=RIGHT           puts length (travel) on X
+//   spin=90                puts width on Y (along the seam) and depth on Z
+//
+// orient alone leaves width on Z, giving a clip 10 mm tall and 3 mm along the
+// seam instead of the reverse. That renders cleanly and passes a solid count,
+// so it is only caught by measuring the bounding box.
+
+// A socket must be deeper than its pin or insertion binds at the bottom.
+CLIP_SOCKET_EXTRA_DEPTH = 0.4;
+
 module m_floor_clip_male() {
-    cube([Clip_Tab_Depth, Clip_Tab_Width, Clip_Tab_Height], center=true);
+    if (Clip_Style == "Snap") {
+        rabbit_clip(type = "pin",
+                    length = Clip_Snap_Length,
+                    width = Clip_Tab_Width,
+                    depth = Clip_Tab_Height,
+                    thickness = Clip_Arm_Thickness,
+                    snap = Clip_Snap,
+                    compression = Clip_Compression,
+                    lock = Clip_Lock,
+                    anchor = BOTTOM, orient = RIGHT, spin = 90);
+    } else {
+        cube([Clip_Tab_Depth, Clip_Tab_Width, Clip_Tab_Height], center=true);
+    }
 }
 
 module m_floor_clip_female() {
-    cube([Clip_Tab_Depth + Clip_Tolerance*2 + SPACER,
-          Clip_Tab_Width + Clip_Tolerance*2,
-          Clip_Tab_Height + Clip_Tolerance*2 + SPACER], center=true);
+    if (Clip_Style == "Snap") {
+        rabbit_clip(type = "socket",
+                    length = Clip_Snap_Length,
+                    width = Clip_Tab_Width,
+                    depth = Clip_Tab_Height + CLIP_SOCKET_EXTRA_DEPTH,
+                    thickness = Clip_Arm_Thickness,
+                    snap = Clip_Snap,
+                    compression = 0,
+                    clearance = Clip_Tolerance,
+                    lock = Clip_Lock,
+                    anchor = BOTTOM, orient = RIGHT, spin = 90);
+    } else {
+        cube([Clip_Tab_Depth + Clip_Tolerance*2 + SPACER,
+              Clip_Tab_Width + Clip_Tolerance*2,
+              Clip_Tab_Height + Clip_Tolerance*2 + SPACER], center=true);
+    }
 }
 
 module m_place_floor_clips(x_pos, is_male) {
@@ -1598,11 +1692,90 @@ module m_lid_placed() {
     up(Gridfinity_Lid_Offset) children();
 }
 
+// ============================================
+// ATTACHABLE WRAPPERS
+// ============================================
+//
+// m_box() and m_lid_part() expose the box and lid as BOSL2 attachables, so
+// things can be placed against a named feature instead of a coordinate
+// expression.
+//
+// This model has shipped two bugs that a named anchor would have made
+// unrepresentable:
+//
+//   v1.1.0  m_opening() put its origin at the shape's centre while the caller
+//           assumed the bottom edge, so every opening came out half height.
+//   v1.2.0  the Gridfinity lid interface was placed at Lid_Height +
+//           Lid_Lip_Gap_Height, which is the MATING face, so it would have been
+//           buried inside the closed box.
+//
+// Both are origin-mismatch bugs, and neither is visible at the call site,
+// because the call site is arithmetic with no statement of intent to check
+// against. "lid-face" below is the second bug written down once as a name.
+//
+// These are wrappers, not a rewrite. Internal placement still uses arithmetic
+// that is covered by tests; converting it would be a large diff whose main
+// output is a different spelling of working code. See
+// docs/internal/E-02-P3_attachables.md for that reasoning.
+
+// Total printed envelope, including any Gridfinity base below the box floor.
+Box_Total_Height = Box_Height + Gridfinity_Base_Offset;
+Lid_Total_Height = Lid_Height + Lid_Lip_Gap_Height + Gridfinity_Lid_Offset;
+
+// Inner face of each wall, at floor level, pointing into the box interior.
+function _wall_anchor(name, pos, dir) = named_anchor(name, pos, dir, 0);
+
+module m_box(anchor = BOTTOM, spin = 0, orient = UP) {
+    // Anchor positions are expressed in the centred frame attachable() uses,
+    // so world z maps to z - Box_Total_Height/2.
+    floor_z = Gridfinity_Base_Offset + Wall_Thickness - Box_Total_Height/2;
+    rim_z   = Box_Total_Height/2;
+    inner_y = Box_Depth/2 - Wall_Thickness;
+    inner_x = Box_Width/2 - Wall_Thickness;
+
+    anchors = [
+        named_anchor("floor",      [0, 0, floor_z], UP, 0),
+        named_anchor("rim",        [0, 0, rim_z],   UP, 0),
+        named_anchor("wall-front", [0, -inner_y, floor_z], BACK,  0),
+        named_anchor("wall-back",  [0,  inner_y, floor_z], FRONT, 0),
+        named_anchor("wall-left",  [-inner_x, 0, floor_z], RIGHT, 0),
+        named_anchor("wall-right", [ inner_x, 0, floor_z], LEFT,  0),
+        named_anchor("post-top",   [0, 0, rim_z], UP, 0),
+    ];
+
+    attachable(anchor, spin, orient,
+               size = [Box_Width, Box_Depth, Box_Total_Height],
+               anchors = anchors) {
+        // attachable() expects its child centred on the origin; the geometry is
+        // built sitting on z=0, so drop it by half the envelope.
+        down(Box_Total_Height/2) m_box_placed() m_box_with_openings();
+        children();
+    }
+}
+
+module m_lid_part(anchor = BOTTOM, spin = 0, orient = UP) {
+    // The lid prints face-down: its solid panel is at the bottom of the model
+    // and the engagement lip points up, into the box. So the face that ends up
+    // EXPOSED when the box is closed is the model's z=0 face, and anything
+    // mounted on it (Gridfinity, labels, feet) grows downward from there.
+    anchors = [
+        named_anchor("lid-face", [0, 0, -Lid_Total_Height/2], DOWN, 0),
+        named_anchor("lip",      [0, 0,  Lid_Total_Height/2], UP,   0),
+    ];
+
+    attachable(anchor, spin, orient,
+               size = [Lid_Outer_Width, Lid_Outer_Depth, Lid_Total_Height],
+               anchors = anchors) {
+        down(Lid_Total_Height/2) m_lid_placed() m_lid();
+        children();
+    }
+}
+
 module full_render() {
     if (Enable_Slicing) {
         if (Slice_Piece_To_Render == 0) {
             for (i = [1:Slice_Count]) {
-                x_offset = (i - 1) * (Slice_Width + Slice_Preview_Spacing) - (Slice_Count - 1) * (Slice_Width + Slice_Preview_Spacing) / 2;
+                x_offset = (i - 1) * (Slice_Width + Slice_Preview_Gap) - (Slice_Count - 1) * (Slice_Width + Slice_Preview_Gap) / 2;
 
                 translate([x_offset, 0, 0]) {
                     if (Part_To_Render != "Lid Only") {
@@ -1610,7 +1783,7 @@ module full_render() {
                     }
                     if (Part_To_Render != "Box Only") {
                         lid_slice_width = (Box_Width + Wall_Thickness*2 + Lid_Lip_Gap) / Slice_Count;
-                        lid_x_offset = (i - 1) * (lid_slice_width + Slice_Preview_Spacing) - (Slice_Count - 1) * (lid_slice_width + Slice_Preview_Spacing) / 2;
+                        lid_x_offset = (i - 1) * (lid_slice_width + Slice_Preview_Gap) - (Slice_Count - 1) * (lid_slice_width + Slice_Preview_Gap) / 2;
                         translate([lid_x_offset - x_offset, Box_Depth + 20, 0])
                             m_lid_placed() m_lid_slice(i);
                     }
@@ -1628,12 +1801,12 @@ module full_render() {
     } else {
         if (Part_To_Render != "Box Only") {
             right((Part_To_Render != "Lid Only") ? Box_Width + 20 : 0)
-                m_lid_placed() m_lid();
+                m_lid_part();
         }
         if (Part_To_Render != "Lid Only") {
-            m_box_placed() m_box_with_openings();
+            m_box();
         }
     }
 }
 
-full_render();
+if (Render_On_Include) full_render();
