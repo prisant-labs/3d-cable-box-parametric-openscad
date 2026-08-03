@@ -1227,8 +1227,22 @@ module m_place_floor_clips(x_pos, is_male) {
     usable_depth = Box_Depth - Wall_Thickness*2 - Clip_Tab_Width;
     female_depth = Clip_Tab_Depth + Clip_Tolerance*2 + SPACER;
     // Offsets intentionally overlap seam slightly to avoid tangent-only booleans.
-    male_x_offset = Clip_Tab_Depth/2 - SPACER;
-    female_x_offset = female_depth/2 - SPACER;
+    //
+    // The two styles anchor differently and cannot share these numbers. A Tab is
+    // a CENTRED cube, so half its depth is subtracted to bring its near face back
+    // to the seam. A Snap clip is BASE-anchored: its geometry starts at the
+    // placement point and grows away from the slice, so the same offset would
+    // leave the pin floating in the gap with nothing to bond to.
+    //
+    // That is not hypothetical. It shipped working against BOSL2 2.0.716 purely
+    // because that version placed the anchor 4.19 mm further back; under the
+    // pinned 2.0.747 the pin detaches and the slice exports in three pieces.
+    male_x_offset = Clip_Style == "Snap"
+        ? -WELD                              // start inside the slice and grow out
+        : Clip_Tab_Depth/2 - SPACER;
+    female_x_offset = Clip_Style == "Snap"
+        ? -SPACER                            // cut from the seam inward
+        : female_depth/2 - SPACER;
     x_offset = is_male ? male_x_offset : female_x_offset;
 
     y_limit = Inner_Depth/2 - Clip_Tab_Width/2;
@@ -1257,8 +1271,22 @@ module m_place_lid_clips(x_pos, is_male) {
     usable_depth = lid_depth - Clip_Tab_Width*2;
     female_depth = Clip_Tab_Depth + Clip_Tolerance*2 + SPACER;
     // Offsets intentionally overlap seam slightly to avoid tangent-only booleans.
-    male_x_offset = Clip_Tab_Depth/2 - SPACER;
-    female_x_offset = female_depth/2 - SPACER;
+    //
+    // The two styles anchor differently and cannot share these numbers. A Tab is
+    // a CENTRED cube, so half its depth is subtracted to bring its near face back
+    // to the seam. A Snap clip is BASE-anchored: its geometry starts at the
+    // placement point and grows away from the slice, so the same offset would
+    // leave the pin floating in the gap with nothing to bond to.
+    //
+    // That is not hypothetical. It shipped working against BOSL2 2.0.716 purely
+    // because that version placed the anchor 4.19 mm further back; under the
+    // pinned 2.0.747 the pin detaches and the slice exports in three pieces.
+    male_x_offset = Clip_Style == "Snap"
+        ? -WELD                              // start inside the slice and grow out
+        : Clip_Tab_Depth/2 - SPACER;
+    female_x_offset = Clip_Style == "Snap"
+        ? -SPACER                            // cut from the seam inward
+        : female_depth/2 - SPACER;
     x_offset = is_male ? male_x_offset : female_x_offset;
 
     y_limit = usable_depth/2;
