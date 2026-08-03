@@ -88,6 +88,24 @@ def render(scad_bin: str, src: Path, out_stl: Path, defines: list[str]) -> tuple
     return proc.returncode, (proc.stdout or "") + "\n" + (proc.stderr or "")
 
 
+def stl_bbox(path: Path) -> list[tuple[float, float]]:
+    """Return [(xmin,xmax),(ymin,ymax),(zmin,zmax)] for an ASCII STL."""
+    lo = [float("inf")] * 3
+    hi = [float("-inf")] * 3
+    with path.open(errors="replace") as fh:
+        for line in fh:
+            line = line.strip()
+            if line.startswith("vertex"):
+                for i, v in enumerate(map(float, line.split()[1:4])):
+                    if v < lo[i]:
+                        lo[i] = v
+                    if v > hi[i]:
+                        hi[i] = v
+    if lo[0] == float("inf"):
+        raise ValueError("no vertices in STL")
+    return [(lo[i], hi[i]) for i in range(3)]
+
+
 def probe(scad_bin: str, stl: Path, workdir: Path, translate, size) -> str:
     """Return 'material' or 'empty' for a box region of the exported solid."""
     probe_scad = workdir / "_probe.scad"
@@ -114,7 +132,13 @@ def run_scenario(scad_bin: str, sc: dict, workdir: Path, verbose: bool) -> list[
     failures: list[str] = []
     expect = sc.get("expect", {})
     stl = workdir / f"{sc['name']}.stl"
-    rc, out = render(scad_bin, SCAD_SRC, stl, sc.get("defines", []))
+    # Most scenarios render the model directly. Anchor tests need a wrapper that
+    # includes it as a library and attaches a marker, so they name their own
+    # source and pass Render_On_Include=false.
+    src = REPO / sc["source"] if "source" in sc else SCAD_SRC
+    if not src.exists():
+        return [f"source not found: {src}"]
+    rc, out = render(scad_bin, src, stl, sc.get("defines", []))
 
     if verbose:
         print(f"    cmd rc={rc}")
@@ -126,6 +150,12 @@ def run_scenario(scad_bin: str, sc: dict, workdir: Path, verbose: bool) -> list[
         # A failed render produces no geometry, so downstream checks are moot.
         if want_rc == 0:
             return failures
+
+    # Plain substring match on OpenSCAD's output, for cases that are not
+    # assertion failures. `message` deliberately only matches assertion text.
+    if "output_contains" in expect:
+        if expect["output_contains"] not in out:
+            failures.append(f"output does not contain {expect['output_contains']!r}")
 
     if "message" in expect:
         found = ASSERT_RE.search(out)
@@ -159,6 +189,26 @@ def run_scenario(scad_bin: str, sc: dict, workdir: Path, verbose: bool) -> list[
                     f"{solids} disconnected solid(s), expected {expect['solids']}"
                     " (extra bodies mean detached geometry)"
                 )
+
+    # Bounding box. Solid counts and probes both miss whole-part orientation
+    # errors: a clip rotated onto the wrong axis still renders, still fuses, and
+    # still passes every point probe not aimed exactly at it. Extents catch it.
+    if "bbox" in expect and rc == 0:
+        try:
+            got = stl_bbox(stl)
+        except (OSError, ValueError) as exc:
+            failures.append(f"could not read bbox: {exc}")
+        else:
+            tol = expect.get("bbox_tolerance", 0.05)
+            for axis, want in expect["bbox"].items():
+                i = "xyz".index(axis)
+                for j, edge in enumerate(("min", "max")):
+                    if want[j] is None:
+                        continue
+                    if abs(got[i][j] - want[j]) > tol:
+                        failures.append(
+                            f"bbox {axis}-{edge} is {got[i][j]:.3f}, expected "
+                            f"{want[j]:.3f} (tolerance {tol})")
 
     for p in expect.get("probes", []):
         if rc != 0:

@@ -386,6 +386,143 @@
       "name": "gridfinity_conflict_open_post_blocked",
       "defines": ["Enable_Gridfinity_Bottom=true"],
       "expect": { "rc": 1, "message": "requires Closed_Post" }
+    },
+
+    {
+      "name": "snapclip_box_two_slices",
+      "_why": "rabbit_clip cantilever seam joints. Solid count is the guard: a",
+      "_why2": "clip oriented the wrong way, or one that bridges the preview gap,",
+      "_why3": "both show up here and nowhere else.",
+      "defines": ["Clip_Style=\"Snap\"", "Enable_Slicing=true", "Slice_Count=2",
+                  "Slice_Piece_To_Render=0", "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+    {
+      "name": "snapclip_box_three_slices",
+      "defines": ["Clip_Style=\"Snap\"", "Enable_Slicing=true", "Slice_Count=3",
+                  "Slice_Piece_To_Render=0", "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 3 }
+    },
+    {
+      "name": "snapclip_lid_two_slices",
+      "_why": "At the default 5mm preview spacing an 8mm pin used to reach the",
+      "_why2": "next piece and fuse the preview into one body.",
+      "defines": ["Clip_Style=\"Snap\"", "Enable_Slicing=true", "Slice_Count=2",
+                  "Slice_Piece_To_Render=0", "Part_To_Render=\"Lid Only\""],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+    {
+      "name": "snapclip_box_and_lid",
+      "defines": ["Clip_Style=\"Snap\"", "Enable_Slicing=true", "Slice_Count=2",
+                  "Slice_Piece_To_Render=0", "Part_To_Render=\"Box and Lid\""],
+      "expect": { "rc": 0, "solids": 4 }
+    },
+    {
+      "name": "snapclip_single_piece_export",
+      "_why": "The case that actually gets printed: one piece, one solid, with",
+      "_why2": "its pin attached rather than floating.",
+      "_why3": "The bbox pins the clip's ORIENTATION, which solid counts cannot.",
+      "_why4": "rabbit_clip builds length on Z, width on X, depth on Y, so it needs",
+      "_why5": "orient=RIGHT AND spin=90. With orient alone, width (10) lands on Z",
+      "_why6": "instead of depth (3), and z-min drops from -0.57 to about -4.08",
+      "_why7": "while the model still renders and still counts as one solid.",
+      "defines": ["Clip_Style=\"Snap\"", "Enable_Slicing=true", "Slice_Count=2",
+                  "Slice_Piece_To_Render=1", "Part_To_Render=\"Box Only\""],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "bbox": { "x": [-25.0, 30.78], "y": [-37.5, 37.5], "z": [-0.575, 50.0] }
+      }
+    },
+    {
+      "name": "tabclip_single_piece_export",
+      "_why": "Same measurement for the Tab style, so a change to shared clip",
+      "_why2": "placement cannot silently move one style and not the other.",
+      "defines": ["Enable_Slicing=true", "Slice_Count=2",
+                  "Slice_Piece_To_Render=1", "Part_To_Render=\"Box Only\""],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "bbox": { "x": [-25.0, 28.96], "y": [-37.5, 37.5], "z": [-0.575, 50.0] }
+      }
+    },
+    {
+      "name": "snapclip_one_clip_per_edge",
+      "defines": ["Clip_Style=\"Snap\"", "Enable_Slicing=true", "Slice_Count=2",
+                  "Clips_Per_Edge=1", "Slice_Piece_To_Render=0",
+                  "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+    {
+      "name": "snapclip_four_clips_per_edge",
+      "defines": ["Clip_Style=\"Snap\"", "Enable_Slicing=true", "Slice_Count=2",
+                  "Clips_Per_Edge=4", "Slice_Piece_To_Render=0",
+                  "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+    {
+      "name": "snapclip_locking",
+      "defines": ["Clip_Style=\"Snap\"", "Clip_Lock=true", "Enable_Slicing=true",
+                  "Slice_Count=2", "Slice_Piece_To_Render=0",
+                  "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 2 }
+    },
+    {
+      "name": "snapclip_short_length_blocked",
+      "_why": "rabbit_clip aborts with 'Pin is too wide for its length', naming",
+      "_why2": "neither parameter. The floor is exactly Clip_Tab_Width/2, measured",
+      "_why3": "against BOSL2 2.0.747. Fail with something actionable instead.",
+      "defines": ["Clip_Style=\"Snap\"", "Clip_Snap_Length=4", "Enable_Slicing=true",
+                  "Slice_Count=2", "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 1, "message": "Clip_Snap_Length must exceed half of Clip_Tab_Width" }
+    },
+    {
+      "name": "snapclip_invalid_style_blocked",
+      "defines": ["Clip_Style=\"Velcro\"", "Enable_Slicing=true", "Slice_Count=2"],
+      "expect": { "rc": 1, "message": "Clip_Style must be Tab or Snap" }
+    },
+
+    {
+      "name": "anchor_lid_face_is_the_exposed_side",
+      "_why": "The v1.2.0 Gridfinity bug encoded as a regression test. The lid",
+      "_why2": "prints face-down, so the face exposed when the box is closed is",
+      "_why3": "the model's z=0 face. v1.2.0 placed the interface at Lid_Height +",
+      "_why4": "Lid_Lip_Gap_Height, the MATING face, burying it in the closed box.",
+      "_why5": "A 6mm marker attached to lid-face must reach BELOW z=0 (to -3).",
+      "_why6": "On the wrong face it would sit up around z=+14 instead.",
+      "source": "tests/anchors/lid_face.scad",
+      "defines": ["Render_On_Include=false"],
+      "expect": { "rc": 0, "bbox": { "z": [-3.0, 11.1] } }
+    },
+    {
+      "name": "anchor_box_floor",
+      "_why": "The floor anchor sits on the interior floor surface at z=1.85",
+      "_why2": "(Wall_Thickness), not on the outer bottom at z=0.",
+      "source": "tests/anchors/box_floor.scad",
+      "defines": ["Render_On_Include=false"],
+      "expect": { "rc": 0, "bbox": { "z": [-3.15, 50.0] } }
+    },
+    {
+      "name": "anchor_box_rim",
+      "_why": "The rim anchor sits on top of the wall at Box_Height.",
+      "source": "tests/anchors/box_rim.scad",
+      "defines": ["Render_On_Include=false"],
+      "expect": { "rc": 0, "bbox": { "z": [0.0, 55.0] } }
+    },
+    {
+      "name": "library_mode_renders_nothing",
+      "_why": "Render_On_Include=false must suppress the auto-render so the file",
+      "_why2": "can be included as a library. OpenSCAD exits 1 when asked to",
+      "_why3": "export an empty scene, so a non-zero exit IS the proof here.",
+      "defines": ["Render_On_Include=false"],
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "library_mode_off_still_renders",
+      "_why": "Guards the other direction: the default must still auto-render,",
+      "_why2": "or opening the file in OpenSCAD would show nothing.",
+      "defines": ["Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 1 }
     }
   ]
 }
