@@ -34,3 +34,6 @@ Thumbs.db
 
 # Generated standalone bundle
 dist/
+
+# Claude Code worktrees
+.claude/worktrees/

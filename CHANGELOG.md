@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-08-03
+
+Completes E-02 (BOSL2 migration) phases 2 and 3. Geometry is unchanged at
+default settings: mesh volumes match 1.3.0 exactly across box, lid, both,
+Gridfinity bottom, Gridfinity lid, and slicing.
+
+### Added
+- **Snap-fit seam clips.** `Clip_Style` adds `"Snap"`, a BOSL2 `rabbit_clip`
+  cantilever joint, alongside the original `"Tab"`. The tab is a rectangle in a
+  slightly larger hole held by friction; the snap has an engagement bump and an
+  arm that flexes, so it absorbs print inaccuracy instead of jamming.
+  Tuning parameters: `Clip_Snap_Length`, `Clip_Snap`, `Clip_Arm_Thickness`,
+  `Clip_Compression`, `Clip_Lock`.
+  **The default remains `"Tab"`** until a print validates the snap geometry.
+  Clip correctness cannot be established by rendering: manifoldness, solid
+  counts, and probes all pass for a joint far too tight to assemble or too loose
+  to hold.
+- **Attachment interface.** `m_box()` and `m_lid_part()` expose the box and lid
+  as BOSL2 attachables with named anchors: `floor`, `rim`, `wall-front`,
+  `wall-back`, `wall-left`, `wall-right`, `post-top`, `lid-face`, `lip`.
+  `lid-face` names the face that ends up exposed when the box is closed, which
+  is the thing v1.2.0's Gridfinity lid interface got wrong.
+- **Library mode.** `Render_On_Include=false` suppresses the auto-render so the
+  file can be included and composed against.
+- **A missing-dependency guard.** Without BOSL2 the model previously produced
+  "Can't open include file", a wall of unknown-module warnings, no geometry, and
+  **exit code 0**, which looks like success. It now fails with one message
+  naming what to install and pointing at the standalone bundle.
+- `scripts/bump-bosl2.sh` makes moving the pinned BOSL2 version a verified act:
+  renders nine scenarios against old and new refs, compares mesh volumes, runs
+  the suite, and refuses to apply on any change.
+
+### Fixed
+- Snap clips did not overlap their slice. The existing offsets assume a centred
+  cube; a `rabbit_clip` is base-anchored and grows away from the slice, so the
+  pin was left floating with nothing to bond to.
+- Preview layout now accounts for clip protrusion. An 8 mm snap pin crossed the
+  default 5 mm preview spacing and fused the all-slices preview into one body.
+  `"Tab"` previews are unchanged.
+
+### Testing
+- 65 scenarios, up from 48. Adds bounding-box assertions, `output_contains`, and
+  per-scenario source files for anchor and fixture tests.
+- The harness now reports which BOSL2 version OpenSCAD actually loads, before
+  any scenario runs. This exists because a full green local run turned out to be
+  testing a different library than CI: on Windows, `~/Documents` is redirected to
+  OneDrive, so a clone into that literal path went somewhere OpenSCAD never looks
+  while a stale copy kept being loaded. That masked the clip-overlap bug above.
+
 ## [1.3.0] - 2026-07-31
 
 Replaces the embedded BOSL2 copy with a real dependency. Dimensionally identical:
