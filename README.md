@@ -38,7 +38,11 @@ Then open `cable-box-parametric.scad` in [OpenSCAD](https://openscad.org/)
 <kbd>F6</kbd> to render, then export an STL.
 
 Would rather not install anything? Every release attaches a **standalone
-bundle** with BOSL2 inlined.
+bundle** with BOSL2 inlined. Unzip both files into the same folder and open the
+bundled `.scad`.
+
+If you open the plain `.scad` without BOSL2 installed, the model stops with a
+message telling you so, rather than rendering nothing and exiting successfully.
 
 **Want to see what everything does first?** Open the
 [visual options guide](docs/options-guide.html). Every parameter is rendered
@@ -56,6 +60,38 @@ from the model, in one self-contained file that works offline.
 
 Plus: per-wall opening sizes and positions, an open or closed-bottom centre
 post, adjustable lid fit, and corner radii from crisp to soft.
+
+### Seam joints
+
+Sliced boxes join with one of two clip styles:
+
+- **`Tab`** (default) is a friction fit. Simple, and tuned with `Clip_Tolerance`.
+- **`Snap`** is a cantilever clip with an engagement bump. The arm flexes, so it
+  absorbs print inaccuracy instead of jamming, and the bump resists pull-out
+  rather than relying on interference.
+
+`Snap` is opt-in for now. Clip correctness is the one thing here that rendering
+cannot check: a joint too tight to assemble passes every automated test. The
+default flips once a print says it should.
+
+### Composing with it
+
+The box and lid are BOSL2 attachables, so accessories attach to named features
+instead of computed coordinates:
+
+```scad
+Render_On_Include = false;   // or -D Render_On_Include=false
+include <cable-box-parametric.scad>
+
+m_box()
+    attach("wall-back")
+        my_bracket();
+```
+
+Anchors: `floor`, `rim`, `wall-front`, `wall-back`, `wall-left`, `wall-right`,
+`post-top`, plus `lid-face` and `lip` on the lid. `lid-face` names the face that
+ends up exposed when the box is closed, so nobody has to re-derive which side of
+a face-down-printed lid is up.
 
 ## Presets
 
@@ -90,7 +126,7 @@ Published at
 |---|---|
 | [Options guide (HTML)](docs/options-guide.html) | Every parameter, rendered. Self-contained, works offline. |
 | [Options guide (Markdown)](docs/OPTIONS_GUIDE.md) | The same, readable on GitHub. |
-| [Parameter reference](docs/PARAMETER_REFERENCE.md) | Exhaustive tables for all 79 parameters. |
+| [Parameter reference](docs/PARAMETER_REFERENCE.md) | Exhaustive tables for every parameter. |
 | [Workflows](docs/WORKFLOWS.md) | Setup, calibration, slicing, troubleshooting. |
 | [Printing guide](docs/PRINTING.md) | Materials, orientation, fit calibration. |
 | [FAQ](docs/FAQ.md) | Common questions and fixes. |
@@ -114,15 +150,21 @@ cable lying on the desk passes straight in without climbing a lip.
 Model changes are gated by an automated geometry suite, not just a compile check.
 
 ```bash
-python tests/run_tests.py          # 48 scenarios
+python tests/run_tests.py          # 65 scenarios
 bash scripts/scad-smoke.sh         # quick render smoke
 bash scripts/check-version.sh      # version consistency
+bash scripts/bump-bosl2.sh         # verified BOSL2 dependency upgrades
 ```
 
 The suite asserts exit codes, assertion text, manifoldness, disconnected-solid
-counts, absence of warnings, and point probes against the exported mesh. That
-last group matters: OpenSCAD will happily return `0` while producing a model
-with a detached, unprintable piece in it.
+counts, bounding boxes, absence of warnings, and point probes against the
+exported mesh. That matters more than it sounds: OpenSCAD will happily return
+`0` while producing a model with a detached, unprintable piece in it, or a
+correctly-sized part rotated onto the wrong axis.
+
+The runner prints which BOSL2 version OpenSCAD actually loads before running
+anything, because a local suite silently testing a different library version
+than CI is a real failure mode this project has already hit.
 
 ## Contributing
 

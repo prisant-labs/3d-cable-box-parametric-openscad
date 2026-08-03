@@ -518,6 +518,16 @@
       "expect": { "rc": 1, "output_contains": "top level object is empty" }
     },
     {
+      "name": "missing_bosl2_fails_legibly",
+      "_why": "Without a guard, a missing BOSL2 gives 'Can't open include file'",
+      "_why2": "then a wall of 'Ignoring unknown module' warnings, no geometry,",
+      "_why3": "and exit code 0. The zero exit makes it look like it worked.",
+      "_why4": "Fixture is the model with its include redirected to a library that",
+      "_why5": "does not exist; regenerate with scripts/regen_missing_bosl2_fixture.py.",
+      "source": "tests/fixtures/missing_bosl2.scad",
+      "expect": { "rc": 1, "message": "BOSL2 is not installed" }
+    },
+    {
       "name": "library_mode_off_still_renders",
       "_why": "Guards the other direction: the default must still auto-render,",
       "_why2": "or opening the file in OpenSCAD would show nothing.",
