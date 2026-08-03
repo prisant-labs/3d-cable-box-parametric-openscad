@@ -88,6 +88,39 @@ def render(scad_bin: str, src: Path, out_stl: Path, defines: list[str]) -> tuple
     return proc.returncode, (proc.stdout or "") + "\n" + (proc.stderr or "")
 
 
+def report_bosl2(scad_bin: str) -> str:
+    """Print which BOSL2 OpenSCAD actually loads, and where from.
+
+    Not decoration. On a Windows machine where Documents is redirected to
+    OneDrive, a `git clone` into ~/Documents/OpenSCAD/libraries lands somewhere
+    OpenSCAD never looks, while a stale copy under OneDrive keeps being used.
+    The result is a full local test run that passes against a different library
+    version than CI, and a real bug shipping because the local run was green.
+    That happened; hence this.
+    """
+    probe = Path(tempfile.gettempdir()) / "_bosl2_probe.scad"
+    probe.write_text(
+        'include <BOSL2/version.scad>\n'
+        'echo(str("BOSL2_VERSION_IS ", BOSL_VERSION));\n',
+        encoding="utf-8",
+    )
+    out = subprocess.run([scad_bin, "-o", str(probe.with_suffix(".stl")), str(probe)],
+                         capture_output=True, text=True, timeout=120)
+    text = (out.stdout or "") + (out.stderr or "")
+    m = re.search(r"BOSL2_VERSION_IS \[([0-9, ]+)\]", text)
+    version = ".".join(p.strip() for p in m.group(1).split(",")) if m else "unknown"
+    # OpenSCAD reports the resolved path in any warning it emits from the library.
+    where = ""
+    wm = re.search(r"in file (\S*BOSL2[^,\s]*)", text)
+    if wm:
+        where = f"  from {wm.group(1)}"
+    print(f"BOSL2:    {version}{where}")
+    if version == "unknown":
+        print("          WARNING: could not determine the loaded BOSL2 version.")
+        print("          Set OPENSCADPATH to the library folder OpenSCAD should use.")
+    return version
+
+
 def stl_bbox(path: Path) -> list[tuple[float, float]]:
     """Return [(xmin,xmax),(ymin,ymax),(zmin,zmax)] for an ASCII STL."""
     lo = [float("inf")] * 3
@@ -232,6 +265,7 @@ def main() -> int:
     args = ap.parse_args()
 
     scad_bin = find_openscad()
+    bosl2 = report_bosl2(scad_bin)
     scenarios = json.loads(SCENARIOS.read_text(encoding="utf-8"))["scenarios"]
     if args.filter:
         scenarios = [s for s in scenarios if args.filter in s["name"]]

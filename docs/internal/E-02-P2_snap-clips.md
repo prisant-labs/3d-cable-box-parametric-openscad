@@ -116,6 +116,36 @@ New, only meaningful when `Clip_Style="Snap"`:
 Defaults are starting points from BOSL2's own examples, scaled to this model's
 clip size. They are explicitly a first guess pending the print test.
 
+## What actually went wrong, recorded
+
+Two things, both worth keeping.
+
+**The pin never overlapped its slice.** The existing clip offsets assume a
+*centred* cube: `Clip_Tab_Depth/2 - SPACER` pulls a centred tab's near face back
+to the seam. A `rabbit_clip` is *base-anchored*: its geometry starts at the
+placement point and grows away from the slice, so the same offset left the pin
+floating in the gap with nothing to bond to. The offsets are now style-aware.
+
+**It passed locally anyway, for a bad reason.** This machine had two BOSL2
+installs. `~/Documents/OpenSCAD/libraries` is redirected to OneDrive on Windows,
+so a `git clone` into the literal `~/Documents` path landed somewhere OpenSCAD
+never looks, while a stale 2.0.716 copy under OneDrive kept being loaded. Under
+2.0.716 the anchor happened to sit 4.19 mm further back, which produced the
+overlap by accident. Under the pinned 2.0.747 the pin detaches and the slice
+exports in three pieces.
+
+So a full green local run was testing a different library than CI. CI caught it;
+local could not have. Two guards now exist:
+
+- `tests/run_tests.py` prints the BOSL2 version OpenSCAD actually loads, on
+  every run, before any scenario.
+- `scripts/bump-bosl2.sh` refuses to run when the clone it manages is not the
+  one OpenSCAD loads, because every comparison it makes would be meaningless.
+
+The bounding-box assertion is what made this diagnosable rather than mysterious:
+`x-max 34.968 versus 30.780` located the fault immediately, where the solid count
+only said "detached".
+
 ## Risks
 
 - **Untested geometry.** Mitigated by the opt-in default and an rc release.

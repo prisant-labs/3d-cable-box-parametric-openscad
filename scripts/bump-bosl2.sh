@@ -43,6 +43,30 @@ CURRENT=$(grep -oE '^\s*BOSL2_REF:\s*\S+' "$WORKFLOW" | awk '{print $2}')
 echo "Current pin:  $CURRENT"
 echo "BOSL2 clone:  $BOSL2"
 
+# Verify the clone we are about to check out is the library OpenSCAD actually
+# loads. On Windows with Documents redirected to OneDrive these differ silently,
+# and every render below would then test a version this script never touched.
+PROBE="$(mktemp -d)/probe.scad"
+printf 'include <BOSL2/version.scad>\necho(str("V ", BOSL_VERSION));\n' > "$PROBE"
+# `|| true` on both pipelines: when the probe finds nothing, that IS the
+# mismatch case and must reach the report below, not be swallowed by set -e as
+# a silent non-zero exit.
+LOADED=$({ "$SCAD_BIN" -o "${PROBE%.scad}.stl" "$PROBE" 2>&1 \
+          | grep -oE 'V \[[0-9, ]+\]' | grep -oE '[0-9]+, *[0-9]+, *[0-9]+' \
+          | tr -d ' ' | tr ',' '.'; } || true)
+CLONE_VERSION=$({ grep -m1 -oE 'BOSL_VERSION *= *\[[0-9, ]+\]' "$BOSL2/version.scad" \
+          | grep -oE '[0-9]+, *[0-9]+, *[0-9]+' | tr -d ' ' | tr ',' '.'; } || true)
+echo "Clone version: ${CLONE_VERSION:-unknown}"
+echo "OpenSCAD loads: ${LOADED:-unknown}"
+if [ "$LOADED" != "$CLONE_VERSION" ]; then
+  echo
+  echo "MISMATCH. OpenSCAD is loading a different BOSL2 than the clone this"
+  echo "script manages, so any comparison below would be meaningless."
+  echo "Set OPENSCADPATH to the folder containing the managed clone:"
+  echo "  export OPENSCADPATH=\"$LIBDIR\""
+  exit 1
+fi
+
 if [ $# -eq 0 ]; then
   echo
   echo "Latest upstream commits:"
