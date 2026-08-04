@@ -52,7 +52,9 @@ git show "$REF:CHANGELOG.md" > "$SNAP/CHANGELOG.md" 2>/dev/null || true
 # 3. A manifest tying the snapshot back to its commit.
 {
   echo "ref:         $REF"
-  echo "commit:      $(git rev-parse "$REF")"
+  # ^{commit} matters: for an annotated tag, bare `git rev-parse` returns the tag
+  # object, not the commit it wraps. This field is read back as a commit.
+  echo "commit:      $(git rev-parse "$REF^{commit}")"
   echo "committed:   $(git log -1 --format=%cI "$REF")"
   echo "subject:     $(git log -1 --format=%s "$REF")"
   echo "backed_up:   $(date -Iseconds)"
