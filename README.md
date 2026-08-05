@@ -110,12 +110,26 @@ complete `config.json`, STLs, renders, and notes.
 | [`surge-strip-6`](library/surge-strip-6/) | Six-outlet surge protector | 265 x 100 x 62 |
 | [`surge-strip-6-sliced`](library/surge-strip-6-sliced/) | Same, split for a 180 mm bed | 265 x 100 x 62 |
 
-Load one directly:
+All nine are also collected into `cable-box-parametric.json` next to the model,
+so opening `cable-box-parametric.scad` and pressing <kbd>F3</kbd> offers every
+preset in the Customizer's dropdown.
+
+Load one from the command line, from the merged file:
+
+```bash
+openscad -o out.stl cable-box-parametric.scad \
+  -p cable-box-parametric.json -P desk-compact
+```
+
+Or from a single preset's own copy:
 
 ```bash
 openscad -o out.stl cable-box-parametric.scad \
   -p library/desk-compact/config.json -P desk-compact
 ```
+
+Both are OpenSCAD's native parameter-set format, so a set you save from the
+desktop Customizer drops straight back in, and settings survive a round trip.
 
 ## Documentation
 

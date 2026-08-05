@@ -280,7 +280,7 @@ GF_SCREW_CBORE_DEPTH   = 2.2;
 // release build; CI enforces that. Echoed at render so an exported STL can be
 // traced back to the source that produced it, which matters for a model
 // distributed as loose files.
-Model_Version = "1.4.0";
+Model_Version = "1.4.1";
 echo(str("cable-box-parametric ", Model_Version));
 
 // Render the model when this file is opened or included. Set false (usually via

@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2026-08-04
+
+Bugfix release. The model itself is untouched, so geometry is unchanged and the
+STLs in `library/` are byte-identical to 1.4.0. What changed is the preset
+metadata and the preview renders around it.
+
+### Fixed
+- **Preset `config.json` files were rejected by OpenSCAD outright.** Booleans
+  were written capitalised (`"True"`), where the Customizer parameter-set format
+  requires `"true"`. Loading such a set fails with
+  `Cannot apply Parameter Set 'conversion of data to type "b" failed'`, and
+  OpenSCAD then discards the *entire* set rather than skipping the offending
+  key. That made `gridfinity-module`, `surge-strip-6-sliced` and
+  `under-desk-passthrough` unusable through the `-p` / `-P` invocation that
+  `library/README.md` documents. The STLs were never affected, because the
+  render path lowercased booleans correctly; only the JSON path was wrong, and
+  nothing exercised it.
+- **Preview renders hid the difference between presets.** Images were rendered
+  with `--viewall`, which zooms each model to fill the frame and therefore
+  discards scale. Five of the nine presets differ only in dimensions, so a
+  265 mm surge strip and a 120 mm charger were drawn the same size. The
+  `box-and-lid` view now renders every preset at one fixed camera distance, so
+  the library reads as a size comparison. Detail views keep fit-to-frame, where
+  only shape matters.
+- **Release snapshots recorded the wrong commit.** `scripts/backup-release.sh`
+  used `git rev-parse <tag>`, which returns the annotated tag object rather than
+  the commit it wraps, so every `MANIFEST.txt` stored a tag SHA in a field
+  labelled `commit:`. Snapshot contents and checksums were correct throughout.
+
+### Added
+- **`cable-box-parametric.json`**, one parameter-set file beside the model
+  carrying all nine presets. OpenSCAD's Customizer offers the full list when the
+  model is opened, and `-p cable-box-parametric.json -P <preset>` selects one
+  from the command line. It is generated from the same table as the per-preset
+  files, so the two cannot disagree.
+
 ## [1.4.0] - 2026-08-03
 
 Completes E-02 (BOSL2 migration) phases 2 and 3. Geometry is unchanged at
