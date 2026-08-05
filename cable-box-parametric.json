@@ -1,0 +1,85 @@
+{
+  "fileFormatVersion": "1",
+  "parameterSets": {
+    "desk-compact": {
+      "Box_Width": "140",
+      "Box_Depth": "80",
+      "Box_Height": "55",
+      "All_Opening_Width": "14",
+      "All_Opening_Height": "32"
+    },
+    "laptop-brick": {
+      "Box_Width": "175",
+      "Box_Depth": "105",
+      "Box_Height": "70",
+      "All_Opening_Width": "16",
+      "All_Opening_Height": "38",
+      "Stabilizers_Front_Back_Count": "4"
+    },
+    "usb-charger": {
+      "Box_Width": "120",
+      "Box_Depth": "75",
+      "Box_Height": "45",
+      "All_Opening_Width": "12",
+      "All_Opening_Height": "26",
+      "Post_Diameter": "12"
+    },
+    "monitor-junction": {
+      "Box_Width": "210",
+      "Box_Depth": "95",
+      "Box_Height": "62",
+      "All_Opening_Width": "18",
+      "All_Opening_Height": "36",
+      "Stabilizers_Front_Back_Count": "4"
+    },
+    "surge-strip-6": {
+      "Box_Width": "265",
+      "Box_Depth": "100",
+      "Box_Height": "62",
+      "All_Opening_Width": "20",
+      "All_Opening_Height": "38",
+      "Stabilizers_Front_Back_Count": "5"
+    },
+    "surge-strip-6-sliced": {
+      "Box_Width": "265",
+      "Box_Depth": "100",
+      "Box_Height": "62",
+      "All_Opening_Width": "20",
+      "All_Opening_Height": "38",
+      "Stabilizers_Front_Back_Count": "5",
+      "Enable_Slicing": "true",
+      "Slice_Count": "2",
+      "Clips_Per_Edge": "3"
+    },
+    "gridfinity-module": {
+      "Box_Width": "140",
+      "Box_Depth": "100",
+      "Box_Height": "55",
+      "Enable_Gridfinity_Bottom": "true",
+      "Enable_Gridfinity_Lid_Top": "true",
+      "Closed_Post": "true",
+      "All_Opening_Width": "14",
+      "All_Opening_Height": "30"
+    },
+    "router-shelf": {
+      "Box_Width": "230",
+      "Box_Depth": "130",
+      "Box_Height": "75",
+      "All_Opening_Width": "22",
+      "All_Opening_Height": "45",
+      "Stabilizers_Front_Back_Count": "4",
+      "Stabilizers_Left_Right_Count": "2"
+    },
+    "under-desk-passthrough": {
+      "Box_Width": "180",
+      "Box_Depth": "85",
+      "Box_Height": "50",
+      "Enable_Post": "false",
+      "All_Opening_Width": "24",
+      "All_Opening_Height": "34",
+      "Opening_On_Front": "false",
+      "Opening_On_Back": "false",
+      "Stabilizers_Front_Back_Count": "3"
+    }
+  }
+}

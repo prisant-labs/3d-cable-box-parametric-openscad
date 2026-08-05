@@ -5,9 +5,9 @@
       "Box_Width": "140",
       "Box_Depth": "100",
       "Box_Height": "55",
-      "Enable_Gridfinity_Bottom": "True",
-      "Enable_Gridfinity_Lid_Top": "True",
-      "Closed_Post": "True",
+      "Enable_Gridfinity_Bottom": "true",
+      "Enable_Gridfinity_Lid_Top": "true",
+      "Closed_Post": "true",
       "All_Opening_Width": "14",
       "All_Opening_Height": "30"
     }

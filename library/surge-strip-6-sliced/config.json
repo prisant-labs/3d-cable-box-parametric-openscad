@@ -8,7 +8,7 @@
       "All_Opening_Width": "20",
       "All_Opening_Height": "38",
       "Stabilizers_Front_Back_Count": "5",
-      "Enable_Slicing": "True",
+      "Enable_Slicing": "true",
       "Slice_Count": "2",
       "Clips_Per_Edge": "3"
     }

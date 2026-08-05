@@ -20,15 +20,26 @@ cannot drift from the model the way hand-made artifacts do.
 
 ## Using a preset
 
-Load the parameter set directly:
+Every preset is also collected into `cable-box-parametric.json` beside
+the model, so opening `cable-box-parametric.scad` in OpenSCAD and then
+the Customizer (F3) offers all of them in the preset dropdown.
+
+From the command line, against the merged file:
+
+```bash
+openscad -o out.stl cable-box-parametric.scad \
+  -p cable-box-parametric.json -P <preset>
+```
+
+Or against a single preset's own copy:
 
 ```bash
 openscad -o out.stl cable-box-parametric.scad \
   -p library/<preset>/config.json -P <preset>
 ```
 
-Or open `cable-box-parametric.scad` in OpenSCAD, open the Customizer
-(F3), and load the preset's `config.json` from the preset dropdown.
+Both files are the Customizer's native parameter-set format, so a set
+saved by desktop OpenSCAD can be dropped straight back in.
 
 ## Adding a preset
 

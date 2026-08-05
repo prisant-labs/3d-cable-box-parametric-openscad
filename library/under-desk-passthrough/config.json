@@ -5,11 +5,11 @@
       "Box_Width": "180",
       "Box_Depth": "85",
       "Box_Height": "50",
-      "Enable_Post": "False",
+      "Enable_Post": "false",
       "All_Opening_Width": "24",
       "All_Opening_Height": "34",
-      "Opening_On_Front": "False",
-      "Opening_On_Back": "False",
+      "Opening_On_Front": "false",
+      "Opening_On_Back": "false",
       "Stabilizers_Front_Back_Count": "3"
     }
   }

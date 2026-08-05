@@ -2,9 +2,9 @@
 """Regenerate the preset library: configs, STLs, preview renders, and the index.
 
 Presets are defined here as data, so adding one is a dict entry. Everything
-downstream (config.json, STLs, PNGs, notes, and library/README.md) is generated,
-which is what keeps the library from going stale the way the hand-made v1
-artifacts did.
+downstream (config.json, STLs, PNGs, notes, library/README.md, and the merged
+cable-box-parametric.json beside the model) is generated, which is what keeps
+the library from going stale the way the hand-made v1 artifacts did.
 
 Presets are organised by what the user physically has, not by dimensions,
 because nobody knows they need 260 x 100 x 60.
@@ -118,11 +118,24 @@ PRESETS = [
     },
 ]
 
+# (slug, part, camera rotation, fixed_scale)
+#
+# A fixed_scale view is rendered without --viewall so every preset shares one
+# camera distance and the library reads as a size comparison. --viewall zooms
+# each model to fill the frame, which made a 265 mm strip and a 120 mm charger
+# occupy identical space. Five of the nine presets differ only in dimensions,
+# so that flag was hiding the only difference they have.
 VIEWS = [
-    ("box-only", "Box Only", "0,0,0,55,0,25"),
-    ("lid-only", "Lid Only", "0,0,0,55,0,25"),
-    ("box-and-lid", "Box and Lid", "0,0,0,55,0,25"),
+    ("box-only", "Box Only", "55,0,25", False),
+    ("lid-only", "Lid Only", "55,0,25", False),
+    ("box-and-lid", "Box and Lid", "55,0,25", True),
 ]
+
+# Calibrated against the widest preset (surge-strip-6, 552 mm across box and
+# lid) so it frames with margin to spare. If a wider preset is ever added the
+# build warns rather than silently cropping it; raise both values then.
+SCALE_DIST = 1300
+SCALE_MAX_SPAN = 600.0
 
 
 def find_openscad() -> str:
@@ -161,7 +174,8 @@ def render(scad: str, out: Path, params: dict, extra: list[str]) -> bool:
     return True
 
 
-def stl_stats(path: Path) -> tuple[float, float, float]:
+def stl_bbox(path: Path):
+    """Axis-aligned bounds as ((x0,x1),(y0,y1),(z0,z1))."""
     xs, ys, zs = [], [], []
     with path.open(errors="replace") as fh:
         for line in fh:
@@ -169,7 +183,45 @@ def stl_stats(path: Path) -> tuple[float, float, float]:
             if line.startswith("vertex"):
                 _, x, y, z = line.split()
                 xs.append(float(x)); ys.append(float(y)); zs.append(float(z))
-    return (max(xs) - min(xs), max(ys) - min(ys), max(zs) - min(zs))
+    return (min(xs), max(xs)), (min(ys), max(ys)), (min(zs), max(zs))
+
+
+def bbox_size(b) -> tuple[float, float, float]:
+    return tuple(hi - lo for lo, hi in b)
+
+
+def bbox_centre(b) -> tuple[float, float, float]:
+    return tuple((lo + hi) / 2 for lo, hi in b)
+
+
+def as_param(v) -> str:
+    """Serialise one value for a Customizer parameter set.
+
+    The format stores everything as strings, but OpenSCAD still type-checks
+    them on load. Python's str(True) is "True", which OpenSCAD rejects with
+    'conversion of data to type "b" failed' and then discards the entire
+    parameter set, so booleans have to be lowercased.
+    """
+    if isinstance(v, bool):
+        return "true" if v else "false"
+    return str(v)
+
+
+def camera_args(rot: str, bbox, label: str) -> list[str]:
+    common = ["--imgsize=1000,750", "--colorscheme=Tomorrow"]
+    if bbox is None:
+        return common + ["--viewall", "--autocenter", f"--camera=0,0,0,{rot},0"]
+
+    cx, cy, cz = bbox_centre(bbox)
+    span = max(bbox_size(bbox))
+    if span > SCALE_MAX_SPAN:
+        print(f"      WARNING: {label} spans {span:.0f} mm, past the "
+              f"{SCALE_MAX_SPAN:.0f} mm that SCALE_DIST={SCALE_DIST} frames. "
+              f"Raise both or this render is cropped.")
+    # --autocenter is deliberately absent as well as --viewall: it stops
+    # centring once --viewall is gone, so aim at the bounding box centre
+    # directly. "Box and Lid" puts the lid at +x, so that centre is not 0.
+    return common + [f"--camera={cx:.2f},{cy:.2f},{cz:.2f},{rot},{SCALE_DIST}"]
 
 
 def main() -> int:
@@ -194,7 +246,7 @@ def main() -> int:
         # config.json carries every override, so it is unambiguous and survives
         # a change to the model defaults.
         cfg = {"fileFormatVersion": "1",
-               "parameterSets": {name: {k: str(v) for k, v in preset["params"].items()}}}
+               "parameterSets": {name: {k: as_param(v) for k, v in preset["params"].items()}}}
         (base / "config.json").write_text(json.dumps(cfg, indent=2) + "\n", encoding="utf-8")
 
         # Gridfinity features live on the underside of both parts, so a
@@ -202,25 +254,28 @@ def main() -> int:
         views = list(VIEWS)
         if preset["params"].get("Enable_Gridfinity_Bottom") or \
            preset["params"].get("Enable_Gridfinity_Lid_Top"):
-            views.append(("underside", "Box and Lid", "0,0,0,125,0,25"))
+            views.append(("underside", "Box and Lid", "125,0,25", False))
 
         dims = None
-        for slug, part, cam in views:
+        for slug, part, rot, fixed in views:
             params = dict(preset["params"], Part_To_Render=part)
+            bbox = None
             if slug != "underside":
                 stl = base / "stl" / f"{name}_{slug}.stl"
                 if not args.no_stl:
-                    if render(scad, stl, params, []) and slug == "box-only":
-                        dims = stl_stats(stl)
-                elif slug == "box-only" and stl.exists():
-                    # Reuse the existing STL so a --no-stl rebuild still gets
-                    # dimensions for the notes and the index table.
-                    dims = stl_stats(stl)
+                    render(scad, stl, params, [])
+                # Read back what we need: box-only gives the printed envelope
+                # for the notes and index, and a fixed-scale view needs its own
+                # bounds to aim the camera. Reusing an existing STL is what lets
+                # --no-stl still produce both.
+                if stl.exists() and (fixed or slug == "box-only"):
+                    bbox = stl_bbox(stl)
+                    if slug == "box-only":
+                        dims = bbox_size(bbox)
             if not args.no_png:
                 png = base / "images" / f"{name}_{slug}.png"
                 render(scad, png, params,
-                       ["--imgsize=1000,750", "--colorscheme=Tomorrow",
-                        "--viewall", "--autocenter", f"--camera={cam},0"])
+                       camera_args(rot, bbox if fixed else None, f"{name}/{slug}"))
         if dims:
             print(f"      box {dims[0]:.1f} x {dims[1]:.1f} x {dims[2]:.1f} mm")
 
@@ -240,6 +295,17 @@ def main() -> int:
         size = f"{dims[0]:.0f} x {dims[1]:.0f} x {dims[2]:.0f}" if dims else "n/a"
         index_rows.append((name, preset["title"], preset["fits"], size))
 
+    # One merged parameter-set file next to the model. OpenSCAD's Customizer
+    # reads named sets from JSON, so this offers every preset in the dropdown
+    # without hunting for a per-preset file, and it is what a web customizer
+    # can load too. Built from PRESETS rather than the filtered list, so
+    # --only cannot silently truncate it to a single entry.
+    merged = {"fileFormatVersion": "1",
+              "parameterSets": {p["name"]: {k: as_param(v) for k, v in p["params"].items()}
+                                for p in PRESETS}}
+    (REPO / "cable-box-parametric.json").write_text(
+        json.dumps(merged, indent=2) + "\n", encoding="utf-8")
+
     readme = ["# Preset Library", "",
               "Ready-to-print configurations for common jobs. Each preset carries a",
               "complete `config.json`, STLs, preview renders, and notes.", "",
@@ -249,16 +315,23 @@ def main() -> int:
     for name, title, fits, size in index_rows:
         readme.append(f"| [`{name}`]({name}/) | {title} | {fits} | {size} |")
     readme += ["", "## Using a preset", "",
-               "Load the parameter set directly:", "", "```bash",
+               "Every preset is also collected into `cable-box-parametric.json` beside",
+               "the model, so opening `cable-box-parametric.scad` in OpenSCAD and then",
+               "the Customizer (F3) offers all of them in the preset dropdown.", "",
+               "From the command line, against the merged file:", "", "```bash",
+               "openscad -o out.stl cable-box-parametric.scad \\",
+               "  -p cable-box-parametric.json -P <preset>", "```", "",
+               "Or against a single preset's own copy:", "", "```bash",
                "openscad -o out.stl cable-box-parametric.scad \\",
                "  -p library/<preset>/config.json -P <preset>", "```", "",
-               "Or open `cable-box-parametric.scad` in OpenSCAD, open the Customizer",
-               "(F3), and load the preset's `config.json` from the preset dropdown.", "",
+               "Both files are the Customizer's native parameter-set format, so a set",
+               "saved by desktop OpenSCAD can be dropped straight back in.", "",
                "## Adding a preset", "",
                "Add an entry to `PRESETS` in `scripts/build_library.py` and rerun it.",
                "Do not hand-edit generated files.", ""]
     (LIB / "README.md").write_text("\n".join(readme), encoding="utf-8")
-    print(f"\nWrote {len(index_rows)} presets and library/README.md")
+    print(f"\nWrote {len(index_rows)} presets, library/README.md, "
+          f"and cable-box-parametric.json ({len(PRESETS)} sets)")
     return 0
 
 
