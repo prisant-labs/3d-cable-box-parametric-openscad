@@ -21,6 +21,7 @@ import os
 import shutil
 import subprocess
 import sys
+import zlib
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -207,6 +208,63 @@ def as_param(v) -> str:
     return str(v)
 
 
+# OpenSCAD rasterises through OpenGL, so pixels along polygon edges land
+# differently from one run to the next. The images are identical to look at but
+# not byte-equal, and git compares bytes: without a guard every rebuild reports
+# every render as modified, so a real change drowns in noise and the diff stops
+# being worth reading.
+#
+# Measured on a 1000x750 render, 2,250,750 bytes of pixel data:
+#
+#   identical input, back-to-back renders     0 to 6 bytes differ
+#   identical input, across separate runs     up to 993
+#   Box_Width 140 -> 140.5 (smallest change)  11,508
+#   Box_Width 140 -> 145                      17,696
+#
+# Noise and signal are an order of magnitude apart, so the threshold sits in the
+# gap. Re-measure before moving it; the numbers are specific to this image size.
+PNG_NOISE_BYTES = 4000
+
+
+def png_payload(path: Path) -> bytes | None:
+    """The decompressed image stream of a PNG, or None if it cannot be read.
+
+    OpenSCAD writes a bare IHDR/IDAT/IEND file with no metadata chunks, so this
+    is image content and nothing else. No timestamp to strip.
+    """
+    try:
+        d = path.read_bytes()
+        if d[:8] != b"\x89PNG\r\n\x1a\n":
+            return None
+        i, idat = 8, []
+        while i + 8 <= len(d):
+            ln = int.from_bytes(d[i:i + 4], "big")
+            if d[i + 4:i + 8] == b"IDAT":
+                idat.append(d[i + 8:i + 8 + ln])
+            i += 12 + ln
+        return zlib.decompress(b"".join(idat)) if idat else None
+    except (OSError, zlib.error):
+        return None
+
+
+def is_same_picture(fresh: Path, previous: bytes | None) -> bool:
+    """Whether a new render differs from the old one only by rasteriser noise."""
+    if previous is None:
+        return False
+    new = png_payload(fresh)
+    if new is None or len(new) != len(previous):
+        return False
+    if new == previous:
+        return True
+    delta = 0
+    for a, b in zip(new, previous):
+        if a != b:
+            delta += 1
+            if delta > PNG_NOISE_BYTES:   # real change, stop counting
+                return False
+    return True
+
+
 def camera_args(rot: str, bbox, label: str) -> list[str]:
     common = ["--imgsize=1000,750", "--colorscheme=Tomorrow"]
     if bbox is None:
@@ -236,6 +294,7 @@ def main() -> int:
     print(f"OpenSCAD: {scad}\nBuilding {len(presets)} preset(s)\n")
 
     index_rows = []
+    png_written = png_kept = 0
     for preset in presets:
         name = preset["name"]
         base = LIB / name
@@ -274,8 +333,21 @@ def main() -> int:
                         dims = bbox_size(bbox)
             if not args.no_png:
                 png = base / "images" / f"{name}_{slug}.png"
-                render(scad, png, params,
-                       camera_args(rot, bbox if fixed else None, f"{name}/{slug}"))
+                previous = png_payload(png) if png.exists() else None
+                # Render beside the target, then keep the old file if the new
+                # one is the same picture. The suffix stays .png because
+                # OpenSCAD picks its output format from the extension.
+                tmp = png.with_name("_tmp_" + png.name)
+                if render(scad, tmp, params,
+                          camera_args(rot, bbox if fixed else None, f"{name}/{slug}")):
+                    if is_same_picture(tmp, previous):
+                        tmp.unlink()
+                        png_kept += 1
+                    else:
+                        tmp.replace(png)
+                        png_written += 1
+                elif tmp.exists():
+                    tmp.unlink()
         if dims:
             print(f"      box {dims[0]:.1f} x {dims[1]:.1f} x {dims[2]:.1f} mm")
 
@@ -332,6 +404,8 @@ def main() -> int:
     (LIB / "README.md").write_text("\n".join(readme), encoding="utf-8")
     print(f"\nWrote {len(index_rows)} presets, library/README.md, "
           f"and cable-box-parametric.json ({len(PRESETS)} sets)")
+    if not args.no_png:
+        print(f"Renders: {png_written} written, {png_kept} unchanged and left alone")
     return 0
 
 

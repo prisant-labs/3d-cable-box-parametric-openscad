@@ -126,9 +126,41 @@ Decrease `Clip_Tolerance` in small steps and retest. You can also increase `Clip
 
 Yes. Set `Enable_Post=false`.
 
+## How do I load one of the presets?
+
+Open `cable-box-parametric.scad` and press `F3`. All nine presets appear in the
+Customizer's preset dropdown, because `cable-box-parametric.json` sits next to
+the model and OpenSCAD reads parameter sets from it.
+
+From the command line:
+
+```bash
+openscad -o out.stl cable-box-parametric.scad \
+  -p cable-box-parametric.json -P desk-compact
+```
+
+Each preset also keeps its own copy at `library/<preset>/config.json`, which
+takes the same `-p` and `-P` arguments.
+
+## A preset config.json will not load and OpenSCAD reports a type error
+
+If you see:
+
+```
+ERROR: Cannot apply Parameter Set 'conversion of data to type "b" failed'
+```
+
+you have a `config.json` from release 1.4.0 or earlier. Boolean values were
+written capitalised (`"True"`) where the format requires `"true"`, and OpenSCAD
+rejects the whole parameter set rather than skipping the bad value. It affected
+`gridfinity-module`, `surge-strip-6-sliced` and `under-desk-passthrough`. Fixed
+in 1.4.1: take the current files, or lowercase the booleans by hand.
+
 ## Where should reusable preset builds and assets go?
 
-Use `library/` for curated presets and associated images/STLs.
+`library/` holds the curated presets, but everything in it is generated. Add an
+entry to `PRESETS` in `scripts/build_library.py` and rerun it rather than adding
+files by hand.
 
 ## Where should community-created variants go?
 

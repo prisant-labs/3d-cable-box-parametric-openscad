@@ -11,7 +11,10 @@
 - `WORKFLOWS.md`: Practical setup, calibration, slicing, and troubleshooting workflows.
 - `PRINTING.md`: Printing-specific baseline settings and process guidance.
 - `FAQ.md`: Common questions and issue resolution.
-- `RELEASE.md`: Release checklist.
+- `RELEASE.md`: Release checklist, from version bump through snapshot.
+- `../library/README.md`: The nine presets, what each fits, and their sizes.
+- `../cable-box-parametric.json`: All nine presets as one OpenSCAD parameter-set
+  file, so the Customizer lists them when the model is opened. Generated.
 - `../mkdocs.yml`: Docs site navigation/config.
 - `.github/workflows/docs-pages.yml`: GitHub Pages publish workflow.
 - `.github/workflows/scad-smoke.yml`: GitHub Actions OpenSCAD smoke workflow.

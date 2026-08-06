@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Documentation and tooling only. No model or geometry change.
+
+### Fixed
+- **Rebuilding the library no longer reports every render as modified.**
+  OpenSCAD rasterises through OpenGL, so pixels along polygon edges land
+  differently between runs: two renders of an identical model differ by up to
+  993 bytes of 2,250,750, invisible to the eye but not byte-equal. Git compares
+  bytes, so every rebuild dirtied images that had not changed, and real changes
+  were indistinguishable from noise. `scripts/build_library.py` now compares a
+  new render against the existing file and keeps the old one when they are the
+  same picture. The threshold sits in the gap between measured noise (up to 993
+  bytes) and the subtlest real change (a 0.5 mm dimension shift moves 11,508),
+  and the measurements are recorded beside it. The build reports how many
+  renders it wrote versus left alone.
+- `docs/WORKFLOWS.md` told contributors to add presets to `library/` by hand.
+  Everything in that directory is generated and hand-added files are overwritten
+  on the next build.
+
+### Changed
+- `docs/RELEASE.md` rewritten from a seven-line checklist to the actual release
+  process: which of the three generated artifacts embed `Model_Version`, the
+  version consistency check, the standard release assets, and the snapshot step.
+- `docs/FAQ.md` gains preset-loading instructions and the recovery note for the
+  1.4.0 `config.json` type error.
+- `docs/WORKFLOWS.md` quick start covers starting from a preset.
+- `README.md` and `docs/DOCS_INDEX.md` document `cable-box-parametric.json`.
+
 ## [1.4.1] - 2026-08-04
 
 Bugfix release. The model itself is untouched, so geometry is unchanged and the

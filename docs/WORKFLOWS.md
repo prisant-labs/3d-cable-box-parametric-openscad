@@ -11,6 +11,23 @@ This guide focuses on repeatable workflows for configuring, printing, and valida
 5. Export STL for the current `Part_To_Render` value.
 6. Repeat for `Box Only` and `Lid Only` if needed.
 
+### Starting from a preset instead of the defaults
+
+`cable-box-parametric.json` sits beside the model and carries all nine presets,
+so the Customizer's preset dropdown lists them as soon as the model is open.
+Pick the closest one and adjust from there rather than starting from scratch.
+
+From the command line:
+
+```bash
+openscad -o out.stl cable-box-parametric.scad \
+  -p cable-box-parametric.json -P desk-compact
+```
+
+This is OpenSCAD's native parameter-set format, so a set saved from the
+Customizer can be loaded straight back in, or sent to someone else, or attached
+to a bug report.
+
 ## 2) Dimensional Planning Workflow
 
 Before changing parameters, measure:
@@ -188,5 +205,11 @@ When you add or change parameters:
 2. Update `docs/PARAMETER_REFERENCE.md`.
 3. Update `docs/FAQ.md` for new troubleshooting cases.
 4. Update `README.md` if user workflow changes.
-5. If adding ready-made presets, place them in `library/`.
-6. If sharing user-generated builds or forks, place them in `community/`.
+5. If sharing user-generated builds or forks, place them in `community/`.
+
+Do not hand-add files to `library/`. Everything there is generated: add an entry
+to `PRESETS` in `scripts/build_library.py` and rerun it, which regenerates that
+preset's `config.json`, STLs, renders and notes, plus `library/README.md` and the
+merged `cable-box-parametric.json`. Hand-edited files there are overwritten on
+the next build, and the point of generating them is that a preset cannot drift
+from the model.
