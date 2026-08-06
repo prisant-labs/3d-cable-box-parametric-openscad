@@ -37,3 +37,7 @@ dist/
 
 # Claude Code worktrees
 .claude/worktrees/
+
+# Python bytecode
+__pycache__/
+*.pyc
