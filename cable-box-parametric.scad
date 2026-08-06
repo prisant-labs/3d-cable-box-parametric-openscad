@@ -238,7 +238,8 @@ Clip_Lock = false;
 /*[Gridfinity]*/
 // Add a Gridfinity base under the box so it drops into a 42mm baseplate.
 Enable_Gridfinity_Bottom = false;
-// Add a Gridfinity baseplate profile on top of the lid so bins stack on it.
+// Add a Gridfinity baseplate on top of the lid, so bins or another box sit on
+// the closed box. Adds 4.75mm to the closed height.
 Enable_Gridfinity_Lid_Top = false;
 // Fit clearance on Gridfinity mating profiles (mm). Increase if the fit is tight.
 Gridfinity_Profile_Clearance = 0.25;
@@ -268,10 +269,11 @@ GF_CAVITY_ENTRY_SIZE   = 39.4;  // lower (wider) mating cavity
 GF_CAVITY_UPPER_SIZE   = 37.2;  // upper (narrower) mating cavity
 GF_CAVITY_ENTRY_DEPTH  = 3.2;
 GF_CAVITY_TOTAL_DEPTH  = 4.3;
-GF_LIDTOP_BASE_HEIGHT  = 2.2;   // lower stud stage on the lid
-GF_LIDTOP_TOP_HEIGHT   = 2.3;   // upper stud stage on the lid
-GF_LIDTOP_BASE_SIZE    = 39.4;
-GF_LIDTOP_TOP_SIZE     = 37.2;
+// Baseplate slab added to the lid's exposed face. The mating sockets cut into
+// it reuse GF_CAVITY_* above, because a socket on the lid and the mating cavity
+// under the box are the same feature: both accept a Gridfinity foot.
+// Thicker than GF_CAVITY_TOTAL_DEPTH so material remains under each socket.
+GF_LIDTOP_PLATE_HEIGHT = 4.75;
 GF_HOLE_OFFSET         = 13;    // magnet/screw offset from cell centre
 GF_MIN_FLOOR           = 0.8;   // solid material kept above magnet pockets
 GF_SCREW_CBORE_DIA     = 6.5;
@@ -364,7 +366,7 @@ Lid_Outer_Depth = Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap;
 // by their height at render time, exactly as the box is lifted over its base.
 // Putting them at Lid_Height+Lid_Lip_Gap_Height instead would bury them inside
 // the closed box, on the mating face.
-GF_LID_TOTAL_HEIGHT = GF_LIDTOP_BASE_HEIGHT + GF_LIDTOP_TOP_HEIGHT;
+GF_LID_TOTAL_HEIGHT = GF_LIDTOP_PLATE_HEIGHT;
 
 // How many whole 42 mm cells fit across a span once the edge keepout is taken
 // off both sides. Arbitrary box sizes rarely land on a grid multiple, so the
@@ -1399,23 +1401,52 @@ module m_gridfinity_bottom_holes() {
                 }
 }
 
-// Two-stage profile on the lid's exposed face, grown downward from z=0 (see
+// Baseplate slab on the lid's exposed face, grown downward from z=0 (see
 // GF_LID_TOTAL_HEIGHT above for why that face and that direction).
+//
+// This is a plate with sockets cut into it, not studs standing proud of it.
+// The lid inverts in use, so anything added here ends up pointing at the
+// ceiling on a closed box: studs would leave a row of feet nothing can sit on.
+// Sockets instead let a Gridfinity bin, or another box's base, drop onto the
+// closed lid.
+//
+// The slab spans the whole lid rather than one square per cell, so the top face
+// stays flat and unbroken and no 0.5 mm gaps appear between cells.
 module m_gridfinity_lid_top_solid() {
-    base_size = min(GF_LIDTOP_BASE_SIZE - Gridfinity_Profile_Clearance,
-                    GF_PITCH - Gridfinity_Profile_Clearance);
-    top_size = min(GF_LIDTOP_TOP_SIZE - Gridfinity_Profile_Clearance, base_size);
+    // Reaches WELD into the lid panel rather than stopping flush against it,
+    // for the same coplanar-face reason as the box base.
+    translate([0, 0, -GF_LIDTOP_PLATE_HEIGHT])
+    cuboid([Box_Width + Wall_Thickness*2 + Lid_Lip_Gap,
+            Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap,
+            GF_LIDTOP_PLATE_HEIGHT + WELD],
+        rounding = Corner_Radius,
+        except = [TOP, BOTTOM],
+        anchor = [0, 0, -1]);
+}
 
-    // The wider stage reaches WELD into the lid panel rather than stopping
-    // flush against it, for the same coplanar-face reason as the box base.
-    base_h = GF_LIDTOP_BASE_HEIGHT + WELD;
+// The two-stage mating socket cut into each cell of that slab, opening on the
+// exposed face. Same geometry as the cavity under the box base, so a foot that
+// fits one fits the other, and clearance is added rather than subtracted
+// because this is the female half.
+module m_gridfinity_lid_top_cavities() {
+    entry_depth = min(GF_CAVITY_ENTRY_DEPTH, GF_CAVITY_TOTAL_DEPTH - 0.01);
+    upper_depth = GF_CAVITY_TOTAL_DEPTH - entry_depth;
+
+    // The mouth is sized from the widest part of a foot, not from
+    // GF_CAVITY_ENTRY_SIZE. That constant describes the cavity hollowed *into*
+    // the box base, which is the inside of the male half and 39.4 across. A
+    // Gridfinity foot is 41.5 at its widest, so a 39.4 mouth would hold every
+    // part proud of the plate instead of seating it.
+    entry_size = min(GF_BASE_CELL + Gridfinity_Profile_Clearance, GF_PITCH);
+    upper_size = GF_CAVITY_UPPER_SIZE + Gridfinity_Profile_Clearance;
 
     m_gridfinity_cells(GF_Lid_Cells_X, GF_Lid_Cells_Y) {
-        translate([0, 0, -GF_LIDTOP_BASE_HEIGHT + base_h/2])
-            cube([base_size, base_size, base_h], center = true);
+        translate([0, 0, -GF_LIDTOP_PLATE_HEIGHT + entry_depth/2])
+            cube([entry_size, entry_size, entry_depth + SPACER*2], center = true);
 
-        translate([0, 0, -GF_LIDTOP_BASE_HEIGHT - GF_LIDTOP_TOP_HEIGHT/2])
-            cube([top_size, top_size, GF_LIDTOP_TOP_HEIGHT], center = true);
+        if (upper_depth > 0.01)
+            translate([0, 0, -GF_LIDTOP_PLATE_HEIGHT + entry_depth + upper_depth/2])
+                cube([upper_size, upper_size, upper_depth + SPACER*2], center = true);
     }
 }
 
@@ -1617,6 +1648,9 @@ module m_lid () {
                 color("#7A5CFF")
                 m_gridfinity_lid_top_solid();
         }
+
+        if (GF_Lid_Active)
+            m_gridfinity_lid_top_cavities();
 
         if (GF_Lid_Active && Enable_Gridfinity_Magnet_Screw)
             m_gridfinity_lid_top_holes();

@@ -172,10 +172,19 @@ Use `community/` for user-contributed builds, remixes, and showcase assets.
 
 ## Can this box work with Gridfinity?
 
-Yes, in two independent ways. `Enable_Gridfinity_Bottom` puts a 42 mm base under
-the box so it drops into a Gridfinity baseplate. `Enable_Gridfinity_Lid_Top`
-puts the profile on the lid's exposed face so the closed box joins a stack. Turn
-on either, both, or neither.
+Yes, in two independent ways, and they are opposite halves of the same joint.
+
+`Enable_Gridfinity_Bottom` puts a 42 mm base under the box so it drops into a
+Gridfinity baseplate.
+
+`Enable_Gridfinity_Lid_Top` puts a Gridfinity **baseplate** on the lid's exposed
+face: a plate with sockets cut into it, so bins or another box sit on the closed
+box. Sockets rather than studs, because the lid inverts in use and studs would
+end up pointing at the ceiling with nothing able to rest on them. It adds
+4.75 mm to the closed height.
+
+Turn on either, both, or neither. Both together gives a box that sits in a
+baseplate and is itself a baseplate.
 
 ## Why does Gridfinity require `Closed_Post`?
 

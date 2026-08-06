@@ -325,18 +325,22 @@
     {
       "name": "gridfinity_lid_top",
       "_why": "The lid's lip is its mating face, so z=0 is the exposed top and",
-      "_why2": "the profile grows downward from there, with the lid lifted 4.5.",
+      "_why2": "the plate grows downward from there, with the lid lifted 4.75.",
+      "_why3": "It is a baseplate with sockets, not studs: the lid inverts in",
+      "_why4": "use, so studs would point at the ceiling and hold nothing.",
       "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Lid_Top=true"],
       "expect": {
         "rc": 0,
         "solids": 1,
         "probes": [
-          { "translate": [-24, -3, 1.0], "size": [6, 6, 0.3], "expect": "material",
-            "why": "profile present on the exposed lid face" },
-          { "translate": [-1, -3, 1.0], "size": [2, 6, 0.3], "expect": "empty",
-            "why": "gap between cells" },
+          { "translate": [-24, -3, 1.0], "size": [6, 6, 0.3], "expect": "empty",
+            "why": "open socket, so a Gridfinity foot can drop into it" },
+          { "translate": [-1, -3, 1.0], "size": [2, 6, 0.3], "expect": "material",
+            "why": "the slab between sockets is solid; studs left a gap here" },
+          { "translate": [-24, -3, 4.4], "size": [6, 6, 0.2], "expect": "material",
+            "why": "socket floor: plate is 4.75 deep and the cavity stops at 4.3" },
           { "translate": [-24, -3, 6.0], "size": [6, 6, 0.3], "expect": "material",
-            "why": "lid panel above the profile" },
+            "why": "lid panel above the plate" },
           { "translate": [-24, -3, 14.0], "size": [6, 6, 0.3], "expect": "empty",
             "why": "lip ring is perimeter only, so centre is open" }
         ]

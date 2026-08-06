@@ -7,7 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Documentation and tooling only. No model or geometry change.
+### Changed
+- **BREAKING: `Enable_Gridfinity_Lid_Top` now produces sockets, not studs.**
+  Under [E-10 (versioning)](docs/internal/E-10_versioning.md) this is a major
+  bump, because the same parameter set renders different geometry.
+
+  The lid inverts in use: its lip is the mating face, so the panel's other side
+  is the exposed top of a closed box. The previous implementation added a
+  two-stage stud to that face, which meant a closed box carried Gridfinity feet
+  pointing at the ceiling. Nothing can rest on a foot. The feature's own
+  documentation described a baseplate, so the code and the docs had disagreed
+  since the feature shipped.
+
+  It is now a 4.75 mm plate spanning the lid, with a mating socket cut into each
+  cell, so a Gridfinity bin or another box drops onto the closed lid.
+
+  The socket mouth is sized from the widest part of a foot (`GF_BASE_CELL`,
+  41.5 mm) plus clearance, not from `GF_CAVITY_ENTRY_SIZE`. That constant is
+  39.4 mm and describes the cavity hollowed *into* the box base, which is the
+  inside of the male half; a mouth that size held every part 1.85 mm proud.
+  Verified: the model's own base fits with 0.25 mm clearance, and a standard bin
+  foot seats on the shoulder at 3.2 mm depth.
+
+  Lid height with the feature on goes from 4.5 mm to 4.75 mm added. Constants
+  `GF_LIDTOP_BASE_HEIGHT`, `GF_LIDTOP_TOP_HEIGHT`, `GF_LIDTOP_BASE_SIZE` and
+  `GF_LIDTOP_TOP_SIZE` are replaced by `GF_LIDTOP_PLATE_HEIGHT`.
+
+  **Still unvalidated by print.** Nothing here has been fitted to physical
+  Gridfinity hardware. The clearance is a number, not a measurement.
 
 ### Fixed
 - **Rebuilding the library no longer reports every render as modified.**

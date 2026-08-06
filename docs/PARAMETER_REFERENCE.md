@@ -304,7 +304,7 @@ Both default to off and change no geometry when disabled.
 | Parameter | Type | Default | Description | Interactions |
 |---|---|---:|---|---|
 | `Enable_Gridfinity_Bottom` | boolean | `false` | Adds a 42 mm Gridfinity base under the box so it drops into a baseplate. | Mutually exclusive with `Enable_Bottom_Openings`. Requires `Closed_Post=true` when the post is enabled. Adds `4.75 mm` to total height. |
-| `Enable_Gridfinity_Lid_Top` | boolean | `false` | Adds the Gridfinity profile to the lid's exposed face so the closed box joins a stack. | Adds `4.5 mm` to lid height. |
+| `Enable_Gridfinity_Lid_Top` | boolean | `false` | Adds a Gridfinity baseplate to the lid's exposed face: a plate with sockets, so bins or another box sit on the closed box. | Adds `4.75 mm` to lid height. |
 | `Gridfinity_Profile_Clearance` | number | `0.25` | Fit clearance on mating profiles. | Increase if the base is tight in your baseplate. |
 | `Gridfinity_Edge_Keepout` | number | `4` | Margin from the model edge before the first cell. | Prevents thin, fragile cells at the perimeter. Raising it can reduce the cell count. |
 | `Enable_Gridfinity_Magnet_Screw` | boolean | `false` | Adds magnet pockets and screw holes to whichever interfaces are enabled. | |
