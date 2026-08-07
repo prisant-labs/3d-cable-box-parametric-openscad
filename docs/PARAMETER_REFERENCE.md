@@ -307,7 +307,7 @@ Both default to off and change no geometry when disabled.
 | `Enable_Gridfinity_Lid_Top` | boolean | `false` | Adds a Gridfinity baseplate to the lid's exposed face: a plate with sockets, so bins or another box sit on the closed box. | Adds `4.75 mm` to lid height. |
 | `Gridfinity_Profile_Clearance` | number | `0.25` | Fit clearance on mating profiles. | Increase if the base is tight in your baseplate. |
 | `Gridfinity_Edge_Keepout` | number | `4` | Margin from the model edge before the first cell. | Prevents thin, fragile cells at the perimeter. Raising it can reduce the cell count. |
-| `Enable_Gridfinity_Magnet_Screw` | boolean | `false` | Adds magnet pockets and screw holes to whichever interfaces are enabled. | |
+| `Enable_Gridfinity_Magnet_Screw` | boolean | `false` | Adds magnet pockets to whichever interfaces are enabled; the bottom base also gets screw holes. The lid gets pockets only, because a through screw hole would breach the closed box. Lid pockets open at each socket floor. | |
 | `Gridfinity_Magnet_Diameter` | number | `6.2` | Magnet pocket diameter. | `6 mm` magnets are the Gridfinity convention; the extra is clearance. |
 | `Gridfinity_Magnet_Depth` | number | `2.4` | Magnet pocket depth. | Capped so `0.8 mm` of material always remains above the pocket. |
 | `Gridfinity_Screw_Diameter` | number | `3.2` | Through screw hole diameter. | Sized for M3. |

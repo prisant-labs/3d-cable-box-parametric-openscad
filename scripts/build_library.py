@@ -293,7 +293,7 @@ def main() -> int:
     presets = [p for p in PRESETS if not args.only or args.only in p["name"]]
     print(f"OpenSCAD: {scad}\nBuilding {len(presets)} preset(s)\n")
 
-    index_rows = []
+    built_dims = {}
     png_written = png_kept = 0
     for preset in presets:
         name = preset["name"]
@@ -364,6 +364,22 @@ def main() -> int:
                   f"python scripts/build_library.py --only {name}", "```", ""]
         (base / "notes.md").write_text("\n".join(notes), encoding="utf-8")
 
+        built_dims[name] = dims
+
+    # The index covers ALL presets, never the --only subset. index_rows used to
+    # be appended inside the build loop, so a targeted rebuild rewrote the
+    # public README with only the presets it had just built: one
+    # `--only gridfinity-module` run shipped an index listing a single preset
+    # while eight valid ones sat beside it on disk. Presets not rebuilt this
+    # run get their dimensions from the STL already on disk.
+    index_rows = []
+    for preset in PRESETS:
+        name = preset["name"]
+        dims = built_dims.get(name)
+        if dims is None:
+            stl = LIB / name / "stl" / f"{name}_box-only.stl"
+            if stl.exists():
+                dims = bbox_size(stl_bbox(stl))
         size = f"{dims[0]:.0f} x {dims[1]:.0f} x {dims[2]:.0f}" if dims else "n/a"
         index_rows.append((name, preset["title"], preset["fits"], size))
 
@@ -402,8 +418,8 @@ def main() -> int:
                "Add an entry to `PRESETS` in `scripts/build_library.py` and rerun it.",
                "Do not hand-edit generated files.", ""]
     (LIB / "README.md").write_text("\n".join(readme), encoding="utf-8")
-    print(f"\nWrote {len(index_rows)} presets, library/README.md, "
-          f"and cable-box-parametric.json ({len(PRESETS)} sets)")
+    print(f"\nBuilt {len(presets)} preset(s); index covers {len(index_rows)}. "
+          f"Wrote library/README.md and cable-box-parametric.json ({len(PRESETS)} sets)")
     if not args.no_png:
         print(f"Renders: {png_written} written, {png_kept} unchanged and left alone")
     return 0

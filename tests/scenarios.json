@@ -348,9 +348,41 @@
     },
     {
       "name": "gridfinity_lid_top_magnets",
+      "_why": "Pockets open at the socket floor (world z=4.30) and reach into",
+      "_why2": "the lid panel, so a 2.4mm magnet sits flush with the floor.",
+      "_why3": "The stud-era cut started at the panel interface and overlapped",
+      "_why4": "the socket void, leaving a 0.45mm pocket a magnet stood proud",
+      "_why5": "of. Default 100x75 box: lid cells at x=+-21, holes at +-13.",
       "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Lid_Top=true",
                   "Enable_Gridfinity_Magnet_Screw=true"],
-      "expect": { "rc": 0, "solids": 1 }
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [6, 11, 5.5], "size": [4, 4, 0.5], "expect": "empty",
+            "why": "pocket void above the socket floor, inside the panel" },
+          { "translate": [6, 11, 7.0], "size": [4, 4, 0.4], "expect": "material",
+            "why": "panel solid again above the 2.4mm pocket depth" }
+        ]
+      }
+    },
+    {
+      "name": "gridfinity_lid_sliced_thin",
+      "_why": "Lid_Height=4.6 is legal and sits below the 4.75 plate. Cutters",
+      "_why2": "sized from Lid_Height alone stopped short of the plate, leaving",
+      "_why3": "a 0.15mm full-width layer welded to every slice: piece 1",
+      "_why4": "measured 103.8mm wide instead of ~52 and defeated slicing.",
+      "_why5": "Asserted via bbox, not probes: this export carries a coplanar",
+      "_why6": "degeneracy from the tab clips (predating the plate), and CGAL",
+      "_why7": "errors out of point probes on it. x-max 29.91 is the slice",
+      "_why8": "plus its clip tabs; the broken residual reached 77.85.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Lid_Top=true",
+                  "Lid_Height=4.6", "Enable_Slicing=true", "Slice_Count=2",
+                  "Slice_Piece_To_Render=1"],
+      "expect": {
+        "rc": 0,
+        "bbox": { "x": [-25.95, 29.91], "z": [0.0, 12.35] }
+      }
     },
     {
       "name": "gridfinity_both",

@@ -157,6 +157,14 @@ def probe(scad_bin: str, stl: Path, workdir: Path, translate, size) -> str:
     rc, out = render(scad_bin, probe_scad, probe_out, [])
     if "Can't open import" in out or "WARNING: Can't open" in out:
         raise RuntimeError(f"probe could not import {stl} (path resolution failed)")
+    # A CGAL failure inside the intersection still prints "top level object is
+    # empty", so without this check a degenerate exported mesh reads as a
+    # confident "empty" verdict at every point. That is not a verdict at all.
+    if "CGAL error" in out or "assertion violation" in out:
+        raise RuntimeError(
+            f"probe hit a CGAL error intersecting {stl.name}; the exported mesh "
+            f"is degenerate and point probes on it are meaningless. Use a bbox "
+            f"expectation instead, or fix the geometry.")
     return "empty" if "top level object is empty" in out.lower() else "material"
 
 

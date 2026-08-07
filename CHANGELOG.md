@@ -37,6 +37,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Gridfinity hardware. The clearance is a number, not a measurement.
 
 ### Fixed
+- **Lid magnet pockets were unusable and are now magnet-only.** (Found by
+  adversarial review.) The pocket cut still started at the lid-panel interface
+  as in the stud era, so it overlapped the socket void and left a 0.45 mm
+  pocket: a 2.4 mm magnet glued there stood proud into the socket and held
+  every foot off the floor. Pockets now open at each socket floor and reach
+  into the lid panel, keeping `GF_MIN_FLOOR` of panel above them. The screw
+  hole and counterbore are gone from the lid entirely: a baseplate's screws
+  fasten it to a surface, and here that surface is the sealed lid, so a
+  through hole would breach the closed box. The bottom base keeps its screw
+  holes. Regression probes assert the pocket void and the solid panel above.
+- **Slicing a lid shorter than the Gridfinity plate left a full-width layer on
+  every piece.** (Found by adversarial review.) The slice cutters were sized
+  from `Lid_Height` alone, and the plate hangs `Gridfinity_Lid_Offset` below
+  z=0, so at the legal `Lid_Height=4.6` each cutter stopped 0.15 mm short:
+  piece 1 measured 103.8 mm wide instead of ~52, defeating the small bed that
+  slicing exists for. Both lid and box cutters now span an explicit envelope
+  from below the Gridfinity offset to above the lip. Regression asserted by
+  bounding box, and the box cutter fix closes the same latent gap for boxes
+  shorter than twice the base height.
+- **`build_library.py --only` truncated the public preset index.** (Found by
+  adversarial review.) The README was rewritten from only the presets in the
+  filtered build, so one `--only gridfinity-module` run shipped an index
+  listing a single preset while eight valid ones sat beside it on disk. The
+  index now always covers every preset, reading dimensions from the on-disk
+  STL for presets not rebuilt in that run.
+- **Point probes can no longer return a verdict from a broken mesh.** A CGAL
+  assertion inside a probe intersection still prints "top level object is
+  empty", so a degenerate exported mesh read as a confident "empty" at every
+  point. The test harness now raises on CGAL errors instead. The sliced-lid
+  export carries a coplanar degeneracy from the tab clips (predating the
+  Gridfinity plate) that triggers exactly this, which is why its regression
+  uses a bounding box rather than probes.
 - **Rebuilding the library no longer reports every render as modified.**
   OpenSCAD rasterises through OpenGL, so pixels along polygon edges land
   differently between runs: two renders of an identical model differ by up to
