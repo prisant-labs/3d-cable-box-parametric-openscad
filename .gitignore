@@ -41,3 +41,12 @@ dist/
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Docs site (web/): toolchain, build output, and content synced from docs/ by
+# web/sync-docs.mjs. The synced copies are generated artifacts; docs/ is the
+# single source of truth.
+web/node_modules/
+web/dist/
+web/.astro/
+web/src/content/docs/
+web/public/options-guide.html

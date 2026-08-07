@@ -85,6 +85,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on the next build.
 
 ### Changed
+- **Docs site rebuilt on Astro Starlight, replacing MkDocs.** Same URL, same
+  page set, same nav structure. The site lives in `web/` and syncs its content
+  from `docs/` at build time (`web/sync-docs.mjs`), so `docs/` remains the
+  single source of truth: README links keep working, GitHub browsing keeps
+  working, and `build_options_guide.py` keeps generating into the same place.
+  Page URLs changed from uppercase (`/PARAMETER_REFERENCE/`) to kebab-case
+  (`/parameter-reference/`); old deep links 404. `mkdocs.yml` is gone, its nav
+  now lives in `web/astro.config.mjs`, and the Pages workflow builds with Node
+  instead of Python. The offline `options-guide.html` is served unchanged. The
+  landing page's stale claim that Gridfinity was developed outside this
+  repository is corrected.
 - `docs/RELEASE.md` rewritten from a seven-line checklist to the actual release
   process: which of the three generated artifacts embed `Model_Version`, the
   version consistency check, the standard release assets, and the snapshot step.

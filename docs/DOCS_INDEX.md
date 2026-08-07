@@ -1,6 +1,6 @@
 # Documentation Index
 
-- `index.md`: Site landing page for local MkDocs/GitHub Pages builds.
+- `index.md`: Site landing page for the docs site and local builds.
 - `OPTIONS_GUIDE.md`: Every parameter rendered from the model, with images.
 - `options-guide.html`: The same guide as one self-contained file that works offline.
 - `PARAMETER_REFERENCE.md`: Complete section-by-section and variable-by-variable parameter reference.
@@ -15,7 +15,9 @@
 - `../library/README.md`: The nine presets, what each fits, and their sizes.
 - `../cable-box-parametric.json`: All nine presets as one OpenSCAD parameter-set
   file, so the Customizer lists them when the model is opened. Generated.
-- `../mkdocs.yml`: Docs site navigation/config.
+- `../web/astro.config.mjs`: Docs site navigation/config (Astro Starlight).
+- `../web/sync-docs.mjs`: Syncs this directory into the site at build time, so
+  `docs/` stays the single source of truth.
 - `.github/workflows/docs-pages.yml`: GitHub Pages publish workflow.
 - `.github/workflows/scad-smoke.yml`: GitHub Actions OpenSCAD smoke workflow.
 - `scripts/scad-smoke.ps1` / `scripts/scad-smoke.sh`: Local smoke render scripts.
@@ -23,8 +25,9 @@
 ## Local Docs Preview
 
 ```bash
-pip install mkdocs mkdocs-material
-mkdocs serve
+cd web
+npm ci
+npm run dev
 ```
 
-Open `http://127.0.0.1:8000`.
+Open `http://localhost:4321`.
