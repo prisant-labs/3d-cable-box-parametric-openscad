@@ -40,6 +40,16 @@ Box_Corner_Radius = 8.1;
 // Wall thickness for box and post shell (mm).
 Wall_Thickness = 1.85;
 
+/*[Edge Treatment]*/
+// Fillet on the box's outer bottom edge (mm). 0 keeps the hard 90 degree edge.
+// Softens the profile and visually absorbs elephant foot. A large value prints
+// as an overhang on the first layers, so keep it modest or use a chamfer.
+// Ignored when Enable_Gridfinity_Bottom is on, because the base owns that edge.
+Bottom_Edge_Fillet = 0;
+// Chamfer on the box's top rim and on both exposed lid edges (mm). 0 keeps the
+// hard edge. The rim is what you handle every time the lid comes off.
+Top_Edge_Chamfer = 0;
+
 /*[Post]*/
 // Add a center post for cable wrapping.
 Enable_Post = true;
@@ -55,6 +65,38 @@ Lid_Height = 8.1;
 Lid_Lip_Gap = 0.1;
 // Height of the inner lip that engages the box (mm).
 Lid_Lip_Gap_Height = 3;
+
+/*[Lid Relief]*/
+// Finger purchase in the lid edge, so a tight lid comes off without a tool.
+// Scallop is a concave groove, tidier. Tab is a protruding grip, more
+// effective. None keeps the current geometry.
+Lid_Relief_Style = "None"; //["None", "Scallop", "Tab"]
+// Length of the relief along the wall (mm).
+Lid_Relief_Width = 20;
+// How far a scallop cuts in, or a tab stands out (mm).
+Lid_Relief_Depth = 2.5;
+// Which walls carry it. A side is skipped automatically when an opening on that
+// wall reaches the box rim, because the two would meet there.
+Lid_Relief_On_Left = true;
+Lid_Relief_On_Right = true;
+Lid_Relief_On_Front = false;
+Lid_Relief_On_Back = false;
+
+/*[Lid Magnets]*/
+// Magnet retention between box and lid, in four bosses at the inside corners.
+// Corners because the rim is only Wall_Thickness wide and a magnet does not fit
+// it, and because corners are free of openings, stabilizers, the post and slice
+// seams by construction rather than by avoidance logic.
+// Magnets must be inserted with opposing poles facing; the geometry is
+// symmetric and cannot enforce that for you.
+Enable_Lid_Magnets = false;
+// Magnet pocket diameter (mm). 6.2 takes a nominal 6 mm magnet, the same
+// convention Gridfinity_Magnet_Diameter uses.
+Lid_Magnet_Diameter = 6.2;
+// Pocket depth in each half (mm). Two of these stack when the box is closed.
+Lid_Magnet_Depth = 2.4;
+// Material around each pocket (mm), which also sets the boss diameter.
+Lid_Magnet_Wall = 1.2;
 
 /*[Openings]*/
 // Default opening width for all enabled side openings (mm).
@@ -399,6 +441,16 @@ GF_Lid_Active    = GF_Lid_Cells_X > 0 && GF_Lid_Cells_Y > 0;
 Gridfinity_Base_Offset = GF_Bottom_Active ? GF_BASE_HEIGHT : 0;
 Gridfinity_Lid_Offset  = GF_Lid_Active ? GF_LID_TOTAL_HEIGHT : 0;
 
+// Edge treatment is suppressed wherever a Gridfinity interface owns the face.
+// The base profile below the box and the baseplate on the lid are dimensioned
+// by the Gridfinity standard, so softening their perimeter would move a mating
+// surface. Gated on the *Active* flags rather than the Enable_* parameters,
+// because a box too small for one cell renders no interface and should keep
+// its fillet.
+Bottom_Fillet_Effective = GF_Bottom_Active ? 0 : max(0, Bottom_Edge_Fillet);
+Lid_Chamfer_Effective   = GF_Lid_Active    ? 0 : max(0, Top_Edge_Chamfer);
+Top_Chamfer_Effective   = max(0, Top_Edge_Chamfer);
+
 // A box too small for even one cell is a silent no-op otherwise.
 if (Enable_Gridfinity_Bottom && !GF_Bottom_Active)
     echo(str("Gridfinity bottom enabled but no 42mm cell fits in ",
@@ -414,6 +466,49 @@ assert(Box_Width > 0 && Box_Depth > 0 && Box_Height > 0, "Box_Width, Box_Depth, 
 assert(Wall_Thickness > 0, "Wall_Thickness must be > 0");
 assert(Wall_Thickness * 2 < min(Box_Width, Box_Depth), "Wall_Thickness is too large for the box footprint; Inner_Width and Inner_Depth would be <= 0");
 assert(Box_Corner_Radius >= 0, "Box_Corner_Radius must be >= 0");
+assert(Bottom_Edge_Fillet >= 0, "Bottom_Edge_Fillet must be >= 0");
+assert(Top_Edge_Chamfer >= 0, "Top_Edge_Chamfer must be >= 0");
+// The floor and the rim are both Wall_Thickness deep, so a treatment larger
+// than that eats through them from outside: the fillet would breach the floor
+// and the chamfer would consume the whole rim the lid seats against.
+assert(Bottom_Edge_Fillet <= Wall_Thickness,
+       "Bottom_Edge_Fillet cannot exceed Wall_Thickness; it would cut through the floor. Reduce it or thicken the wall.");
+assert(Top_Edge_Chamfer <= Wall_Thickness,
+       "Top_Edge_Chamfer cannot exceed Wall_Thickness; it would consume the rim the lid seats on. Reduce it or thicken the wall.");
+assert(Bottom_Edge_Fillet + Top_Edge_Chamfer < Box_Height,
+       "Bottom_Edge_Fillet and Top_Edge_Chamfer together must be less than Box_Height, or the two treatments meet.");
+assert(Top_Edge_Chamfer * 2 < Lid_Height,
+       "Top_Edge_Chamfer must be less than half of Lid_Height; both lid faces are chamfered and they would meet.");
+
+assert(Lid_Relief_Style == "None" || Lid_Relief_Style == "Scallop" || Lid_Relief_Style == "Tab",
+       "Lid_Relief_Style must be None, Scallop or Tab");
+assert(Lid_Relief_Style == "None" || Lid_Relief_Width > 0,
+       "Lid_Relief_Width must be > 0");
+assert(Lid_Relief_Style == "None" || Lid_Relief_Depth > 0,
+       "Lid_Relief_Depth must be > 0");
+assert(Lid_Relief_Style != "Scallop" || Lid_Relief_Depth * 2 < Lid_Height,
+       "A scallop is a half-cylinder groove, so Lid_Relief_Depth*2 must be less than Lid_Height or it cuts through both faces of the lid.");
+assert(Lid_Relief_Style == "None" || Lid_Relief_Width < min(Box_Width, Box_Depth) - Corner_Radius * 2,
+       "Lid_Relief_Width must leave the rounded corners alone; reduce it or reduce Box_Corner_Radius.");
+
+assert(Lid_Magnet_Diameter > 0 && Lid_Magnet_Depth > 0 && Lid_Magnet_Wall > 0,
+       "Lid magnet dimensions must be > 0");
+// Two pockets stack when the box is closed, so the magnet is 2*depth long. The
+// lid must keep material above its pocket or the magnet shows through the face.
+assert(!Enable_Lid_Magnets || Lid_Magnet_Depth < Lid_Height - GF_MIN_FLOOR,
+       "Lid_Magnet_Depth leaves too little lid above the pocket; reduce it or raise Lid_Height.");
+assert(!Enable_Lid_Magnets || Lid_Magnet_Depth < Box_Height - Wall_Thickness,
+       "Lid_Magnet_Depth is deeper than the box wall is tall; reduce it or raise Box_Height.");
+// A boss has to fit inside the cavity without meeting its opposite number or
+// swallowing the post.
+assert(!Enable_Lid_Magnets ||
+       Magnet_Boss_Diameter * 2 < min(Box_Width, Box_Depth) - Wall_Thickness * 2,
+       "Magnet bosses do not fit: Lid_Magnet_Diameter plus Lid_Magnet_Wall is too large for this box. Reduce them or enlarge the box.");
+assert(!Enable_Lid_Magnets || !Enable_Post ||
+       Magnet_Boss_Diameter / 2 + Post_Diameter / 2 <
+           norm([Box_Width/2 - Wall_Thickness - Magnet_Boss_Diameter/2,
+                 Box_Depth/2 - Wall_Thickness - Magnet_Boss_Diameter/2]),
+       "Magnet bosses would touch the centre post. Reduce Post_Diameter or the magnet dimensions.");
 assert(!Enable_Post || Post_Diameter > Wall_Thickness * 2, "Post_Diameter must exceed Wall_Thickness*2 so the post has a wall");
 assert(!Enable_Post || Post_Diameter < min(Inner_Width, Inner_Depth), "Post_Diameter must fit inside the box interior");
 assert(!Enable_Stabilizers || Stabilizer_Height + Wall_Thickness <= Box_Height, "Stabilizer_Height plus the floor exceeds Box_Height");
@@ -473,6 +568,44 @@ function get_effective_opening_width(side) =
     (side == "Right") ?
         (Override_Opening_Width_Right > 0 ? Override_Opening_Width_Right : All_Opening_Width) :
     All_Opening_Width;
+
+// Calculate the effective opening height for a given wall
+function get_effective_opening_height(side) =
+    (side == "Front") ?
+        (Override_Opening_Height_Front > 0 ? Override_Opening_Height_Front : All_Opening_Height) :
+    (side == "Back") ?
+        (Override_Opening_Height_Back > 0 ? Override_Opening_Height_Back : All_Opening_Height) :
+    (side == "Left") ?
+        (Override_Opening_Height_Left > 0 ? Override_Opening_Height_Left : All_Opening_Height) :
+    (side == "Right") ?
+        (Override_Opening_Height_Right > 0 ? Override_Opening_Height_Right : All_Opening_Height) :
+    All_Opening_Height;
+
+// Whether a wall's opening reaches the box rim.
+//
+// Lid relief and side openings live in different parts, the lid and the box, so
+// they normally cannot touch: an opening 30 mm tall in a 50 mm box stops well
+// below the rim the lid sits on. They only meet when an opening runs the full
+// height, which is legal and tested, and then a relief above it would open into
+// the opening rather than give anything to grip.
+function opening_reaches_rim(side) =
+    opening_enabled(side) &&
+    (All_Openings_Up + get_effective_opening_height(side) >= Box_Height - Wall_Thickness);
+
+function opening_enabled(side) =
+    (side == "Front") ? Opening_On_Front :
+    (side == "Back")  ? Opening_On_Back :
+    (side == "Left")  ? Opening_On_Left :
+    (side == "Right") ? Opening_On_Right :
+    false;
+
+function lid_relief_enabled(side) =
+    Lid_Relief_Style != "None" &&
+    ((side == "Front") ? Lid_Relief_On_Front :
+     (side == "Back")  ? Lid_Relief_On_Back :
+     (side == "Left")  ? Lid_Relief_On_Left :
+     (side == "Right") ? Lid_Relief_On_Right : false) &&
+    !opening_reaches_rim(side);
 
 // Calculate the effective opening corner radius for a given wall
 function get_effective_opening_corner_radius(side) =
@@ -1493,16 +1626,94 @@ module m_gridfinity_lid_top_holes() {
 // ORIGINAL BOX MODULES
 // ============================================
 
+// Magnet bosses and pockets, at the four inside corners of the box.
+//
+// The corners are chosen rather than the rim because the rim is Wall_Thickness
+// (1.85 mm default) wide and a 6 mm magnet does not fit in it. They also remove
+// the collision problem instead of solving it: openings sit on wall centres,
+// stabilizers carry end margins, the post is central, and slice seams sit at
+// interior x, so nothing else is ever there.
+//
+// The four positions are symmetric in both axes, so they still line up however
+// the lid is flipped onto the box. That is the property that makes this work
+// without knowing the lid's placement transform.
+Magnet_Boss_Diameter = Lid_Magnet_Diameter + Lid_Magnet_Wall * 2;
+
+module m_magnet_corner_positions() {
+    rb = Magnet_Boss_Diameter / 2;
+    // WELD pushes each boss into the two walls it sits against. A boss merely
+    // tangent to a wall is a tangent-only union, and whether that fuses into one
+    // body is kernel-dependent; when it does not, the export gains a loose solid.
+    for (sx = [-1, 1], sy = [-1, 1])
+        translate([sx * (Box_Width/2 - Wall_Thickness - rb + WELD),
+                   sy * (Box_Depth/2 - Wall_Thickness - rb + WELD), 0])
+            children();
+}
+
+// Full height rather than a stub under the rim. A stub would start partway up
+// with nothing beneath it, which prints as an unsupported overhang; running to
+// the floor also stiffens the corner.
+module m_box_magnet_bosses() {
+    m_magnet_corner_positions()
+        cyl(d = Magnet_Boss_Diameter, h = Box_Height, anchor = [0, 0, -1]);
+}
+
+// SPACER past the opening face for the usual reason: a cut that stops exactly
+// on a face leaves a zero-thickness edge.
+module m_box_magnet_pockets() {
+    m_magnet_corner_positions()
+        up(Box_Height - Lid_Magnet_Depth)
+            cyl(d = Lid_Magnet_Diameter, h = Lid_Magnet_Depth + SPACER, anchor = [0, 0, -1]);
+}
+
+// The lid's mating face is the top of its slab, where the lip stands. The
+// pocket opens there and reaches down into the slab, leaving the lid's exposed
+// face solid so the magnet is captured rather than showing through.
+module m_lid_magnet_pockets() {
+    m_magnet_corner_positions()
+        up(Lid_Height - Lid_Magnet_Depth)
+            cyl(d = Lid_Magnet_Diameter, h = Lid_Magnet_Depth + SPACER, anchor = [0, 0, -1]);
+}
+
+
+// The outer shell of the box or the lid slab, with optional edge treatment on
+// its horizontal edges. The vertical edges keep Corner_Radius either way.
+//
+// With no treatment this is the same cuboid() it has always been. That branch
+// exists so an untreated model cannot change at all: a different extrusion path
+// can produce a different tessellation of identical geometry, and this file's
+// output is committed, diffed, and probed by tests.
+//
+// With treatment it becomes an offset_sweep, which extrudes the same rounded
+// rectangle while resolving how a horizontal fillet meets the vertical corner
+// radius. That interaction is the fiddly part of this feature and BOSL2 already
+// solves it. offset_sweep expresses "no profile" by omitting the argument
+// rather than by any flat value, which is why the cases are enumerated.
+module m_edge_treated_shell(size, fillet, chamfer) {
+    w = size[0]; d = size[1]; h = size[2];
+    if (fillet <= 0 && chamfer <= 0)
+        cuboid([w, d, h], rounding = Corner_Radius, except = [TOP, BOTTOM],
+               anchor = [0, 0, -1]);
+    else if (fillet > 0 && chamfer > 0)
+        offset_sweep(rect([w, d], rounding = Corner_Radius), height = h,
+                     bottom = os_circle(r = fillet), top = os_chamfer(width = chamfer));
+    else if (fillet > 0)
+        offset_sweep(rect([w, d], rounding = Corner_Radius), height = h,
+                     bottom = os_circle(r = fillet));
+    else
+        offset_sweep(rect([w, d], rounding = Corner_Radius), height = h,
+                     top = os_chamfer(width = chamfer));
+}
+
+
 module m_box_base() {
     difference() {
         {
             union() {
                 difference() {
                     color("#009292")
-                    cuboid([Box_Width, Box_Depth, Box_Height],
-                        rounding = Corner_Radius,
-                        except = [TOP, BOTTOM],
-                        anchor = [0, 0, -1]);
+                    m_edge_treated_shell([Box_Width, Box_Depth, Box_Height],
+                        Bottom_Fillet_Effective, Top_Chamfer_Effective);
 
                     color("#88070B")
                     up(Wall_Thickness)
@@ -1519,11 +1730,18 @@ module m_box_base() {
                 // Add stabilizers (v5)
                 m_stabilizers();
 
+                if (Enable_Lid_Magnets)
+                    color("#4FB0C6")
+                    m_box_magnet_bosses();
+
                 if (GF_Bottom_Active)
                     color("#7A5CFF")
                     m_gridfinity_bottom_solid();
             }
         }
+
+        if (Enable_Lid_Magnets)
+            m_box_magnet_pockets();
 
         if (GF_Bottom_Active)
             m_gridfinity_bottom_cavities();
@@ -1633,6 +1851,38 @@ module m_box_slice(slice_num) {
     }
 }
 
+// Finger relief on the lid's outer face, one shape per enabled wall.
+//
+// Both styles sit at the wall centre and span Lid_Relief_Width along it. The
+// scallop's axis lies on the face, so the groove it cuts is a half cylinder and
+// Lid_Relief_Depth is both its depth and its half width, which keeps one
+// parameter meaning one thing. The tab is centred on the face for the same
+// reason the seam clips overlap their slice: a shape that only touches the
+// surface is a tangent-only union, and whether that fuses is kernel-dependent.
+module m_lid_relief(is_cut) {
+    z = Lid_Height / 2;
+    // A tab needs material on both sides of the face; a scallop only cuts.
+    module shape(along_y) {
+        if (is_cut)
+            cyl(h = Lid_Relief_Width, r = Lid_Relief_Depth,
+                orient = along_y ? BACK : RIGHT);
+        else
+            cuboid(along_y ? [Lid_Relief_Depth*2, Lid_Relief_Width, Lid_Height]
+                           : [Lid_Relief_Width, Lid_Relief_Depth*2, Lid_Height],
+                   rounding = min(Lid_Relief_Depth, Lid_Relief_Width/4),
+                   except = [TOP, BOTTOM]);
+    }
+    if (lid_relief_enabled("Right"))
+        translate([ Lid_Outer_Width/2, 0, z]) shape(true);
+    if (lid_relief_enabled("Left"))
+        translate([-Lid_Outer_Width/2, 0, z]) shape(true);
+    if (lid_relief_enabled("Back"))
+        translate([0,  Lid_Outer_Depth/2, z]) shape(false);
+    if (lid_relief_enabled("Front"))
+        translate([0, -Lid_Outer_Depth/2, z]) shape(false);
+}
+
+
 module m_lid () {
     difference() {
         union() {
@@ -1643,13 +1893,16 @@ module m_lid () {
                     h = Lid_Lip_Gap_Height + WELD, anchor = [0, 0, -1]);
             }
 
+            // Both horizontal edges of the lid slab get the chamfer, not a
+            // fillet and a chamfer like the box. The lid inverts in use, so the
+            // face at z=0 here is the exposed top of a closed box and the face
+            // at Lid_Height overhangs the box wall: both are edges a hand meets,
+            // and neither sits on the print bed the way the box bottom does.
             color("#FFCE13")
-            cuboid([Box_Width + Wall_Thickness*2 + Lid_Lip_Gap,
-                    Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap,
-                    Lid_Height],
-                rounding = Corner_Radius,
-                except = [TOP, BOTTOM],
-                anchor = [0, 0, -1]);
+            m_edge_treated_shell([Box_Width + Wall_Thickness*2 + Lid_Lip_Gap,
+                                  Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap,
+                                  Lid_Height],
+                Lid_Chamfer_Effective, Lid_Chamfer_Effective);
 
             difference() {
                 color("#FFCE13")
@@ -1674,7 +1927,17 @@ module m_lid () {
             if (GF_Lid_Active)
                 color("#7A5CFF")
                 m_gridfinity_lid_top_solid();
+
+            if (Lid_Relief_Style == "Tab")
+                color("#FFCE13")
+                m_lid_relief(is_cut = false);
         }
+
+        if (Lid_Relief_Style == "Scallop")
+            m_lid_relief(is_cut = true);
+
+        if (Enable_Lid_Magnets)
+            m_lid_magnet_pockets();
 
         if (GF_Lid_Active)
             m_gridfinity_lid_top_cavities();

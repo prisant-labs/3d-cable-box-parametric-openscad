@@ -3,11 +3,54 @@
 **Handle:** Quick wins. Edge treatment, lid removal relief, and magnetic lid
 retention. Three small independent changes with high value per unit of effort.
 
-**Status:** Spec. Not started.
+**Status:** Implemented, unreleased (2026-08-07). All three sub-features are in
+the model behind opt-in defaults, with nine regression scenarios. Sits in
+`[Unreleased]` rather than 2.0.0, because every default leaves existing geometry
+untouched and that makes it a minor bump under
+[E-10 (versioning)](E-10_versioning.md).
+
+**Not print-validated.** Three items in the human smoke test below still need
+hardware: whether the lid comes off one-handed, whether a magnet seats without
+cracking its boss, and whether the bottom fillet prints without a droopy first
+layer. The last is the one most likely to send a parameter default back for
+revision.
 
 **Effort:** S total
 **Depends on:** nothing. Cheaper after
 [E-02 (BOSL2 migration)](E-02_bosl2-migration.md) but does not require it.
+
+---
+
+## Resolved decisions (2026-08-07)
+
+Three questions this document left open, and how they were settled.
+
+**Versioning: every default leaves existing geometry unchanged.** Under
+[E-10 (versioning)](E-10_versioning.md) that makes this a MINOR bump, so it ships
+on its own schedule rather than folding into 2.0.0, which is mid print
+validation and should not grow. This is enforced structurally, not by matching
+numbers: with both edge parameters at zero the code takes the existing
+`cuboid()` path unchanged, so "unchanged" is a property of the control flow
+rather than a claim to be verified.
+
+**Edge treatment uses `offset_sweep()`, not stacked masks.** BOSL2's
+`offset_sweep()` extrudes a 2D region with independent top and bottom edge
+profiles, which resolves the fillet-meets-corner-radius interaction itself. That
+interaction is the part that is fiddly by hand, and it is the reason this effort
+was always cheaper after E-02. Verified available from `BOSL2/std.scad` with no
+new include.
+
+**Magnets go in four corner bosses, not distributed along the walls.** The box
+rim is `Wall_Thickness` (1.85 mm) wide and a 6 mm magnet does not fit it, which
+is the constraint this document flagged as needing resolution. Corners are the
+answer because they are structurally free by construction: openings sit on wall
+centres, stabilizers carry end margins, the post is central, and slice seams sit
+at interior x. Collision avoidance becomes geometry rather than logic, which is
+the difference between four bosses and a placement engine that has to know about
+every other feature.
+
+Relief placement uses per-side booleans mirroring the existing `Opening_On_*`
+block, so it introduces parameters but no new concepts.
 
 ---
 

@@ -258,6 +258,56 @@ Why: zero or negative clip geometry yields invalid seam bodies.
 
 Fix: set all clip dimensions above `0`.
 
+### Edge treatment cannot exceed the wall it cuts into
+
+```scad
+assert(Bottom_Edge_Fillet <= Wall_Thickness, ...);
+assert(Top_Edge_Chamfer <= Wall_Thickness, ...);
+```
+
+Why: the floor and the rim are both `Wall_Thickness` deep. A fillet larger than
+that breaches the floor from outside; a chamfer larger than that consumes the
+rim the lid seats on.
+
+Fix: reduce the treatment or increase `Wall_Thickness`.
+
+There are two companions: `Bottom_Edge_Fillet + Top_Edge_Chamfer < Box_Height`
+so the two treatments cannot meet in the middle of a short box, and
+`Top_Edge_Chamfer * 2 < Lid_Height` because both lid faces are chamfered.
+
+### Lid relief must fit the lid
+
+```scad
+assert(Lid_Relief_Style != "Scallop" || Lid_Relief_Depth * 2 < Lid_Height, ...);
+assert(Lid_Relief_Style == "None" || Lid_Relief_Width < min(Box_Width, Box_Depth) - Corner_Radius * 2, ...);
+```
+
+Why: a scallop is a half-cylinder groove, so its diameter is `Lid_Relief_Depth *
+2` and a deeper one cuts through both faces of the lid. A relief wider than the
+flat part of a wall runs into the rounded corners, where there is no flat face
+to cut or build on.
+
+Fix: reduce `Lid_Relief_Depth`, reduce `Lid_Relief_Width`, or reduce
+`Box_Corner_Radius`.
+
+### Magnet bosses must fit the cavity and clear the post
+
+```scad
+assert(!Enable_Lid_Magnets || Magnet_Boss_Diameter * 2 < min(Box_Width, Box_Depth) - Wall_Thickness * 2, ...);
+assert(!Enable_Lid_Magnets || !Enable_Post || <boss and post do not overlap>, ...);
+```
+
+Why: four bosses at the inside corners need room to exist without meeting each
+other across a small box, or swallowing the centre post. Both would render as a
+silent merge rather than an error.
+
+Fix: reduce `Lid_Magnet_Diameter` or `Lid_Magnet_Wall`, reduce `Post_Diameter`,
+or enlarge the box.
+
+Two depth rules go with them: the lid must keep `GF_MIN_FLOOR` of material above
+its pocket so the magnet is captured rather than showing through the exposed
+face, and the box pocket cannot be deeper than the wall is tall.
+
 ## Clamped Values Rather Than Assertions
 
 Not every out-of-range input deserves a hard stop. `Box_Corner_Radius` has an

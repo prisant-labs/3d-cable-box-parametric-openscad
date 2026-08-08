@@ -583,6 +583,120 @@
       "_why2": "or opening the file in OpenSCAD would show nothing.",
       "defines": ["Part_To_Render=\"Box Only\""],
       "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "e04_edge_treatment_box",
+      "_why": "Fillet and chamfer route the outer shell through offset_sweep",
+      "_why2": "instead of cuboid. The envelope must not move: both treatments",
+      "_why3": "cut inward from edges the full-size footprint still reaches.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Bottom_Edge_Fillet=1.0",
+                  "Top_Edge_Chamfer=0.6"],
+      "expect": {
+        "rc": 0, "solids": 1,
+        "bbox": { "x": [-50.0, 50.0], "y": [-37.5, 37.5], "z": [0.0, 50.0] }
+      }
+    },
+    {
+      "name": "e04_edge_treatment_suppressed_by_gridfinity",
+      "_why": "The Gridfinity base is dimensioned by the standard, so a fillet",
+      "_why2": "on the box bottom would move a mating surface. Suppression is",
+      "_why3": "gated on GF_Bottom_Active, not the Enable_ parameter, so a box",
+      "_why4": "too small for a cell keeps its fillet.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Closed_Post=true", "Bottom_Edge_Fillet=1.0"],
+      "expect": {
+        "rc": 0, "solids": 1,
+        "bbox": { "x": [-50.0, 50.0], "y": [-37.5, 37.5], "z": [0.0, 54.75] }
+      }
+    },
+    {
+      "name": "e04_lid_relief_scallop",
+      "_why": "A scallop cuts a half-cylinder groove into the lid's outer face,",
+      "_why2": "so it removes material without moving the envelope.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Relief_Style=\"Scallop\""],
+      "expect": {
+        "rc": 0, "solids": 1,
+        "bbox": { "x": [-51.9, 51.9], "y": [-39.4, 39.4] },
+        "probes": [
+          { "translate": [51.0, -0.5, 4.05], "size": [1, 1, 0.4], "expect": "empty",
+            "why": "inside the groove at mid lid height" },
+          { "translate": [51.0, 20.0, 4.05], "size": [1, 1, 0.4], "expect": "material",
+            "why": "same height, past the end of a 20mm groove" }
+        ]
+      }
+    },
+    {
+      "name": "e04_lid_relief_tab",
+      "_why": "A tab adds material, so unlike the scallop it does move the",
+      "_why2": "envelope: exactly Lid_Relief_Depth on the two enabled sides.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Relief_Style=\"Tab\""],
+      "expect": {
+        "rc": 0, "solids": 1,
+        "bbox": { "x": [-54.4, 54.4], "y": [-39.4, 39.4] }
+      }
+    },
+    {
+      "name": "e04_lid_relief_skipped_by_full_height_opening",
+      "_why": "Relief lives in the lid and openings in the box, so they only",
+      "_why2": "meet when an opening runs to the rim. Then the relief is dropped:",
+      "_why3": "a Tab would otherwise stand over a hole. The envelope proves it,",
+      "_why4": "because a placed tab would push x to 54.4.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Relief_Style=\"Tab\"",
+                  "All_Opening_Height=48.2"],
+      "expect": {
+        "rc": 0, "solids": 1,
+        "bbox": { "x": [-51.9, 51.9], "y": [-39.4, 39.4] }
+      }
+    },
+    {
+      "name": "e04_lid_magnets_box",
+      "_why": "Bosses run the full box height so they print off the bed rather",
+      "_why2": "than hanging from the rim. The pocket opens at the rim and stops",
+      "_why3": "Lid_Magnet_Depth down, leaving the boss solid below it.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Enable_Lid_Magnets=true"],
+      "expect": {
+        "rc": 0, "solids": 1,
+        "probes": [
+          { "translate": [43.55, 31.05, 40], "size": [1, 1, 0.4], "expect": "material",
+            "why": "boss body, well below the pocket" },
+          { "translate": [43.55, 31.05, 48], "size": [1, 1, 0.4], "expect": "empty",
+            "why": "inside the magnet pocket, which opens at z=47.6" },
+          { "translate": [43.55, 31.05, 5], "size": [1, 1, 0.4], "expect": "material",
+            "why": "boss reaches the floor, so nothing overhangs" }
+        ]
+      }
+    },
+    {
+      "name": "e04_lid_magnets_lid",
+      "_why": "The lid pocket opens on the face that meets the box rim and",
+      "_why2": "reaches down into the slab, so the exposed face stays solid and",
+      "_why3": "the magnet is captured rather than visible.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Lid_Magnets=true"],
+      "expect": {
+        "rc": 0, "solids": 1,
+        "probes": [
+          { "translate": [43.55, 31.05, 6.5], "size": [1, 1, 0.4], "expect": "empty",
+            "why": "inside the lid pocket, which opens at z=5.7" },
+          { "translate": [43.55, 31.05, 2.0], "size": [1, 1, 0.4], "expect": "material",
+            "why": "slab below the pocket: the exposed face stays closed" }
+        ]
+      }
+    },
+    {
+      "name": "e04_lid_magnets_survive_slicing",
+      "_why": "Corner bosses sit at extreme x and slice seams at interior x,",
+      "_why2": "which is why corners were chosen over distributed placement.",
+      "_why3": "This asserts they do not meet rather than assuming it.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Enable_Lid_Magnets=true",
+                  "Enable_Slicing=true", "Slice_Count=2", "Slice_Piece_To_Render=1"],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "e04_lid_magnet_too_big_blocked",
+      "_why": "A magnet larger than the cavity is a silent merge otherwise.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Enable_Lid_Magnets=true",
+                  "Lid_Magnet_Diameter=40"],
+      "expect": { "rc": 1, "message": "Magnet bosses do not fit" }
     }
   ]
 }

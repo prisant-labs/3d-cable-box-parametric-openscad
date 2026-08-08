@@ -146,6 +146,38 @@ Creates one female clip pocket using `Clip_Tolerance` and `SPACER` clearances.
 
 Places floor seam clips across depth based on `Clips_Per_Edge`.
 
+### `m_edge_treated_shell(size, fillet, chamfer)`
+
+The outer shell of the box or the lid slab. With both treatments at `0` it is
+the `cuboid()` it has always been, which is how an untreated model is guaranteed
+unchanged rather than merely expected to be. With a treatment it becomes a BOSL2
+`offset_sweep()` over the same rounded rectangle, which resolves how a
+horizontal fillet meets the vertical corner radius. `offset_sweep` expresses "no
+profile" by omitting the argument, so the cases are enumerated rather than
+passed a flat value.
+
+### `m_lid_relief(is_cut)`
+
+Finger relief on the lid's outer face, one shape per enabled wall, at the wall
+centre. `is_cut = true` yields the scallop, a cylinder whose axis lies on the
+face so the groove is a half cylinder and `Lid_Relief_Depth` is both its depth
+and its half width. `is_cut = false` yields the tab, a rounded block centred on
+the face so it overlaps rather than merely touching, for the same reason the
+seam clips overlap their slice.
+
+### `m_magnet_corner_positions()`
+
+Places children at the four inside corners, each pushed `WELD` into the two
+walls it sits against. The positions are symmetric in both axes, which is what
+makes box and lid pockets align however the lid is flipped.
+
+### `m_box_magnet_bosses()`, `m_box_magnet_pockets()`, `m_lid_magnet_pockets()`
+
+The magnet features. Bosses run the full box height rather than stopping under
+the rim, so they print from the bed up instead of overhanging, and stiffen the
+corner. The box pocket opens at the rim; the lid pocket opens on the face that
+meets it and reaches down into the slab, leaving the lid's exposed face solid.
+
 ### `m_place_lid_clips(x_pos, is_male)`
 
 Places lid seam clips with lid-specific Z and depth extents.

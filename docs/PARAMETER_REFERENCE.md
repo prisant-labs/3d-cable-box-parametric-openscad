@@ -22,8 +22,11 @@ If this document and the SCAD file ever disagree, treat the SCAD file as the fun
 
 1. Overall
 2. Box
+2a. Edge Treatment
 3. Post
 4. Lid
+4a. Lid Relief
+4b. Lid Magnets
 5. Openings
 6. Left Openings Overrides
 7. Right Openings Overrides
@@ -63,6 +66,16 @@ If this document and the SCAD file ever disagree, treat the SCAD file as the fun
 | `Box_Corner_Radius` | number | `8.1` | Roundness of outer vertical edges. | Effective ceiling is `(min(Box_Width, Box_Depth) - Wall_Thickness*2) / 2`, set by the inner cavity rather than the outer shell. Larger values are clamped and reported via `echo`. |
 | `Wall_Thickness` | number | `1.85` | Wall thickness for shell and post walling. | Typical FDM baseline: `1.2` to `2.4` depending nozzle/material. |
 
+## 2a) Edge Treatment
+
+Horizontal edges are square by default. These soften them. Both default to `0`,
+and at `0` the model renders exactly as it did before these existed.
+
+| Parameter | Type | Default | Description | Practical guidance |
+|---|---|---:|---|---|
+| `Bottom_Edge_Fillet` | number | `0` | Fillet on the box's outer bottom edge. | Around `1.0` softens the profile and visually absorbs elephant foot. A large fillet becomes a first-layer overhang, so keep it modest or prefer a chamfer. Capped at `Wall_Thickness`, and ignored entirely when a Gridfinity base is active, because that profile is dimensioned by the standard. |
+| `Top_Edge_Chamfer` | number | `0` | Chamfer on the box's top rim and on both exposed lid edges. | Around `0.6` takes the sharp edge off the rim you handle every time the lid comes off. Capped at `Wall_Thickness`, since the rim is only that wide. Ignored on the lid when a Gridfinity lid top is active. |
+
 ## 3) Post
 
 | Parameter | Type | Default | Description | Interactions |
@@ -78,6 +91,42 @@ If this document and the SCAD file ever disagree, treat the SCAD file as the fun
 | `Lid_Height` | number | `8.1` | Height of lid wall above top plane. | Increase for stronger lid walls and clip volume in sliced mode. |
 | `Lid_Lip_Gap` | number | `0.1` | Fit clearance between lid and box mating walls. | Tight fit: reduce by `0.05`; loose fit: increase by `0.05`. |
 | `Lid_Lip_Gap_Height` | number | `3` | Height of inner engagement lip. | Taller lip improves hold; too tall may increase insertion force. |
+
+## 4a) Lid Relief
+
+`Lid_Lip_Gap` defaults to `0.1`, a deliberately tight friction fit with nothing
+to grip. These give the lid somewhere to be held.
+
+| Parameter | Type | Default | Description | Practical guidance |
+|---|---|---:|---|---|
+| `Lid_Relief_Style` | string | `"None"` | `None`, `Scallop` or `Tab`. | `Scallop` is a concave groove in the lid's outer face: tidier, and it does not change the envelope. `Tab` is a protruding grip: more effective, and it widens the lid by `Lid_Relief_Depth` on each enabled side. |
+| `Lid_Relief_Width` | number | `20` | Length of the relief along the wall. | Must stay clear of the rounded corners; the model asserts if it does not. |
+| `Lid_Relief_Depth` | number | `2.5` | How far a scallop cuts in, or a tab stands out. | A scallop is a half cylinder, so this is both its depth and its half width; it must be under half of `Lid_Height`. |
+| `Lid_Relief_On_Left` | boolean | `true` | Relief on the left wall. | Inert while `Lid_Relief_Style` is `None`. |
+| `Lid_Relief_On_Right` | boolean | `true` | Relief on the right wall. | Mirrors the `Opening_On_*` convention. |
+| `Lid_Relief_On_Front` | boolean | `false` | Relief on the front wall. | |
+| `Lid_Relief_On_Back` | boolean | `false` | Relief on the back wall. | |
+
+A side is skipped automatically when an opening on that wall reaches the box
+rim. The relief is in the lid and openings are in the box, so they normally
+cannot meet; a full-height opening is the exception, and a tab standing over a
+hole grips nothing.
+
+## 4b) Lid Magnets
+
+| Parameter | Type | Default | Description | Practical guidance |
+|---|---|---:|---|---|
+| `Enable_Lid_Magnets` | boolean | `false` | Mating magnet pockets in the box and lid. | Held in bosses at the four inside corners, because the rim is only `Wall_Thickness` wide and a 6 mm magnet does not fit in it. Corners are also free of openings, stabilizers, the post and slice seams. |
+| `Lid_Magnet_Diameter` | number | `6.2` | Pocket diameter. | Takes a nominal 6 mm magnet, the same convention as `Gridfinity_Magnet_Diameter`. Magnet diameters vary by supplier; increase if a press fit cracks the boss. |
+| `Lid_Magnet_Depth` | number | `2.4` | Pocket depth in each half. | Two of these stack when the box is closed, so a 4.8 mm magnet sits flush. The lid keeps material above its pocket, so the magnet is captured rather than visible. |
+| `Lid_Magnet_Wall` | number | `1.2` | Material around each pocket. | Also sets the boss diameter, which is `Lid_Magnet_Diameter + 2 * Lid_Magnet_Wall`. |
+
+**Insert the magnets with opposing poles facing.** The geometry is symmetric in
+both axes so the pockets align however the lid is flipped onto the box, which
+also means it cannot enforce polarity for you.
+
+Bosses run the full box height rather than hanging from the rim, so they print
+off the bed with no overhang and stiffen the corner.
 
 ## 5) Openings
 

@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Edge treatment.** `Bottom_Edge_Fillet` rounds the box's outer bottom edge
+  and `Top_Edge_Chamfer` chamfers the box's top rim and both exposed lid edges.
+  Every horizontal edge was previously a hard 90 degrees, which is the largest
+  visible gap between this and a commercial enclosure; the bottom fillet also
+  absorbs elephant foot visually. Both default to `0`, and at `0` the code takes
+  the same `cuboid()` path it always has, so an untreated model is unchanged by
+  construction rather than by comparison. Non-zero, the shell switches to BOSL2
+  `offset_sweep()`, which resolves how a horizontal fillet meets the vertical
+  corner radius. Suppressed automatically wherever a Gridfinity interface owns
+  the face, because those profiles are dimensioned by the standard.
+- **Lid removal relief.** `Lid_Relief_Style` takes `Scallop` (a concave groove)
+  or `Tab` (a protruding grip), placed by `Lid_Relief_On_Left/Right/Front/Back`
+  mirroring the existing `Opening_On_*` block, and sized by `Lid_Relief_Width`
+  and `Lid_Relief_Depth`. `Lid_Lip_Gap` defaults to 0.1 mm, which is a
+  deliberately tight friction fit with nothing to grip. A side is skipped
+  automatically when an opening on that wall reaches the rim, which is the only
+  case where the lid feature and the box feature meet. Defaults to `None`.
+- **Magnetic lid retention.** `Enable_Lid_Magnets` cuts mating pockets in the
+  box and lid, held in bosses at the four inside corners. Corners rather than
+  the rim because the rim is only `Wall_Thickness` wide and a 6 mm magnet does
+  not fit it, and because corners are free of openings, stabilizers, the post
+  and slice seams by construction rather than by avoidance logic. The four
+  positions are symmetric in both axes, so they align however the lid is flipped
+  onto the box. Bosses run the full box height so they print off the bed instead
+  of hanging off the rim. Sizing follows the existing `Gridfinity_Magnet_*`
+  convention: `Lid_Magnet_Diameter` 6.2 for a nominal 6 mm magnet. Asserts when
+  the boss will not fit the cavity or would touch the post. Defaults to off.
+
+  Magnets must be inserted with opposing poles facing. Symmetric geometry cannot
+  enforce that.
+
+All four features default to a state that leaves existing geometry unchanged, so
+this is a minor bump under [E-10 (versioning)](docs/internal/E-10_versioning.md)
+and does not disturb the 2.0.0 candidate awaiting print validation. Nine
+regression scenarios cover them, including that the defaults render identically
+and that magnets survive slicing.
+
 ## [2.0.0] - 2026-08-07
 
 Major release, because `Enable_Gridfinity_Lid_Top` now renders different

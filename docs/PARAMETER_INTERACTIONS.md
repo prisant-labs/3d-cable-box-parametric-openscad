@@ -133,6 +133,62 @@ Interaction implications:
 - `Post_Diameter` affects center clearance and mating geometry.
 - `Closed_Post` modifies box post cavity behavior but does not remove lid-side post logic.
 
+## Edge Treatment and Gridfinity
+
+Key interaction group:
+
+- `Bottom_Edge_Fillet`
+- `Top_Edge_Chamfer`
+- `Enable_Gridfinity_Bottom`
+- `Enable_Gridfinity_Lid_Top`
+
+Behavior:
+
+- A Gridfinity interface owns the face it sits on, and its profile is
+  dimensioned by the Gridfinity standard. Softening that perimeter would move a
+  mating surface, so the treatment is suppressed there rather than applied and
+  hoped for.
+- Suppression is gated on whether an interface actually rendered, not on the
+  `Enable_` parameter. A box too small for even one 42 mm cell renders no base,
+  and keeps its fillet.
+- The box bottom and the lid's exposed face are the two suppressed cases. The
+  box rim is never suppressed, because no Gridfinity feature touches it.
+
+## Lid Relief and Side Openings
+
+Key interaction group:
+
+- `Lid_Relief_Style`, `Lid_Relief_On_*`
+- `All_Opening_Height`, `Override_Opening_Height_*`, `All_Openings_Up`
+
+Behavior:
+
+- Relief is cut into the lid; openings are cut into the box. At default sizes
+  they are nowhere near each other, so most configurations need no thought.
+- They meet only when an opening runs to the box rim. Then the relief on that
+  wall is dropped: a tab would stand over a hole and a scallop would open into
+  it, and neither gives anything to grip.
+- The skip is automatic and silent. If a relief you asked for is missing, check
+  whether that wall's opening reaches the rim.
+
+## Lid Magnets and Everything Else
+
+Key interaction group:
+
+- `Enable_Lid_Magnets`, `Lid_Magnet_Diameter`, `Lid_Magnet_Wall`
+- `Post_Diameter`, `Enable_Slicing`, `Box_Corner_Radius`
+
+Behavior:
+
+- Magnets sit in bosses at the four inside corners. That placement is what keeps
+  them clear of everything else: openings sit on wall centres, stabilizers carry
+  end margins, the post is central, and slice seams sit at interior x.
+- The only collisions left are with the post on a small box, and with the
+  opposite corner on a very small one. Both assert rather than merging silently.
+- `Box_Corner_Radius` does not need to accommodate the boss. The boss is pushed
+  `WELD` into both walls, so it fuses whether or not the rounded corner reaches
+  it.
+
 ## Quick Diagnostic Matrix
 
 If issue is mostly...

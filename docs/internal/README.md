@@ -19,7 +19,7 @@ incomplete, **Spec** for written but not begun.
 | [E-01](E-01_gridfinity-promotion.md) | **Gridfinity promotion** | Box-underside and lid-topside Gridfinity interfaces | Shipped v1.2.0; lid reworked to a socket in 2.0.0. Unprinted | S | none |
 | [E-02](E-02_bosl2-migration.md) | **BOSL2 migration** | Build on BOSL2 rather than hand-rolled primitives | Shipped: phase 1 v1.3.0, phases 2-3 v1.4.0 | L | none |
 | [E-03](E-03_openings-array.md) | **Openings array** | Replace 4 fixed per-wall openings with an array-driven spec | Spec | M | E-02 (easier after) |
-| [E-04](E-04_quick-wins.md) | **Quick wins** | Edge treatment, lid removal relief, magnet retention | Spec | S | none |
+| [E-04](E-04_quick-wins.md) | **Quick wins** | Edge treatment, lid removal relief, magnet retention | Implemented, unreleased. Opt-in defaults, unprinted | S | none |
 | [E-05](E-05_size-by-contents.md) | **Size by contents** | Size the box from what goes in it, not from outer dimensions | Spec | M | none |
 | [E-06](E-06_thermal-and-vents.md) | **Thermal and vents** | Ventilation generator plus material guidance for powered contents | Spec | M | E-03 (shares cut logic) |
 | [E-07](E-07_preset-library.md) | **Preset library** | A real catalogue of common sizes and configurations | Shipped: catalogue v1.2.0, browser 2.0.0 | M | E-09 (needs artifact automation) |
