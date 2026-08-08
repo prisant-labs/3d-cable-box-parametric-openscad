@@ -17,6 +17,6 @@
     "@google/model-viewer": "^4.3.1",
     "astro": "^7.1.6",
     "sharp": "^0.35.3",
-    "three": "^0.185.1"
+    "three": "^0.183.2"
   }
 }
