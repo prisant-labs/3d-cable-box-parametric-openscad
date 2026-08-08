@@ -1279,7 +1279,16 @@ module m_place_floor_clips(x_pos, is_male) {
 }
 
 module m_place_lid_clips(x_pos, is_male) {
-    z_pos = Lid_Height - Clip_Tab_Height/2;
+    // SPACER sinks the clip so its top face is NOT coplanar with the top of the
+    // lid panel. Flush, the two faces merge into one facet on the slice seam
+    // whose straight boundary then carries the clip's corners as extra
+    // collinear vertices, and OpenSCAD's tessellator fans across them into
+    // zero-area triangles. Four of them per sliced lid piece, which are valid
+    // enough for a slicer but make CGAL assert on re-import: every point probe
+    // against an exported sliced lid returned a confident wrong answer.
+    // Male and female clips share this offset, so the fit is unchanged, and
+    // 0.04 mm is a fifth of a typical layer, so the print is too.
+    z_pos = Lid_Height - Clip_Tab_Height/2 - SPACER;
     lid_depth = Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap;
     usable_depth = lid_depth - Clip_Tab_Width*2;
     female_depth = Clip_Tab_Depth + Clip_Tolerance*2 + SPACER;

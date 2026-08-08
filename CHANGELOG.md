@@ -77,9 +77,23 @@ when it ships.
   assertion inside a probe intersection still prints "top level object is
   empty", so a degenerate exported mesh read as a confident "empty" at every
   point. The test harness now raises on CGAL errors instead. The sliced-lid
-  export carries a coplanar degeneracy from the tab clips (predating the
-  Gridfinity plate) that triggers exactly this, which is why its regression
-  uses a bounding box rather than probes.
+  export was the mesh that exposed this; that degeneracy is fixed below, and
+  the scenario probes it again.
+- **Sliced lid pieces exported four zero-area triangles.** The lid's seam clip
+  was placed with its top face exactly flush with the top of the lid panel
+  (`z_pos = Lid_Height - Clip_Tab_Height/2` on a centred cube puts the top at
+  exactly `Lid_Height`). Flush, the clip's top and the panel's top are one
+  coplanar face, so on the slice seam the clip's corners became extra collinear
+  vertices along an otherwise straight edge, and OpenSCAD's tessellator fanned
+  across them into slivers. Measured on every sliced lid configuration: four
+  such triangles with Tab clips, eight with Snap, none anywhere else, and none
+  on any box piece or unsliced lid. Slicers tolerated them; CGAL did not, so
+  every point probe against an exported sliced lid raised instead of answering.
+  The clip is now sunk by `SPACER` (0.04 mm, the constant this codebase already
+  uses to break tangency). Male and female clips share that offset, so the fit
+  is unchanged, the part envelope is unchanged, and 0.04 mm is a fifth of a
+  typical layer. Verified: zero degenerate triangles across Tab, Snap, thin
+  lids and the Gridfinity plate, and the regression now asserts by probe.
 - **Rebuilding the library no longer reports every render as modified.**
   OpenSCAD rasterises through OpenGL, so pixels along polygon edges land
   differently between runs: two renders of an identical model differ by up to

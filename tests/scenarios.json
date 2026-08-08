@@ -372,16 +372,30 @@
       "_why2": "sized from Lid_Height alone stopped short of the plate, leaving",
       "_why3": "a 0.15mm full-width layer welded to every slice: piece 1",
       "_why4": "measured 103.8mm wide instead of ~52 and defeated slicing.",
-      "_why5": "Asserted via bbox, not probes: this export carries a coplanar",
-      "_why6": "degeneracy from the tab clips (predating the plate), and CGAL",
-      "_why7": "errors out of point probes on it. x-max 29.91 is the slice",
-      "_why8": "plus its clip tabs; the broken residual reached 77.85.",
+      "_why5": "x-max 29.91 is the slice plus its clip tabs; the broken",
+      "_why6": "residual reached 77.85.",
+      "_why7": "The probes below double as the regression for the sliver",
+      "_why8": "degeneracy: the lid clip used to sit flush with the top of the",
+      "_why9": "lid panel, which merged two coplanar faces on the seam and made",
+      "_why10": "OpenSCAD tessellate four zero-area triangles into every sliced",
+      "_why11": "lid piece. CGAL asserted on those, and probe() raises on that,",
+      "_why12": "so any probe here fails if the flush placement comes back.",
       "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Lid_Top=true",
                   "Lid_Height=4.6", "Enable_Slicing=true", "Slice_Count=2",
                   "Slice_Piece_To_Render=1"],
       "expect": {
         "rc": 0,
-        "bbox": { "x": [-25.95, 29.91], "z": [0.0, 12.35] }
+        "bbox": { "x": [-25.95, 29.91], "z": [0.0, 12.35] },
+        "probes": [
+          { "translate": [27.0, 65.0, 8.0], "size": [1, 1, 0.2], "expect": "material",
+            "why": "clip tab, past the seam at x=25.95 and mid its 6.31-9.31 height" },
+          { "translate": [27.0, 65.0, 9.6], "size": [1, 1, 0.2], "expect": "empty",
+            "why": "above the tab: it must stop below the 9.35 panel top, not at it" },
+          { "translate": [-0.5, 94.5, 9.0], "size": [1, 1, 0.2], "expect": "material",
+            "why": "lid panel above the Gridfinity plate" },
+          { "translate": [30.5, 65.0, 8.0], "size": [1, 1, 0.2], "expect": "empty",
+            "why": "past x-max, so the tab has a finite reach" }
+        ]
       }
     },
     {

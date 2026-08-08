@@ -150,6 +150,13 @@ Places floor seam clips across depth based on `Clips_Per_Edge`.
 
 Places lid seam clips with lid-specific Z and depth extents.
 
+The clip sits `SPACER` (0.04 mm) below the top of the lid panel rather than
+flush with it. Flush, the clip's top face and the panel's top face are one
+coplanar face, and on the slice seam the clip's corners become extra collinear
+vertices along a straight edge; OpenSCAD then tessellates zero-area triangles
+there, which slicers tolerate but CGAL rejects on re-import. Male and female
+clips share the offset, so the fit is unaffected.
+
 ### `m_box_slice(slice_num)`
 
 Cuts the box into one slice and applies seam clip logic.
