@@ -5,7 +5,18 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0] - 2026-08-07
+
+Major release, because `Enable_Gridfinity_Lid_Top` now renders different
+geometry from the same parameter set. Under
+[E-10 (versioning)](docs/internal/E-10_versioning.md) that is a major bump even
+though the new geometry is the one the parameter always claimed to produce.
+
+**Not yet print-validated.** The Gridfinity socket clearances and the lid clip
+placement are arithmetic, not measurements. E-10's flow for this state is a
+`v2.0.0-rc.1` prerelease with STLs attached, so the print test has a citable
+artifact; the date above belongs to the final release and should be corrected
+when it ships.
 
 ### Changed
 - **BREAKING: `Enable_Gridfinity_Lid_Top` now produces sockets, not studs.**
