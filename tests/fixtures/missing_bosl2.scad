@@ -241,13 +241,16 @@ Clip_Lock = false;
 /*[Gridfinity]*/
 // Add a Gridfinity base under the box so it drops into a 42mm baseplate.
 Enable_Gridfinity_Bottom = false;
-// Add a Gridfinity baseplate profile on top of the lid so bins stack on it.
+// Add a Gridfinity baseplate on top of the lid, so bins or another box sit on
+// the closed box. Adds 4.75mm to the closed height.
 Enable_Gridfinity_Lid_Top = false;
 // Fit clearance on Gridfinity mating profiles (mm). Increase if the fit is tight.
 Gridfinity_Profile_Clearance = 0.25;
 // Keepout from the model edges before the first cell (mm). Avoids thin corners.
 Gridfinity_Edge_Keepout = 4;
-// Add magnet pockets and screw holes to Gridfinity features.
+// Add magnet pockets (and screw holes, bottom base only) to Gridfinity
+// features. The lid gets pockets without screw holes: a through hole there
+// would breach the closed box.
 Enable_Gridfinity_Magnet_Screw = false;
 // Magnet pocket diameter (mm).
 Gridfinity_Magnet_Diameter = 6.2;
@@ -271,10 +274,11 @@ GF_CAVITY_ENTRY_SIZE   = 39.4;  // lower (wider) mating cavity
 GF_CAVITY_UPPER_SIZE   = 37.2;  // upper (narrower) mating cavity
 GF_CAVITY_ENTRY_DEPTH  = 3.2;
 GF_CAVITY_TOTAL_DEPTH  = 4.3;
-GF_LIDTOP_BASE_HEIGHT  = 2.2;   // lower stud stage on the lid
-GF_LIDTOP_TOP_HEIGHT   = 2.3;   // upper stud stage on the lid
-GF_LIDTOP_BASE_SIZE    = 39.4;
-GF_LIDTOP_TOP_SIZE     = 37.2;
+// Baseplate slab added to the lid's exposed face. The mating sockets cut into
+// it reuse GF_CAVITY_* above, because a socket on the lid and the mating cavity
+// under the box are the same feature: both accept a Gridfinity foot.
+// Thicker than GF_CAVITY_TOTAL_DEPTH so material remains under each socket.
+GF_LIDTOP_PLATE_HEIGHT = 4.75;
 GF_HOLE_OFFSET         = 13;    // magnet/screw offset from cell centre
 GF_MIN_FLOOR           = 0.8;   // solid material kept above magnet pockets
 GF_SCREW_CBORE_DIA     = 6.5;
@@ -283,7 +287,7 @@ GF_SCREW_CBORE_DEPTH   = 2.2;
 // release build; CI enforces that. Echoed at render so an exported STL can be
 // traced back to the source that produced it, which matters for a model
 // distributed as loose files.
-Model_Version = "1.4.1";
+Model_Version = "2.0.0";
 echo(str("cable-box-parametric ", Model_Version));
 
 // Render the model when this file is opened or included. Set false (usually via
@@ -367,7 +371,7 @@ Lid_Outer_Depth = Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap;
 // by their height at render time, exactly as the box is lifted over its base.
 // Putting them at Lid_Height+Lid_Lip_Gap_Height instead would bury them inside
 // the closed box, on the mating face.
-GF_LID_TOTAL_HEIGHT = GF_LIDTOP_BASE_HEIGHT + GF_LIDTOP_TOP_HEIGHT;
+GF_LID_TOTAL_HEIGHT = GF_LIDTOP_PLATE_HEIGHT;
 
 // How many whole 42 mm cells fit across a span once the edge keepout is taken
 // off both sides. Arbitrary box sizes rarely land on a grid multiple, so the
@@ -1278,7 +1282,16 @@ module m_place_floor_clips(x_pos, is_male) {
 }
 
 module m_place_lid_clips(x_pos, is_male) {
-    z_pos = Lid_Height - Clip_Tab_Height/2;
+    // SPACER sinks the clip so its top face is NOT coplanar with the top of the
+    // lid panel. Flush, the two faces merge into one facet on the slice seam
+    // whose straight boundary then carries the clip's corners as extra
+    // collinear vertices, and OpenSCAD's tessellator fans across them into
+    // zero-area triangles. Four of them per sliced lid piece, which are valid
+    // enough for a slicer but make CGAL assert on re-import: every point probe
+    // against an exported sliced lid returned a confident wrong answer.
+    // Male and female clips share this offset, so the fit is unchanged, and
+    // 0.04 mm is a fifth of a typical layer, so the print is too.
+    z_pos = Lid_Height - Clip_Tab_Height/2 - SPACER;
     lid_depth = Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap;
     usable_depth = lid_depth - Clip_Tab_Width*2;
     female_depth = Clip_Tab_Depth + Clip_Tolerance*2 + SPACER;
@@ -1402,43 +1415,81 @@ module m_gridfinity_bottom_holes() {
                 }
 }
 
-// Two-stage profile on the lid's exposed face, grown downward from z=0 (see
+// Baseplate slab on the lid's exposed face, grown downward from z=0 (see
 // GF_LID_TOTAL_HEIGHT above for why that face and that direction).
+//
+// This is a plate with sockets cut into it, not studs standing proud of it.
+// The lid inverts in use, so anything added here ends up pointing at the
+// ceiling on a closed box: studs would leave a row of feet nothing can sit on.
+// Sockets instead let a Gridfinity bin, or another box's base, drop onto the
+// closed lid.
+//
+// The slab spans the whole lid rather than one square per cell, so the top face
+// stays flat and unbroken and no 0.5 mm gaps appear between cells.
 module m_gridfinity_lid_top_solid() {
-    base_size = min(GF_LIDTOP_BASE_SIZE - Gridfinity_Profile_Clearance,
-                    GF_PITCH - Gridfinity_Profile_Clearance);
-    top_size = min(GF_LIDTOP_TOP_SIZE - Gridfinity_Profile_Clearance, base_size);
+    // Reaches WELD into the lid panel rather than stopping flush against it,
+    // for the same coplanar-face reason as the box base.
+    translate([0, 0, -GF_LIDTOP_PLATE_HEIGHT])
+    cuboid([Box_Width + Wall_Thickness*2 + Lid_Lip_Gap,
+            Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap,
+            GF_LIDTOP_PLATE_HEIGHT + WELD],
+        rounding = Corner_Radius,
+        except = [TOP, BOTTOM],
+        anchor = [0, 0, -1]);
+}
 
-    // The wider stage reaches WELD into the lid panel rather than stopping
-    // flush against it, for the same coplanar-face reason as the box base.
-    base_h = GF_LIDTOP_BASE_HEIGHT + WELD;
+// The two-stage mating socket cut into each cell of that slab, opening on the
+// exposed face. Same geometry as the cavity under the box base, so a foot that
+// fits one fits the other, and clearance is added rather than subtracted
+// because this is the female half.
+module m_gridfinity_lid_top_cavities() {
+    entry_depth = min(GF_CAVITY_ENTRY_DEPTH, GF_CAVITY_TOTAL_DEPTH - 0.01);
+    upper_depth = GF_CAVITY_TOTAL_DEPTH - entry_depth;
+
+    // The mouth is sized from the widest part of a foot, not from
+    // GF_CAVITY_ENTRY_SIZE. That constant describes the cavity hollowed *into*
+    // the box base, which is the inside of the male half and 39.4 across. A
+    // Gridfinity foot is 41.5 at its widest, so a 39.4 mouth would hold every
+    // part proud of the plate instead of seating it.
+    entry_size = min(GF_BASE_CELL + Gridfinity_Profile_Clearance, GF_PITCH);
+    upper_size = GF_CAVITY_UPPER_SIZE + Gridfinity_Profile_Clearance;
 
     m_gridfinity_cells(GF_Lid_Cells_X, GF_Lid_Cells_Y) {
-        translate([0, 0, -GF_LIDTOP_BASE_HEIGHT + base_h/2])
-            cube([base_size, base_size, base_h], center = true);
+        translate([0, 0, -GF_LIDTOP_PLATE_HEIGHT + entry_depth/2])
+            cube([entry_size, entry_size, entry_depth + SPACER*2], center = true);
 
-        translate([0, 0, -GF_LIDTOP_BASE_HEIGHT - GF_LIDTOP_TOP_HEIGHT/2])
-            cube([top_size, top_size, GF_LIDTOP_TOP_HEIGHT], center = true);
+        if (upper_depth > 0.01)
+            translate([0, 0, -GF_LIDTOP_PLATE_HEIGHT + entry_depth + upper_depth/2])
+                cube([upper_size, upper_size, upper_depth + SPACER*2], center = true);
     }
 }
 
+// Magnet pockets only, no screw holes. On a real baseplate the screw fastens
+// the plate to a surface; here that surface is the closed lid, so a through
+// hole would breach the box. Magnets keep their purpose: a bin with magnets
+// in its feet snaps onto the closed lid.
+//
+// Each pocket opens at its socket's floor and reaches AWAY from the socket,
+// into the sliver of plate under the floor and on into the lid panel. Cutting
+// from the panel interface outward instead (as the stud version did) overlaps
+// the socket void: only the 0.45mm between socket and panel would remain as
+// pocket, and a 2.4mm magnet glued there would stand proud into the socket
+// and hold every foot off the floor.
 module m_gridfinity_lid_top_holes() {
-    magnet_depth = min(Gridfinity_Magnet_Depth, GF_LID_TOTAL_HEIGHT);
-    cbore_depth = min(GF_SCREW_CBORE_DEPTH, GF_LID_TOTAL_HEIGHT);
+    floor_z = -GF_LIDTOP_PLATE_HEIGHT + GF_CAVITY_TOTAL_DEPTH;
+    // Depth available: plate under the socket floor plus the panel itself,
+    // always keeping GF_MIN_FLOOR of panel solid above the pocket.
+    usable = (GF_LIDTOP_PLATE_HEIGHT - GF_CAVITY_TOTAL_DEPTH)
+             + Lid_Height - GF_MIN_FLOOR;
+    magnet_depth = min(Gridfinity_Magnet_Depth, usable);
 
-    m_gridfinity_cells(GF_Lid_Cells_X, GF_Lid_Cells_Y)
-        for (sx = [-1, 1], sy = [-1, 1])
-            translate([sx * GF_HOLE_OFFSET, sy * GF_HOLE_OFFSET, SPACER])
-            rotate([180, 0, 0]) {
-                cylinder(d = Gridfinity_Screw_Diameter + Gridfinity_Profile_Clearance,
-                         h = GF_LID_TOTAL_HEIGHT + SPACER*2);
-                if (cbore_depth > 0.05)
-                    cylinder(d = GF_SCREW_CBORE_DIA + Gridfinity_Profile_Clearance,
-                             h = cbore_depth + SPACER*2);
-                if (magnet_depth > 0.05)
+    if (magnet_depth > 0.05)
+        m_gridfinity_cells(GF_Lid_Cells_X, GF_Lid_Cells_Y)
+            for (sx = [-1, 1], sy = [-1, 1])
+                translate([sx * GF_HOLE_OFFSET, sy * GF_HOLE_OFFSET,
+                           floor_z - SPACER])
                     cylinder(d = Gridfinity_Magnet_Diameter + Gridfinity_Profile_Clearance,
-                             h = magnet_depth + SPACER*2);
-            }
+                             h = magnet_depth + SPACER);
 }
 
 // ============================================
@@ -1551,19 +1602,26 @@ module m_box_slice(slice_num) {
     is_first_slice = (slice_num == 1);
     is_last_slice = (slice_num == Slice_Count);
 
+    // Explicit vertical envelope, same reasoning as m_lid_slice: the
+    // Gridfinity base hangs Gridfinity_Base_Offset below z=0, and a cutter
+    // sized from Box_Height alone only covers it while Box_Height/2 happens
+    // to exceed the base height.
+    cutter_lo = -Gridfinity_Base_Offset - 1;
+    cutter_hi = Box_Height + 1;
+
     translate([-slice_center_x, 0, 0])
     union() {
         difference() {
             m_box_with_openings();
 
             if (!is_first_slice) {
-                translate([slice_start_x - Box_Width, 0, Box_Height/2])
-                    cube([Box_Width*2, Box_Depth*2, Box_Height*2], center=true);
+                translate([slice_start_x - Box_Width, 0, (cutter_lo + cutter_hi)/2])
+                    cube([Box_Width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
             }
 
             if (!is_last_slice) {
-                translate([slice_end_x + Box_Width, 0, Box_Height/2])
-                    cube([Box_Width*2, Box_Depth*2, Box_Height*2], center=true);
+                translate([slice_end_x + Box_Width, 0, (cutter_lo + cutter_hi)/2])
+                    cube([Box_Width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
             }
 
             if (!is_first_slice) {
@@ -1621,6 +1679,9 @@ module m_lid () {
                 m_gridfinity_lid_top_solid();
         }
 
+        if (GF_Lid_Active)
+            m_gridfinity_lid_top_cavities();
+
         if (GF_Lid_Active && Enable_Gridfinity_Magnet_Screw)
             m_gridfinity_lid_top_holes();
 
@@ -1646,19 +1707,28 @@ module m_lid_slice(slice_num) {
     is_first_slice = (slice_num == 1);
     is_last_slice = (slice_num == Slice_Count);
 
+    // The cutters must span the lid's full vertical envelope explicitly. The
+    // Gridfinity plate hangs Gridfinity_Lid_Offset below z=0, so a cutter
+    // sized from Lid_Height alone stops short of it whenever Lid_Height drops
+    // below the plate height: a legal Lid_Height=4.6 left a 0.15mm full-width
+    // plate layer welded to every slice, making piece 1 the width of the whole
+    // lid and useless on the small bed slicing exists for.
+    cutter_lo = -Gridfinity_Lid_Offset - 1;
+    cutter_hi = Lid_Height + Lid_Lip_Gap_Height + 1;
+
     translate([-slice_center_x, 0, 0])
     union() {
         difference() {
             m_lid();
 
             if (!is_first_slice) {
-                translate([slice_start_x - lid_width, 0, Lid_Height])
-                    cube([lid_width*2, Box_Depth*2, Lid_Height*4], center=true);
+                translate([slice_start_x - lid_width, 0, (cutter_lo + cutter_hi)/2])
+                    cube([lid_width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
             }
 
             if (!is_last_slice) {
-                translate([slice_end_x + lid_width, 0, Lid_Height])
-                    cube([lid_width*2, Box_Depth*2, Lid_Height*4], center=true);
+                translate([slice_end_x + lid_width, 0, (cutter_lo + cutter_hi)/2])
+                    cube([lid_width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
             }
 
             if (!is_first_slice) {
