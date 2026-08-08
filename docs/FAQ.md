@@ -126,6 +126,64 @@ Decrease `Clip_Tolerance` in small steps and retest. You can also increase `Clip
 
 Yes. Set `Enable_Post=false`.
 
+## Is there somewhere I can browse the presets before downloading?
+
+Yes. The [preset library](../library/) on the docs site shows all nine with a 3D
+view of each part you can orbit, the parameters that define it, and downloads
+for STL, GLB and `config.json`. It filters by printer bed size and by feature,
+so you can narrow to what actually fits your machine.
+
+The same catalogue is available as data at `library/index.json` if you want to
+script against it. Everything there is generated from the model by
+`scripts/build_library.py`, so a preset cannot drift from the geometry.
+
+## What is the GLB file next to each STL?
+
+The 3D preview format the docs site uses. `<model-viewer>` reads glTF and not
+STL, and a GLB is roughly a tenth the size of the same mesh as ASCII STL. Print
+the STL; the GLB is for looking at.
+
+## The lid is very hard to get off. What can I do?
+
+Three options, cheapest first.
+
+1. Increase `Lid_Lip_Gap` in `0.05 mm` steps. The default `0.1` is a
+   deliberately tight friction fit.
+2. Set `Lid_Relief_Style` to `Scallop` or `Tab`. That adds finger purchase to
+   the lid edge: a scallop is a concave groove and does not change the outer
+   size, a tab is a protruding grip and is more effective. Choose walls with
+   `Lid_Relief_On_Left` and friends.
+3. If the problem is that the lid falls off rather than sticks, that is the
+   opposite fix: see `Enable_Lid_Magnets` below.
+
+## How do the lid magnets work?
+
+`Enable_Lid_Magnets` cuts a pocket in the box and a matching pocket in the lid
+at each of the four inside corners, so a magnet in each holds the lid shut.
+Corners rather than the rim, because the rim is only `Wall_Thickness` wide
+(1.85 mm by default) and a 6 mm magnet does not fit in it.
+
+`Lid_Magnet_Diameter` defaults to `6.2` for a nominal 6 mm magnet, matching the
+Gridfinity magnet convention. `Lid_Magnet_Depth` is the depth in *each* half, so
+two of them stack: at the default `2.4`, a 4.8 mm magnet sits flush.
+
+**Insert the magnets with opposing poles facing.** The pockets are symmetric so
+they align however the lid goes on, which also means the model cannot enforce
+polarity for you. Glue one pair at a time and check attraction before the
+adhesive sets.
+
+## My box edges are sharp. Can they be rounded?
+
+`Bottom_Edge_Fillet` rounds the outer bottom edge and `Top_Edge_Chamfer`
+chamfers the top rim and the lid edges. Both are `0` by default, so nothing
+changes until you ask.
+
+Keep the bottom fillet modest. It is the first thing printed, and a large one
+becomes an overhang on the opening layers; around `1.0` is a good starting
+point, and a chamfer prints more reliably than a fillet if you have trouble.
+Both are ignored where a Gridfinity interface owns the face, because those
+profiles have to match the standard.
+
 ## How do I load one of the presets?
 
 Open `cable-box-parametric.scad` and press `F3`. All nine presets appear in the
