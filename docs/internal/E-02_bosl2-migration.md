@@ -3,7 +3,11 @@
 **Handle:** BOSL2 migration. Replace the embedded February 2022 subset with a
 real BOSL2 dependency and adopt its attachment system.
 
-**Status:** Phase 1 COMPLETE in v1.3.0 (2026-07-31). Phases 2 and 3 open.
+**Status:** Shipped. Phase 1 in v1.3.0 (2026-07-31); phases
+[2 (snap clips)](E-02-P2_snap-clips.md) and
+[3 (attachables)](E-02-P3_attachables.md) in v1.4.0 (2026-08-03). The snap-clip
+*default* is the one thing still outstanding, and it waits on a print rather
+than on work.
 **Effort:** L
 **Depends on:** [E-09 (testing automation)](E-09_testing-automation.md), which landed first and proved the migration geometry-neutral.
 

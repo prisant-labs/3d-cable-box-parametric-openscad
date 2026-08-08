@@ -2,6 +2,11 @@
 
 **Handle:** Distribution. Publishing to MakerWorld and Printables.
 
+**Status:** Open. The licence question that gated it is resolved (MIT,
+2026-07-29) and the MakerWorld listing is drafted, but nothing is published.
+Publishing waits on the print test, because the listing must not claim snap
+clips or the Gridfinity lid before either has been printed.
+
 **Effort:** S
 **Depends on:** benefits from [E-02 (BOSL2 migration)](E-02_bosl2-migration.md)
 and [E-07 (preset library)](E-07_preset-library.md).

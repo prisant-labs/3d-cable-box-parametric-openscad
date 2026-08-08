@@ -3,6 +3,8 @@
 **Handle:** Thermal and vents. A ventilation pattern generator, plus material
 guidance for boxes holding powered equipment.
 
+**Status:** Spec. Not started.
+
 **Effort:** M
 **Depends on:** shares cut-placement logic with
 [E-03 (openings array)](E-03_openings-array.md); do that first if both are

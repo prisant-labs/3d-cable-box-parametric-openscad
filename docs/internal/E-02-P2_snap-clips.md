@@ -4,7 +4,14 @@
 **Handle:** Snap clips. Replace the hand-rolled rectangular seam tabs with real
 cantilever snap-fit joints from BOSL2's `joiners.scad`.
 
-**Status:** spec
+**Status:** Shipped in v1.4.0 (2026-08-03). `Clip_Style` takes `"Snap"`, backed
+by BOSL2 `rabbit_clip`, with `Clip_Snap_Length`, `Clip_Snap`,
+`Clip_Arm_Thickness`, `Clip_Compression` and `Clip_Lock` to tune it.
+
+**The default is still `"Tab"`**, and that is the only part left. Clip
+correctness is the one thing here that rendering cannot establish: a joint too
+tight to assemble passes every automated scenario. The default flips once a
+print says it should, which is itself a major bump and belongs with 2.0.0.
 **Effort:** M
 **Depends on:** E-02 phase 1 (landed in v1.3.0)
 

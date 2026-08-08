@@ -3,7 +3,10 @@
 **Handle:** Gridfinity promotion. Ship the already-prototyped Gridfinity
 interfaces on the box underside and the lid topside.
 
-**Status:** MERGED in v1.2.0-rc.1 (2026-07-30). Awaiting print validation.
+**Status:** Shipped in v1.2.0 (2026-07-30). The lid interface was reworked from
+a stud to a socket in 2.0.0, which resolves the profile-direction question below.
+Both interfaces remain **unvalidated by print**; `v2.0.0-rc.2` is the artifact
+to print.
 **Effort:** S (promotion and documentation, not construction)
 **Depends on:** nothing. Benefits from [E-09 (testing automation)](E-09_testing-automation.md).
 
@@ -91,21 +94,29 @@ it is a real implementation, not a sketch.
 
 ## Open questions still to resolve
 
-**Profile direction on the lid.** The implemented lid profile is a positive
-two-stage stud (39.4 then 37.2). A Gridfinity *baseplate* is a socket, the
-negative of a bin base. Which one the lid should carry depends on the intent:
+**Profile direction on the lid. RESOLVED in 2.0.0: socket.** v1.2.0 shipped a
+positive two-stage stud (39.4 then 37.2), which is what the prototype built.
+That was the wrong half. The lid inverts in use, so its exposed face is the top
+of a closed box, and a stud there points Gridfinity feet at the ceiling with
+nothing able to rest on them. `Enable_Gridfinity_Lid_Top` now renders a 4.75 mm
+baseplate with a mating socket per cell, which is the reading this document gave
+originally and the one the parameter's own doc comment always described.
 
-- positive stud, so the closed box behaves like a bin and sits in a baseplate
-- socket, so Gridfinity bins sit on top of the closed box
+The socket mouth is sized from `GF_BASE_CELL` (41.5) plus clearance, not from
+`GF_CAVITY_ENTRY_SIZE` (39.4). The latter describes the cavity hollowed *into*
+the box base, which is the inside of the male half; a mouth that size holds
+every part 1.85 mm proud. That error is invisible in a render and was caught by
+arithmetic.
 
-E-01 originally described the second. The first is what the prototype built and
-what shipped in rc.1. **Resolve from the print test**, then adjust if needed.
+The clearance is 0.25 mm and remains a chosen number, not a measurement.
 
 ## Acceptance criteria
 
 - [x] Both interfaces toggle independently and default to off.
 - [ ] Box underside mates with a standard 42 mm Gridfinity baseplate. **Print test.**
-- [ ] Lid topside behaves as intended. **Print test, and see the open profile-direction question above.**
+- [ ] Lid topside behaves as intended: a Gridfinity bin foot seats in a lid
+      socket. **Print test.** Profile direction is settled (socket, 2.0.0); what
+      the print decides is the 0.25 mm clearance.
 - [x] Bottom Gridfinity plus bottom openings asserts with a model-level message.
 - [x] All existing smoke scenarios still pass unchanged with Gridfinity off (48/48).
 - [x] Geometry with Gridfinity off is byte-identical (normalised) to the

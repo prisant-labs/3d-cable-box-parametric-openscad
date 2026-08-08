@@ -4,7 +4,11 @@
 **Handle:** Attachables. Give the box and lid BOSL2 anchors so features are
 placed by name rather than by hand-computed coordinates.
 
-**Status:** spec
+**Status:** Shipped in v1.4.0 (2026-08-03). `m_box()` and `m_lid_part()` are
+BOSL2 attachables with named anchors: `floor`, `rim`, `wall-front`, `wall-back`,
+`wall-left`, `wall-right`, `post-top`, plus `lid-face` and `lip` on the lid.
+`Render_On_Include=false` makes the file usable as a library. Three anchor
+scenarios cover it in the regression suite.
 **Effort:** L
 **Depends on:** E-02 phase 1 (landed in v1.3.0)
 

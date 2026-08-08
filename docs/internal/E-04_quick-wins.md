@@ -3,6 +3,8 @@
 **Handle:** Quick wins. Edge treatment, lid removal relief, and magnetic lid
 retention. Three small independent changes with high value per unit of effort.
 
+**Status:** Spec. Not started.
+
 **Effort:** S total
 **Depends on:** nothing. Cheaper after
 [E-02 (BOSL2 migration)](E-02_bosl2-migration.md) but does not require it.

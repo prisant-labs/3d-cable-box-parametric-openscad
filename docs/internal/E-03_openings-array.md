@@ -3,6 +3,8 @@
 **Handle:** Openings array. Replace the four fixed per-wall openings with an
 array-driven specification.
 
+**Status:** Spec. Not started.
+
 **Effort:** M
 **Depends on:** much easier after
 [E-02 (BOSL2 migration)](E-02_bosl2-migration.md). Best done together.

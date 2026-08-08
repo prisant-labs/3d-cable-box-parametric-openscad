@@ -3,6 +3,10 @@
 **Handle:** Testing automation. Automated geometry regression testing beyond
 compile checks.
 
+**Status:** Shipped in v1.1.1 (2026-07-29). `tests/run_tests.py` and
+`tests/scenarios.json` assert exit code, solid count, manifoldness, warning
+cleanliness and point probes; 66 scenarios today, run in CI on every push.
+
 **Effort:** M
 **Depends on:** nothing. Should land before
 [E-02 (BOSL2 migration)](E-02_bosl2-migration.md).

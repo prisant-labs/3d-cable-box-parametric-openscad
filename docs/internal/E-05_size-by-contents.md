@@ -3,6 +3,8 @@
 **Handle:** Size by contents. Let users size the box from what goes inside it
 rather than from outer dimensions.
 
+**Status:** Spec. Not started.
+
 **Effort:** M
 **Depends on:** informed by [E-07 (preset library)](E-07_preset-library.md),
 which reveals which content classes actually matter.

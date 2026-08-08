@@ -3,6 +3,11 @@
 **Handle:** Versioning. Version scheme, pre-release flow during development, and
 traceability from an exported STL back to source.
 
+**Status:** Shipped in v1.1.1 (2026-07-29). `Model_Version` is echoed at
+render and `scripts/check-version.sh` fails the build when it disagrees with
+the changelog or a tag. The pre-release flow described here has been used
+twice: `v1.2.0-rc.1`, and `v2.0.0-rc.1`/`rc.2`.
+
 **Effort:** S
 **Depends on:** nothing. Pairs with
 [E-09 (testing automation)](E-09_testing-automation.md).
