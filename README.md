@@ -96,7 +96,9 @@ a face-down-printed lid is up.
 ## Presets
 
 Nine ready-to-print configurations live in [`library/`](library/), each with a
-complete `config.json`, STLs, renders, and notes.
+complete `config.json`, STLs, renders, and notes. They are also browsable with
+3D previews at
+[the preset library on the docs site](https://prisant-labs.github.io/3d-cable-box-parametric-openscad/library/).
 
 | Preset | Fits | Size (mm) |
 |---|---|---|

@@ -1,0 +1,320 @@
+---
+// One page per preset: an orbitable 3D view of each part, the renders, the
+// parameters that make it this preset, and the files to print it.
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import {
+	library,
+	presets,
+	libraryUrl,
+	formatBytes,
+	formatSize,
+	featureLabels,
+} from '../../lib/library';
+
+export function getStaticPaths() {
+	return presets.map((preset) => ({
+		params: { preset: preset.name },
+		props: { preset },
+	}));
+}
+
+const { preset } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Parts that have something to show. A part with neither a mesh nor a render is
+// a preset that has not been built yet, and is better omitted than shown empty.
+const parts = preset.parts.filter((part) => part.glb || part.image || part.stl);
+const initial = parts.find((p) => p.slug === 'box-and-lid') ?? parts[0];
+const badges = featureLabels(preset.features);
+---
+
+<StarlightPage
+	frontmatter={{
+		title: preset.title,
+		description: preset.fits,
+		editUrl: false,
+	}}
+>
+	<p><a href={`${base}/library/`}>&larr; All presets</a></p>
+
+	<p>{preset.fits}</p>
+	{preset.note && <aside class="note">{preset.note}</aside>}
+	{
+		badges.length > 0 && (
+			<p class="badges">
+				{badges.map((label) => (
+					<span class="badge">{label}</span>
+				))}
+			</p>
+		)
+	}
+
+	<h2 id="preview">Preview</h2>
+	{
+		initial ? (
+			<div class="viewer">
+				<div class="parts" role="group" aria-label="Choose a part to view">
+					{parts.map((part) => (
+						<button
+							type="button"
+							class="part"
+							data-slug={part.slug}
+							data-src={part.glb ? libraryUrl(base, part.glb.path) : ''}
+							data-poster={part.image ? libraryUrl(base, part.image.path) : ''}
+							data-size={formatSize(part.size_mm)}
+							aria-pressed={String(part.slug === initial.slug)}
+						>
+							{part.label}
+						</button>
+					))}
+				</div>
+
+				<model-viewer
+					id="viewer"
+					src={initial.glb ? libraryUrl(base, initial.glb.path) : undefined}
+					poster={initial.image ? libraryUrl(base, initial.image.path) : undefined}
+					alt={`3D model of the ${preset.title}, ${initial.label.toLowerCase()}`}
+					camera-controls
+					touch-action="pan-y"
+					shadow-intensity="1"
+					tone-mapping="aces"
+					reveal="auto"
+				/>
+
+				{/* glTF carries no unit convention, so the viewer can only ever show
+				    proportion. The measurement has to be stated in text beside it. */}
+				<p class="dims">
+					<span id="dims">{formatSize(initial.size_mm)}</span>
+					<span class="hint">drag to orbit, scroll to zoom</span>
+				</p>
+			</div>
+		) : (
+			<p>This preset has not been built yet, so there is nothing to preview.</p>
+		)
+	}
+
+	<h2 id="downloads">Downloads</h2>
+	<table>
+		<thead>
+			<tr><th>Part</th><th>Size</th><th>STL</th><th>GLB</th></tr>
+		</thead>
+		<tbody>
+			{
+				parts.map((part) => (
+					<tr>
+						<td>{part.label}</td>
+						<td class="mono">{formatSize(part.size_mm)}</td>
+						<td>
+							{part.stl ? (
+								<a href={libraryUrl(base, part.stl.path)} download>
+									STL ({formatBytes(part.stl.bytes)})
+								</a>
+							) : (
+								<span class="absent">not built</span>
+							)}
+						</td>
+						<td>
+							{part.glb ? (
+								<a href={libraryUrl(base, part.glb.path)} download>
+									GLB ({formatBytes(part.glb.bytes)})
+								</a>
+							) : (
+								<span class="absent">not built</span>
+							)}
+						</td>
+					</tr>
+				))
+			}
+		</tbody>
+	</table>
+
+	{
+		preset.config && (
+			<p>
+				<a href={libraryUrl(base, preset.config.path)} download>
+					config.json ({formatBytes(preset.config.bytes)})
+				</a>{' '}
+				is OpenSCAD's native parameter-set format. Load it in the Customizer
+				with <code>-p</code> and <code>-P {preset.name}</code>, or open{' '}
+				<code>cable-box-parametric.json</code> beside the model to get every
+				preset in one dropdown.
+			</p>
+		)
+	}
+
+	<h2 id="parameters">Parameters</h2>
+	<p>
+		These are the overrides that make this preset. Everything not listed uses
+		the model default, and the full list of defaults is in the{' '}
+		<a href={`${base}/parameter-reference/`}>parameter reference</a>.
+	</p>
+	<table>
+		<thead>
+			<tr><th>Parameter</th><th>Value</th><th>Default</th></tr>
+		</thead>
+		<tbody>
+			{
+				Object.entries(preset.params)
+					.sort(([a], [b]) => a.localeCompare(b))
+					.map(([key, value]) => (
+						<tr>
+							<td class="mono">{key}</td>
+							<td class="mono">{String(value)}</td>
+							<td class="mono absent">
+								{key in library.defaults ? String(library.defaults[key]) : '?'}
+							</td>
+						</tr>
+					))
+			}
+		</tbody>
+	</table>
+
+	{
+		preset.extra_images.length > 0 && (
+			<>
+				<h2 id="more-views">More views</h2>
+				<div class="gallery">
+					{preset.extra_images.map(
+						(extra) =>
+							extra.image && (
+								<figure>
+									<img
+										src={libraryUrl(base, extra.image.path)}
+										alt={`${preset.title}, ${extra.slug.replace(/-/g, ' ')}`}
+										loading="lazy"
+										width="1000"
+										height="750"
+									/>
+									<figcaption>{extra.slug.replace(/-/g, ' ')}</figcaption>
+								</figure>
+							),
+					)}
+				</div>
+			</>
+		)
+	}
+
+	<h2 id="rebuild">Rebuild this preset</h2>
+	<pre><code>python scripts/build_library.py --only {preset.name}</code></pre>
+	<p>
+		Generated from <code>cable-box-parametric.scad</code> {library.model_version}.
+		Files under <code>library/</code> are overwritten by that script, so edit
+		the preset's entry in <code>scripts/build_library.py</code> rather than the
+		output.
+	</p>
+</StarlightPage>
+
+<style>
+	.note {
+		border-inline-start: 3px solid var(--sl-color-orange);
+		padding: 0.5rem 0.9rem;
+		margin: 1rem 0;
+		background: var(--sl-color-orange-low);
+	}
+	.badges {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem;
+	}
+	.badge {
+		font-size: var(--sl-text-xs);
+		padding: 0.1rem 0.45rem;
+		border-radius: 999px;
+		border: 1px solid var(--sl-color-gray-5);
+		color: var(--sl-color-gray-2);
+	}
+	.viewer {
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 0.5rem;
+		overflow: hidden;
+	}
+	.parts {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem;
+		padding: 0.5rem;
+		border-block-end: 1px solid var(--sl-color-gray-5);
+	}
+	.part {
+		font: inherit;
+		font-size: var(--sl-text-sm);
+		padding: 0.25rem 0.7rem;
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 0.25rem;
+		background: transparent;
+		color: var(--sl-color-gray-2);
+		cursor: pointer;
+	}
+	.part[aria-pressed='true'] {
+		background: var(--sl-color-accent-low);
+		border-color: var(--sl-color-accent);
+		color: var(--sl-color-white);
+	}
+	model-viewer {
+		display: block;
+		width: 100%;
+		height: min(60vh, 30rem);
+		background: var(--sl-color-gray-6);
+		--poster-color: transparent;
+	}
+	.dims {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		margin: 0;
+		padding: 0.4rem 0.7rem;
+		border-block-start: 1px solid var(--sl-color-gray-5);
+		font-size: var(--sl-text-sm);
+		font-family: var(--sl-font-mono, monospace);
+	}
+	.dims .hint {
+		font-family: var(--sl-font);
+		color: var(--sl-color-gray-3);
+	}
+	.mono {
+		font-family: var(--sl-font-mono, monospace);
+		font-size: var(--sl-text-sm);
+	}
+	.absent {
+		color: var(--sl-color-gray-3);
+	}
+	.gallery {
+		display: grid;
+		gap: 1rem;
+		grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+	}
+	.gallery img {
+		width: 100%;
+		height: auto;
+		border-radius: 0.25rem;
+	}
+	.gallery figcaption {
+		font-size: var(--sl-text-sm);
+		color: var(--sl-color-gray-3);
+	}
+</style>
+
+<script>
+	// model-viewer is ~1 MB of JavaScript and three.js, so it is imported only on
+	// this page. The index page shows still renders instead, which is also why
+	// the grid stays usable on a phone.
+	import '@google/model-viewer';
+
+	const viewer = document.getElementById('viewer');
+	const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('.part'));
+	const dims = document.getElementById('dims');
+
+	for (const button of buttons) {
+		button.addEventListener('click', () => {
+			for (const other of buttons) {
+				other.setAttribute('aria-pressed', String(other === button));
+			}
+			if (dims) dims.textContent = button.dataset.size ?? '';
+			if (!viewer) return;
+			// Set the poster before the source so the still render covers the swap
+			// rather than the canvas flashing empty while the new mesh loads.
+			if (button.dataset.poster) viewer.setAttribute('poster', button.dataset.poster);
+			if (button.dataset.src) viewer.setAttribute('src', button.dataset.src);
+		});
+	}
+</script>

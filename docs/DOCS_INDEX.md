@@ -13,6 +13,9 @@
 - `FAQ.md`: Common questions and issue resolution.
 - `RELEASE.md`: Release checklist, from version bump through snapshot.
 - `../library/README.md`: The nine presets, what each fits, and their sizes.
+  The same catalogue with 3D previews and downloads is the
+  [preset library](../library/), which resolves to the browser on the docs site
+  and to the generated directory when browsing the repository.
 - `../library/index.json`: The catalogue as data, generated alongside the
   presets. Each preset's overrides, printed envelope, feature flags and file
   paths, plus the model's full parameter defaults once at the top.

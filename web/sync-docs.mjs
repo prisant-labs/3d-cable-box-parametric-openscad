@@ -59,6 +59,12 @@ for (const [file, slug] of Object.entries(PAGES)) {
 	}
 	text = text.replaceAll('](options-guide.html)', `](${prefix}options-guide.html)`);
 
+	// The generated preset library lives at the repo root, so docs/ links to it
+	// as "../library/". That is already correct twice over: on GitHub it reaches
+	// the generated directory, and from any site subpage it reaches the preset
+	// browser. Only the root index page sits a segment higher and needs "./".
+	if (slug === 'index') text = text.replaceAll('](../library/', '](./library/');
+
 	const out = slug === 'index' ? 'index.md' : `${slug}.md`;
 	writeFileSync(
 		join(OUT, out),

@@ -19,6 +19,14 @@ It is intended to be as implementation-close as possible, so parameter behavior 
 - [Validation rules](VALIDATION_RULES.md): assertion constraints and why they exist
 - [Parameter interactions](PARAMETER_INTERACTIONS.md): high-impact parameter interactions
 
+## Presets
+
+The [preset library](../library/) is nine ready-to-print configurations, each
+sized for something you already own. Every entry has an orbitable 3D view of
+each part, the parameters that define it, and STL, GLB and `config.json`
+downloads. Everything there is generated from the model, so a preset cannot
+drift from it.
+
 ## Scope Notes
 
 - This docs set describes the primary model at the repo root.

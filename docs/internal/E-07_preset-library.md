@@ -3,6 +3,10 @@
 **Handle:** Preset library. A real catalogue of common sizes and configurations
 rather than one default.
 
+**Status:** Catalogue SHIPPED in v1.2.0 (2026-07-30): nine generated presets in
+`library/`. Delivery COMPLETE unreleased (2026-08-07): `library/index.json` plus
+the preset browser on the docs site, with 3D previews and downloads per part.
+
 **Effort:** M
 **Depends on:** [E-09 (testing automation)](E-09_testing-automation.md) for
 artifact automation. Pairs with [E-08 (web customizer)](E-08_web-customizer.md).

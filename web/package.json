@@ -3,18 +3,20 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "sync": "node sync-docs.mjs",
-    "predev": "node sync-docs.mjs",
+    "sync": "node sync-docs.mjs && node sync-library.mjs",
+    "predev": "npm run sync",
     "dev": "astro dev",
     "start": "astro dev",
-    "prebuild": "node sync-docs.mjs",
+    "prebuild": "npm run sync",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.41.7",
+    "@google/model-viewer": "^4.3.1",
     "astro": "^7.1.6",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "three": "^0.185.1"
   }
 }

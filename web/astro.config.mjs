@@ -43,6 +43,10 @@ export default defineConfig({
 						{ label: 'Parameter Interactions', slug: 'parameter-interactions' },
 					],
 				},
+				// A custom page rather than a content-collection entry, so it is
+				// linked by path. Everything under /library/ is generated from
+				// library/index.json at build time.
+				{ label: 'Preset Library', link: '/library/' },
 				{ label: 'FAQ', slug: 'faq' },
 				{ label: 'Release', slug: 'release' },
 			],

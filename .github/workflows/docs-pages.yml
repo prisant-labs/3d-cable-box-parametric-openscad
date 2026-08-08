@@ -32,8 +32,11 @@ jobs:
         run: npm ci
         working-directory: web
 
-      # npm run build first syncs web/src/content/docs from docs/ via
-      # web/sync-docs.mjs, then builds. docs/ stays the source of truth.
+      # npm run build syncs first, then builds. web/sync-docs.mjs regenerates
+      # web/src/content/docs from docs/, and web/sync-library.mjs copies the
+      # generated preset library into web/public/. Both sources stay canonical
+      # in the repo root; the copies under web/ are build artifacts.
+      # Both are committed, so no Python or OpenSCAD is needed here.
       - name: Build site
         run: npm run build
         working-directory: web

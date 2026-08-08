@@ -19,6 +19,11 @@ artifact; the date above belongs to the final release and should be corrected
 when it ships.
 
 ### Added
+- **A preset browser on the docs site**, at `/library/`. A card grid filterable
+  by printer bed size and by feature, and a page per preset with an orbitable
+  3D view of each part, the parameters that define it, and downloads. Cards use
+  the fixed-camera render, so the grid reads as a size comparison rather than
+  nine models each zoomed to fill its own frame.
 - **`library/index.json`**, the machine-readable twin of `library/README.md`:
   every preset with its overrides, printed envelope, feature flags, and file
   paths, plus the model's full parameter defaults once at the top. It carries a

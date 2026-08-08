@@ -3,6 +3,13 @@
 **Handle:** Web customizer. A browser-based parameter customizer served from
 GitHub Pages, no backend.
 
+**Status:** OPEN, and now the only unbuilt part of the site. The shell it needs
+shipped first: the docs site moved to Astro Starlight (unreleased, 2026-08-07)
+and the preset browser landed beside it under
+[E-07 (preset library)](E-07_preset-library.md). `library/index.json` is
+deliberately the shape a customizer wants, so the "load a preset" path is
+already fed. What remains is the WASM playground itself.
+
 **Effort:** M
 **Depends on:** [E-02 (BOSL2 migration)](E-02_bosl2-migration.md) for library
 availability. Benefits from [E-07 (preset library)](E-07_preset-library.md).
