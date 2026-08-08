@@ -14,13 +14,17 @@ AGENTS/
 *.amf
 *.step
 *.iges
+*.glb
 exports/
 renders/
 site/
 ci-smoke-out/
 
 # Keep curated release artifacts versionable in-library/examples.
+# The library GLBs are the docs site's 3D previews, generated from the STLs
+# beside them; tracking them keeps the Pages build Node-only.
 !library/**/*.stl
+!library/**/*.glb
 !examples/**/*.stl
 
 # Tool/editor/system files
@@ -50,3 +54,4 @@ web/dist/
 web/.astro/
 web/src/content/docs/
 web/public/options-guide.html
+web/public/library/

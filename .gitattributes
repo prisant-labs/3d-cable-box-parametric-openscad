@@ -5,6 +5,7 @@
 
 # Binary artifacts
 *.stl binary
+*.glb binary
 *.3mf binary
 *.obj binary
 *.amf binary

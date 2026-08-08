@@ -1,0 +1,1050 @@
+{
+  "schema": 1,
+  "generator": "scripts/build_library.py",
+  "model_version": "2.0.0",
+  "defaults": {
+    "Part_To_Render": "Box Only",
+    "Box_Width": 100,
+    "Box_Depth": 75,
+    "Box_Height": 50,
+    "Box_Corner_Radius": 8.1,
+    "Wall_Thickness": 1.85,
+    "Enable_Post": true,
+    "Closed_Post": false,
+    "Post_Diameter": 15,
+    "Lid_Height": 8.1,
+    "Lid_Lip_Gap": 0.1,
+    "Lid_Lip_Gap_Height": 3,
+    "All_Opening_Width": 10,
+    "All_Opening_Height": 30,
+    "All_Opening_Corner_Radius": -1,
+    "All_Openings_Right": 0,
+    "All_Openings_Up": 0,
+    "Opening_On_Right": true,
+    "Opening_On_Left": true,
+    "Opening_On_Front": true,
+    "Opening_On_Back": true,
+    "Override_Opening_Width_Left": 0,
+    "Override_Opening_Height_Left": 0,
+    "Override_Opening_Corner_Radius_Left": -1,
+    "Move_Opening_Left_to_Right": 0,
+    "Move_Opening_Left_Up": 0,
+    "Override_Opening_Width_Right": 0,
+    "Override_Opening_Height_Right": 0,
+    "Override_Opening_Corner_Radius_Right": -1,
+    "Move_Opening_Right_to_Right": 0,
+    "Move_Opening_Right_Up": 0,
+    "Override_Opening_Width_Back": 0,
+    "Override_Opening_Height_Back": 0,
+    "Override_Opening_Corner_Radius_Back": -1,
+    "Move_Opening_Back_to_Right": 0,
+    "Move_Opening_Back_Up": 0,
+    "Override_Opening_Width_Front": 0,
+    "Override_Opening_Height_Front": 0,
+    "Override_Opening_Corner_Radius_Front": -1,
+    "Move_Opening_Front_to_Right": 0,
+    "Move_Opening_Front_Up": 0,
+    "Enable_Stabilizers": true,
+    "Stabilizer_Width": 1.5,
+    "Stabilizer_Depth": 15,
+    "Stabilizer_Height": 35,
+    "Stabilizers_Front_Back_Count": 3,
+    "Stabilizers_Front_Back_Alignment": "Centered",
+    "Stabilizer_FB_Spacing": 3,
+    "Stabilizer_FB_Margin_Left": 15,
+    "Stabilizer_FB_Margin_Right": 15,
+    "Stabilizer_Avoid_Front_Opening": true,
+    "Stabilizer_Avoid_Back_Opening": true,
+    "Stabilizers_Left_Right_Count": 0,
+    "Stabilizers_Left_Right_Alignment": "Centered",
+    "Stabilizer_LR_Spacing": 3,
+    "Stabilizer_LR_Margin_Front": 15,
+    "Stabilizer_LR_Margin_Back": 15,
+    "Stabilizer_Avoid_Left_Opening": true,
+    "Stabilizer_Avoid_Right_Opening": true,
+    "Enable_Bottom_Openings": false,
+    "Bottom_Openings_Count": 3,
+    "Bottom_Opening_Axis": "Along X",
+    "Bottom_Opening_Width": 15,
+    "Bottom_Opening_Depth": 30,
+    "Bottom_Opening_Orientation": "Along Y",
+    "Bottom_Opening_Corner_Radius": 5,
+    "Bottom_Opening_Spacing": 0,
+    "Bottom_Opening_Alignment_Primary": "Centered",
+    "Bottom_Opening_Alignment_Secondary": "Centered",
+    "Bottom_Opening_Avoid_Post": true,
+    "Bottom_Opening_Post_Margin": 2,
+    "Bottom_Opening_Margin_Left": 10,
+    "Bottom_Opening_Margin_Right": 10,
+    "Bottom_Opening_Margin_Front": 10,
+    "Bottom_Opening_Margin_Back": 10,
+    "Enable_Slicing": false,
+    "Slice_Count": 2,
+    "Slice_Piece_To_Render": 0,
+    "Clip_Tolerance": 0.2,
+    "Clips_Per_Edge": 2,
+    "Clip_Tab_Width": 10,
+    "Clip_Tab_Depth": 4,
+    "Clip_Tab_Height": 3,
+    "Slice_Preview_Spacing": 5,
+    "Clip_Style": "Tab",
+    "Clip_Snap_Length": 8,
+    "Clip_Snap": 0.4,
+    "Clip_Arm_Thickness": 1.0,
+    "Clip_Compression": 0.1,
+    "Clip_Lock": false,
+    "Enable_Gridfinity_Bottom": false,
+    "Enable_Gridfinity_Lid_Top": false,
+    "Gridfinity_Profile_Clearance": 0.25,
+    "Gridfinity_Edge_Keepout": 4,
+    "Enable_Gridfinity_Magnet_Screw": false,
+    "Gridfinity_Magnet_Diameter": 6.2,
+    "Gridfinity_Magnet_Depth": 2.4,
+    "Gridfinity_Screw_Diameter": 3.2
+  },
+  "presets": [
+    {
+      "name": "desk-compact",
+      "title": "Compact desk tidy",
+      "fits": "A short power strip plus 3 or 4 cables. Minimal desk footprint.",
+      "note": null,
+      "params": {
+        "Box_Width": 140,
+        "Box_Depth": 80,
+        "Box_Height": 55,
+        "All_Opening_Width": 14,
+        "All_Opening_Height": 32
+      },
+      "box_size_mm": [
+        140.0,
+        80.0,
+        55.0
+      ],
+      "features": {
+        "gridfinity_bottom": false,
+        "gridfinity_lid_top": false,
+        "gridfinity_magnets": false,
+        "sliced": false,
+        "slice_count": null,
+        "post": true,
+        "closed_post": false,
+        "stabilizers": true
+      },
+      "config": {
+        "path": "desk-compact/config.json",
+        "bytes": 228
+      },
+      "notes": {
+        "path": "desk-compact/notes.md",
+        "bytes": 439
+      },
+      "parts": [
+        {
+          "slug": "box-only",
+          "label": "Box Only",
+          "size_mm": [
+            140.0,
+            80.0,
+            55.0
+          ],
+          "stl": {
+            "path": "desk-compact/stl/desk-compact_box-only.stl",
+            "bytes": 247552
+          },
+          "glb": {
+            "path": "desk-compact/stl/desk-compact_box-only.glb",
+            "bytes": 26780
+          },
+          "image": {
+            "path": "desk-compact/images/desk-compact_box-only.png",
+            "bytes": 26004
+          }
+        },
+        {
+          "slug": "lid-only",
+          "label": "Lid Only",
+          "size_mm": [
+            143.8,
+            83.8,
+            11.1
+          ],
+          "stl": {
+            "path": "desk-compact/stl/desk-compact_lid-only.stl",
+            "bytes": 146484
+          },
+          "glb": {
+            "path": "desk-compact/stl/desk-compact_lid-only.glb",
+            "bytes": 15948
+          },
+          "image": {
+            "path": "desk-compact/images/desk-compact_lid-only.png",
+            "bytes": 20228
+          }
+        },
+        {
+          "slug": "box-and-lid",
+          "label": "Box and Lid",
+          "size_mm": [
+            301.9,
+            83.8,
+            55.0
+          ],
+          "stl": {
+            "path": "desk-compact/stl/desk-compact_box-and-lid.stl",
+            "bytes": 392956
+          },
+          "glb": {
+            "path": "desk-compact/stl/desk-compact_box-and-lid.glb",
+            "bytes": 42040
+          },
+          "image": {
+            "path": "desk-compact/images/desk-compact_box-and-lid.png",
+            "bytes": 16396
+          }
+        }
+      ],
+      "extra_images": []
+    },
+    {
+      "name": "laptop-brick",
+      "title": "Laptop brick and cables",
+      "fits": "One laptop charger up to ~150 x 75 x 40 mm, plus 3 cables.",
+      "note": null,
+      "params": {
+        "Box_Width": 175,
+        "Box_Depth": 105,
+        "Box_Height": 70,
+        "All_Opening_Width": 16,
+        "All_Opening_Height": 38,
+        "Stabilizers_Front_Back_Count": 4
+      },
+      "box_size_mm": [
+        175.0,
+        105.0,
+        70.0
+      ],
+      "features": {
+        "gridfinity_bottom": false,
+        "gridfinity_lid_top": false,
+        "gridfinity_magnets": false,
+        "sliced": false,
+        "slice_count": null,
+        "post": true,
+        "closed_post": false,
+        "stabilizers": true
+      },
+      "config": {
+        "path": "laptop-brick/config.json",
+        "bytes": 272
+      },
+      "notes": {
+        "path": "laptop-brick/notes.md",
+        "bytes": 483
+      },
+      "parts": [
+        {
+          "slug": "box-only",
+          "label": "Box Only",
+          "size_mm": [
+            175.0,
+            105.0,
+            70.0
+          ],
+          "stl": {
+            "path": "laptop-brick/stl/laptop-brick_box-only.stl",
+            "bytes": 258274
+          },
+          "glb": {
+            "path": "laptop-brick/stl/laptop-brick_box-only.glb",
+            "bytes": 27644
+          },
+          "image": {
+            "path": "laptop-brick/images/laptop-brick_box-only.png",
+            "bytes": 25780
+          }
+        },
+        {
+          "slug": "lid-only",
+          "label": "Lid Only",
+          "size_mm": [
+            178.8,
+            108.8,
+            11.1
+          ],
+          "stl": {
+            "path": "laptop-brick/stl/laptop-brick_lid-only.stl",
+            "bytes": 146485
+          },
+          "glb": {
+            "path": "laptop-brick/stl/laptop-brick_lid-only.glb",
+            "bytes": 15948
+          },
+          "image": {
+            "path": "laptop-brick/images/laptop-brick_lid-only.png",
+            "bytes": 19429
+          }
+        },
+        {
+          "slug": "box-and-lid",
+          "label": "Box and Lid",
+          "size_mm": [
+            371.9,
+            108.8,
+            70.0
+          ],
+          "stl": {
+            "path": "laptop-brick/stl/laptop-brick_box-and-lid.stl",
+            "bytes": 403752
+          },
+          "glb": {
+            "path": "laptop-brick/stl/laptop-brick_box-and-lid.glb",
+            "bytes": 42904
+          },
+          "image": {
+            "path": "laptop-brick/images/laptop-brick_box-and-lid.png",
+            "bytes": 19367
+          }
+        }
+      ],
+      "extra_images": []
+    },
+    {
+      "name": "usb-charger",
+      "title": "Multi-port USB-C charger",
+      "fits": "A GaN multi-port charger and 4 to 6 USB-C cables.",
+      "note": null,
+      "params": {
+        "Box_Width": 120,
+        "Box_Depth": 75,
+        "Box_Height": 45,
+        "All_Opening_Width": 12,
+        "All_Opening_Height": 26,
+        "Post_Diameter": 12
+      },
+      "box_size_mm": [
+        120.0,
+        75.0,
+        45.0
+      ],
+      "features": {
+        "gridfinity_bottom": false,
+        "gridfinity_lid_top": false,
+        "gridfinity_magnets": false,
+        "sliced": false,
+        "slice_count": null,
+        "post": true,
+        "closed_post": false,
+        "stabilizers": true
+      },
+      "config": {
+        "path": "usb-charger/config.json",
+        "bytes": 256
+      },
+      "notes": {
+        "path": "usb-charger/notes.md",
+        "bytes": 458
+      },
+      "parts": [
+        {
+          "slug": "box-only",
+          "label": "Box Only",
+          "size_mm": [
+            120.0,
+            75.0,
+            45.0
+          ],
+          "stl": {
+            "path": "usb-charger/stl/usb-charger_box-only.stl",
+            "bytes": 248631
+          },
+          "glb": {
+            "path": "usb-charger/stl/usb-charger_box-only.glb",
+            "bytes": 26780
+          },
+          "image": {
+            "path": "usb-charger/images/usb-charger_box-only.png",
+            "bytes": 25682
+          }
+        },
+        {
+          "slug": "lid-only",
+          "label": "Lid Only",
+          "size_mm": [
+            123.8,
+            78.8,
+            11.1
+          ],
+          "stl": {
+            "path": "usb-charger/stl/usb-charger_lid-only.stl",
+            "bytes": 146360
+          },
+          "glb": {
+            "path": "usb-charger/stl/usb-charger_lid-only.glb",
+            "bytes": 15952
+          },
+          "image": {
+            "path": "usb-charger/images/usb-charger_lid-only.png",
+            "bytes": 20848
+          }
+        },
+        {
+          "slug": "box-and-lid",
+          "label": "Box and Lid",
+          "size_mm": [
+            261.9,
+            78.8,
+            45.0
+          ],
+          "stl": {
+            "path": "usb-charger/stl/usb-charger_box-and-lid.stl",
+            "bytes": 393840
+          },
+          "glb": {
+            "path": "usb-charger/stl/usb-charger_box-and-lid.glb",
+            "bytes": 42040
+          },
+          "image": {
+            "path": "usb-charger/images/usb-charger_box-and-lid.png",
+            "bytes": 14657
+          }
+        }
+      ],
+      "extra_images": []
+    },
+    {
+      "name": "monitor-junction",
+      "title": "Dual-monitor cable junction",
+      "fits": "Two monitor power bricks and their signal cables.",
+      "note": null,
+      "params": {
+        "Box_Width": 210,
+        "Box_Depth": 95,
+        "Box_Height": 62,
+        "All_Opening_Width": 18,
+        "All_Opening_Height": 36,
+        "Stabilizers_Front_Back_Count": 4
+      },
+      "box_size_mm": [
+        210.0,
+        95.0,
+        62.0
+      ],
+      "features": {
+        "gridfinity_bottom": false,
+        "gridfinity_lid_top": false,
+        "gridfinity_magnets": false,
+        "sliced": false,
+        "slice_count": null,
+        "post": true,
+        "closed_post": false,
+        "stabilizers": true
+      },
+      "config": {
+        "path": "monitor-junction/config.json",
+        "bytes": 275
+      },
+      "notes": {
+        "path": "monitor-junction/notes.md",
+        "bytes": 480
+      },
+      "parts": [
+        {
+          "slug": "box-only",
+          "label": "Box Only",
+          "size_mm": [
+            210.0,
+            95.0,
+            62.0
+          ],
+          "stl": {
+            "path": "monitor-junction/stl/monitor-junction_box-only.stl",
+            "bytes": 258646
+          },
+          "glb": {
+            "path": "monitor-junction/stl/monitor-junction_box-only.glb",
+            "bytes": 27644
+          },
+          "image": {
+            "path": "monitor-junction/images/monitor-junction_box-only.png",
+            "bytes": 25186
+          }
+        },
+        {
+          "slug": "lid-only",
+          "label": "Lid Only",
+          "size_mm": [
+            213.8,
+            98.8,
+            11.1
+          ],
+          "stl": {
+            "path": "monitor-junction/stl/monitor-junction_lid-only.stl",
+            "bytes": 146627
+          },
+          "glb": {
+            "path": "monitor-junction/stl/monitor-junction_lid-only.glb",
+            "bytes": 15952
+          },
+          "image": {
+            "path": "monitor-junction/images/monitor-junction_lid-only.png",
+            "bytes": 19230
+          }
+        },
+        {
+          "slug": "box-and-lid",
+          "label": "Box and Lid",
+          "size_mm": [
+            441.9,
+            98.8,
+            62.0
+          ],
+          "stl": {
+            "path": "monitor-junction/stl/monitor-junction_box-and-lid.stl",
+            "bytes": 404098
+          },
+          "glb": {
+            "path": "monitor-junction/stl/monitor-junction_box-and-lid.glb",
+            "bytes": 42904
+          },
+          "image": {
+            "path": "monitor-junction/images/monitor-junction_box-and-lid.png",
+            "bytes": 20678
+          }
+        }
+      ],
+      "extra_images": []
+    },
+    {
+      "name": "surge-strip-6",
+      "title": "Six-outlet surge protector",
+      "fits": "A standard 6-outlet strip up to ~250 x 60 mm, with its cord.",
+      "note": "Wider than many print beds. See the sliced preset below if that is a problem.",
+      "params": {
+        "Box_Width": 265,
+        "Box_Depth": 100,
+        "Box_Height": 62,
+        "All_Opening_Width": 20,
+        "All_Opening_Height": 38,
+        "Stabilizers_Front_Back_Count": 5
+      },
+      "box_size_mm": [
+        265.0,
+        100.0,
+        62.0
+      ],
+      "features": {
+        "gridfinity_bottom": false,
+        "gridfinity_lid_top": false,
+        "gridfinity_magnets": false,
+        "sliced": false,
+        "slice_count": null,
+        "post": true,
+        "closed_post": false,
+        "stabilizers": true
+      },
+      "config": {
+        "path": "surge-strip-6/config.json",
+        "bytes": 273
+      },
+      "notes": {
+        "path": "surge-strip-6/notes.md",
+        "bytes": 578
+      },
+      "parts": [
+        {
+          "slug": "box-only",
+          "label": "Box Only",
+          "size_mm": [
+            265.0,
+            100.0,
+            62.0
+          ],
+          "stl": {
+            "path": "surge-strip-6/stl/surge-strip-6_box-only.stl",
+            "bytes": 256603
+          },
+          "glb": {
+            "path": "surge-strip-6/stl/surge-strip-6_box-only.glb",
+            "bytes": 27500
+          },
+          "image": {
+            "path": "surge-strip-6/images/surge-strip-6_box-only.png",
+            "bytes": 23526
+          }
+        },
+        {
+          "slug": "lid-only",
+          "label": "Lid Only",
+          "size_mm": [
+            268.8,
+            103.8,
+            11.1
+          ],
+          "stl": {
+            "path": "surge-strip-6/stl/surge-strip-6_lid-only.stl",
+            "bytes": 146543
+          },
+          "glb": {
+            "path": "surge-strip-6/stl/surge-strip-6_lid-only.glb",
+            "bytes": 15952
+          },
+          "image": {
+            "path": "surge-strip-6/images/surge-strip-6_lid-only.png",
+            "bytes": 18369
+          }
+        },
+        {
+          "slug": "box-and-lid",
+          "label": "Box and Lid",
+          "size_mm": [
+            551.9,
+            103.8,
+            62.0
+          ],
+          "stl": {
+            "path": "surge-strip-6/stl/surge-strip-6_box-and-lid.stl",
+            "bytes": 402065
+          },
+          "glb": {
+            "path": "surge-strip-6/stl/surge-strip-6_box-and-lid.glb",
+            "bytes": 42760
+          },
+          "image": {
+            "path": "surge-strip-6/images/surge-strip-6_box-and-lid.png",
+            "bytes": 23307
+          }
+        }
+      ],
+      "extra_images": []
+    },
+    {
+      "name": "surge-strip-6-sliced",
+      "title": "Six-outlet strip, split for a 180 mm bed",
+      "fits": "Same as surge-strip-6, printed in two halves that clip together.",
+      "note": "Export each half with Slice_Piece_To_Render=1 then 2. The preview STL here shows both halves laid out side by side.",
+      "params": {
+        "Box_Width": 265,
+        "Box_Depth": 100,
+        "Box_Height": 62,
+        "All_Opening_Width": 20,
+        "All_Opening_Height": 38,
+        "Stabilizers_Front_Back_Count": 5,
+        "Enable_Slicing": true,
+        "Slice_Count": 2,
+        "Clips_Per_Edge": 3
+      },
+      "box_size_mm": [
+        270.0,
+        100.0,
+        62.58
+      ],
+      "features": {
+        "gridfinity_bottom": false,
+        "gridfinity_lid_top": false,
+        "gridfinity_magnets": false,
+        "sliced": true,
+        "slice_count": 2,
+        "post": true,
+        "closed_post": false,
+        "stabilizers": true
+      },
+      "config": {
+        "path": "surge-strip-6-sliced/config.json",
+        "bytes": 367
+      },
+      "notes": {
+        "path": "surge-strip-6-sliced/notes.md",
+        "bytes": 722
+      },
+      "parts": [
+        {
+          "slug": "box-only",
+          "label": "Box Only",
+          "size_mm": [
+            270.0,
+            100.0,
+            62.58
+          ],
+          "stl": {
+            "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-only.stl",
+            "bytes": 280502
+          },
+          "glb": {
+            "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-only.glb",
+            "bytes": 30528
+          },
+          "image": {
+            "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_box-only.png",
+            "bytes": 24983
+          }
+        },
+        {
+          "slug": "lid-only",
+          "label": "Lid Only",
+          "size_mm": [
+            273.8,
+            103.8,
+            11.1
+          ],
+          "stl": {
+            "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_lid-only.stl",
+            "bytes": 170538
+          },
+          "glb": {
+            "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_lid-only.glb",
+            "bytes": 18928
+          },
+          "image": {
+            "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_lid-only.png",
+            "bytes": 20766
+          }
+        },
+        {
+          "slug": "box-and-lid",
+          "label": "Box and Lid",
+          "size_mm": [
+            273.8,
+            221.9,
+            62.58
+          ],
+          "stl": {
+            "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-and-lid.stl",
+            "bytes": 450993
+          },
+          "glb": {
+            "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-and-lid.glb",
+            "bytes": 48764
+          },
+          "image": {
+            "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_box-and-lid.png",
+            "bytes": 21295
+          }
+        }
+      ],
+      "extra_images": []
+    },
+    {
+      "name": "gridfinity-module",
+      "title": "Gridfinity desk module",
+      "fits": "Sits in a Gridfinity baseplate on a 3 x 2 cell footprint.",
+      "note": "Gridfinity bottom requires Closed_Post. Total height is Box_Height plus 4.75 mm of base.",
+      "params": {
+        "Box_Width": 140,
+        "Box_Depth": 100,
+        "Box_Height": 55,
+        "Enable_Gridfinity_Bottom": true,
+        "Enable_Gridfinity_Lid_Top": true,
+        "Closed_Post": true,
+        "All_Opening_Width": 14,
+        "All_Opening_Height": 30
+      },
+      "box_size_mm": [
+        140.0,
+        100.0,
+        59.75
+      ],
+      "features": {
+        "gridfinity_bottom": true,
+        "gridfinity_lid_top": true,
+        "gridfinity_magnets": false,
+        "sliced": false,
+        "slice_count": null,
+        "post": true,
+        "closed_post": true,
+        "stabilizers": true
+      },
+      "config": {
+        "path": "gridfinity-module/config.json",
+        "bytes": 348
+      },
+      "notes": {
+        "path": "gridfinity-module/notes.md",
+        "bytes": 653
+      },
+      "parts": [
+        {
+          "slug": "box-only",
+          "label": "Box Only",
+          "size_mm": [
+            140.0,
+            100.0,
+            59.75
+          ],
+          "stl": {
+            "path": "gridfinity-module/stl/gridfinity-module_box-only.stl",
+            "bytes": 297042
+          },
+          "glb": {
+            "path": "gridfinity-module/stl/gridfinity-module_box-only.glb",
+            "bytes": 31916
+          },
+          "image": {
+            "path": "gridfinity-module/images/gridfinity-module_box-only.png",
+            "bytes": 25185
+          }
+        },
+        {
+          "slug": "lid-only",
+          "label": "Lid Only",
+          "size_mm": [
+            143.8,
+            103.8,
+            15.85
+          ],
+          "stl": {
+            "path": "gridfinity-module/stl/gridfinity-module_lid-only.stl",
+            "bytes": 185045
+          },
+          "glb": {
+            "path": "gridfinity-module/stl/gridfinity-module_lid-only.glb",
+            "bytes": 19424
+          },
+          "image": {
+            "path": "gridfinity-module/images/gridfinity-module_lid-only.png",
+            "bytes": 23069
+          }
+        },
+        {
+          "slug": "box-and-lid",
+          "label": "Box and Lid",
+          "size_mm": [
+            301.9,
+            103.8,
+            59.75
+          ],
+          "stl": {
+            "path": "gridfinity-module/stl/gridfinity-module_box-and-lid.stl",
+            "bytes": 481239
+          },
+          "glb": {
+            "path": "gridfinity-module/stl/gridfinity-module_box-and-lid.glb",
+            "bytes": 50632
+          },
+          "image": {
+            "path": "gridfinity-module/images/gridfinity-module_box-and-lid.png",
+            "bytes": 17955
+          }
+        }
+      ],
+      "extra_images": [
+        {
+          "slug": "underside",
+          "image": {
+            "path": "gridfinity-module/images/gridfinity-module_underside.png",
+            "bytes": 32049
+          }
+        }
+      ]
+    },
+    {
+      "name": "router-shelf",
+      "title": "Router and modem shelf tidy",
+      "fits": "A small router or modem plus its PSU. Tall openings for stiff coax and ethernet.",
+      "note": "Powered equipment generates heat. PLA softens around 55 C; prefer PETG for anything left running.",
+      "params": {
+        "Box_Width": 230,
+        "Box_Depth": 130,
+        "Box_Height": 75,
+        "All_Opening_Width": 22,
+        "All_Opening_Height": 45,
+        "Stabilizers_Front_Back_Count": 4,
+        "Stabilizers_Left_Right_Count": 2
+      },
+      "box_size_mm": [
+        230.0,
+        130.0,
+        75.0
+      ],
+      "features": {
+        "gridfinity_bottom": false,
+        "gridfinity_lid_top": false,
+        "gridfinity_magnets": false,
+        "sliced": false,
+        "slice_count": null,
+        "post": true,
+        "closed_post": false,
+        "stabilizers": true
+      },
+      "config": {
+        "path": "router-shelf/config.json",
+        "bytes": 315
+      },
+      "notes": {
+        "path": "router-shelf/notes.md",
+        "bytes": 659
+      },
+      "parts": [
+        {
+          "slug": "box-only",
+          "label": "Box Only",
+          "size_mm": [
+            230.0,
+            130.0,
+            75.0
+          ],
+          "stl": {
+            "path": "router-shelf/stl/router-shelf_box-only.stl",
+            "bytes": 274700
+          },
+          "glb": {
+            "path": "router-shelf/stl/router-shelf_box-only.glb",
+            "bytes": 29516
+          },
+          "image": {
+            "path": "router-shelf/images/router-shelf_box-only.png",
+            "bytes": 25819
+          }
+        },
+        {
+          "slug": "lid-only",
+          "label": "Lid Only",
+          "size_mm": [
+            233.8,
+            133.8,
+            11.1
+          ],
+          "stl": {
+            "path": "router-shelf/stl/router-shelf_lid-only.stl",
+            "bytes": 146558
+          },
+          "glb": {
+            "path": "router-shelf/stl/router-shelf_lid-only.glb",
+            "bytes": 15948
+          },
+          "image": {
+            "path": "router-shelf/images/router-shelf_lid-only.png",
+            "bytes": 18712
+          }
+        },
+        {
+          "slug": "box-and-lid",
+          "label": "Box and Lid",
+          "size_mm": [
+            481.9,
+            133.8,
+            75.0
+          ],
+          "stl": {
+            "path": "router-shelf/stl/router-shelf_box-and-lid.stl",
+            "bytes": 420177
+          },
+          "glb": {
+            "path": "router-shelf/stl/router-shelf_box-and-lid.glb",
+            "bytes": 44772
+          },
+          "image": {
+            "path": "router-shelf/images/router-shelf_box-and-lid.png",
+            "bytes": 23382
+          }
+        }
+      ],
+      "extra_images": []
+    },
+    {
+      "name": "under-desk-passthrough",
+      "title": "Under-desk pass-through",
+      "fits": "A junction box where cables enter one side and leave the other. No post, so the interior is one clear channel.",
+      "note": null,
+      "params": {
+        "Box_Width": 180,
+        "Box_Depth": 85,
+        "Box_Height": 50,
+        "Enable_Post": false,
+        "All_Opening_Width": 24,
+        "All_Opening_Height": 34,
+        "Opening_On_Front": false,
+        "Opening_On_Back": false,
+        "Stabilizers_Front_Back_Count": 3
+      },
+      "box_size_mm": [
+        180.0,
+        85.0,
+        50.0
+      ],
+      "features": {
+        "gridfinity_bottom": false,
+        "gridfinity_lid_top": false,
+        "gridfinity_magnets": false,
+        "sliced": false,
+        "slice_count": null,
+        "post": false,
+        "closed_post": false,
+        "stabilizers": true
+      },
+      "config": {
+        "path": "under-desk-passthrough/config.json",
+        "bytes": 380
+      },
+      "notes": {
+        "path": "under-desk-passthrough/notes.md",
+        "bytes": 636
+      },
+      "parts": [
+        {
+          "slug": "box-only",
+          "label": "Box Only",
+          "size_mm": [
+            180.0,
+            85.0,
+            50.0
+          ],
+          "stl": {
+            "path": "under-desk-passthrough/stl/under-desk-passthrough_box-only.stl",
+            "bytes": 133627
+          },
+          "glb": {
+            "path": "under-desk-passthrough/stl/under-desk-passthrough_box-only.glb",
+            "bytes": 14824
+          },
+          "image": {
+            "path": "under-desk-passthrough/images/under-desk-passthrough_box-only.png",
+            "bytes": 23334
+          }
+        },
+        {
+          "slug": "lid-only",
+          "label": "Lid Only",
+          "size_mm": [
+            183.8,
+            88.8,
+            11.1
+          ],
+          "stl": {
+            "path": "under-desk-passthrough/stl/under-desk-passthrough_lid-only.stl",
+            "bytes": 90588
+          },
+          "glb": {
+            "path": "under-desk-passthrough/stl/under-desk-passthrough_lid-only.glb",
+            "bytes": 10188
+          },
+          "image": {
+            "path": "under-desk-passthrough/images/under-desk-passthrough_lid-only.png",
+            "bytes": 17849
+          }
+        },
+        {
+          "slug": "box-and-lid",
+          "label": "Box and Lid",
+          "size_mm": [
+            381.9,
+            88.8,
+            50.0
+          ],
+          "stl": {
+            "path": "under-desk-passthrough/stl/under-desk-passthrough_box-and-lid.stl",
+            "bytes": 223446
+          },
+          "glb": {
+            "path": "under-desk-passthrough/stl/under-desk-passthrough_box-and-lid.glb",
+            "bytes": 24324
+          },
+          "image": {
+            "path": "under-desk-passthrough/images/under-desk-passthrough_box-and-lid.png",
+            "bytes": 17225
+          }
+        }
+      ],
+      "extra_images": []
+    }
+  ]
+}

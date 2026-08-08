@@ -13,6 +13,9 @@
 - `FAQ.md`: Common questions and issue resolution.
 - `RELEASE.md`: Release checklist, from version bump through snapshot.
 - `../library/README.md`: The nine presets, what each fits, and their sizes.
+- `../library/index.json`: The catalogue as data, generated alongside the
+  presets. Each preset's overrides, printed envelope, feature flags and file
+  paths, plus the model's full parameter defaults once at the top.
 - `../cable-box-parametric.json`: All nine presets as one OpenSCAD parameter-set
   file, so the Customizer lists them when the model is opened. Generated.
 - `../web/astro.config.mjs`: Docs site navigation/config (Astro Starlight).

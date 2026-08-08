@@ -2,15 +2,19 @@
 """Regenerate the preset library: configs, STLs, preview renders, and the index.
 
 Presets are defined here as data, so adding one is a dict entry. Everything
-downstream (config.json, STLs, PNGs, notes, library/README.md, and the merged
-cable-box-parametric.json beside the model) is generated, which is what keeps
-the library from going stale the way the hand-made v1 artifacts did.
+downstream (config.json, STLs, PNGs, notes, library/README.md, the machine-
+readable library/index.json, and the merged cable-box-parametric.json beside
+the model) is generated, which is what keeps the library from going stale the
+way the hand-made v1 artifacts did.
 
 Presets are organised by what the user physically has, not by dimensions,
 because nobody knows they need 260 x 100 x 60.
 
+GLB previews for the docs site need trimesh (pip install trimesh). It is
+optional: without it the STLs, renders and indexes still build.
+
 Usage:
-  python scripts/build_library.py [--only NAME] [--no-stl] [--no-png]
+  python scripts/build_library.py [--only NAME] [--no-stl] [--no-png] [--no-glb]
 """
 
 from __future__ import annotations
@@ -18,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -27,6 +32,12 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 MODEL = REPO / "cable-box-parametric.scad"
 LIB = REPO / "library"
+INDEX = LIB / "index.json"
+
+# Bump when the shape of index.json changes incompatibly, so a consumer that
+# reads it (the docs site, a customizer) can refuse a format it does not know
+# rather than silently mis-rendering it.
+INDEX_SCHEMA = 1
 
 # Every preset inherits model defaults and overrides only what matters.
 PRESETS = [
@@ -195,6 +206,19 @@ def bbox_centre(b) -> tuple[float, float, float]:
     return tuple((lo + hi) / 2 for lo, hi in b)
 
 
+def write_text(path: Path, text: str) -> None:
+    """Write a generated text file with LF endings on every platform.
+
+    Path.write_text uses text mode, which on Windows turns every \\n into
+    \\r\\n. That makes this script emit different bytes locally than it does in
+    CI for identical content, and .gitattributes then has to normalise the
+    difference away on every commit. Generated files should be byte-identical
+    wherever they are generated.
+    """
+    with path.open("w", encoding="utf-8", newline="\n") as fh:
+        fh.write(text)
+
+
 def as_param(v) -> str:
     """Serialise one value for a Customizer parameter set.
 
@@ -206,6 +230,184 @@ def as_param(v) -> str:
     if isinstance(v, bool):
         return "true" if v else "false"
     return str(v)
+
+
+# Customizer parameters are plain literal assignments in one contiguous block
+# that ends at the /* [Hidden] */ marker. Reading them beats copying them: a
+# default that moved in the model would otherwise silently disagree with the
+# index, which is the drift this script exists to prevent. Anything past the
+# marker is a specification constant or an internal, and is not a user choice.
+HIDDEN_RE = re.compile(r"/\*\s*\[Hidden\]\s*\*/")
+DEFAULT_RE = re.compile(
+    r'^([A-Z][A-Za-z0-9_]*)\s*=\s*(true|false|-?\d+(?:\.\d+)?|"[^"]*")\s*;', re.M)
+VERSION_RE = re.compile(r'^Model_Version\s*=\s*"([^"]+)"\s*;', re.M)
+
+
+def scad_literal(raw: str):
+    if raw in ("true", "false"):
+        return raw == "true"
+    if raw.startswith('"'):
+        return raw[1:-1]
+    return float(raw) if "." in raw else int(raw)
+
+
+def customizer_defaults() -> dict:
+    """Every Customizer-visible parameter and its default, read from the model."""
+    head = HIDDEN_RE.split(MODEL.read_text(encoding="utf-8"), maxsplit=1)[0]
+    return {name: scad_literal(raw) for name, raw in DEFAULT_RE.findall(head)}
+
+
+def model_version() -> str:
+    """Model_Version as the model declares it, so the index records what built it."""
+    m = VERSION_RE.search(MODEL.read_text(encoding="utf-8"))
+    return m.group(1) if m else "unknown"
+
+
+def file_entry(path: Path) -> dict | None:
+    """Library-relative path and byte size, or None when the artifact is absent.
+
+    Absent is a real state, not an error: --no-stl skips STLs, a new preset has
+    no renders yet, and GLBs only exist where the converter ran. A consumer that
+    sees null hides the download rather than offering a 404.
+    """
+    if not path.exists():
+        return None
+    return {"path": path.relative_to(LIB).as_posix(), "bytes": path.stat().st_size}
+
+
+# The docs site previews meshes with <model-viewer>, which reads glTF and does
+# not read STL. Converting here rather than in the site build keeps every
+# generated artifact coming out of this one script, and costs nothing: the
+# gridfinity-module box-and-lid is 481 KB of ASCII STL and 51 KB of GLB.
+#
+# The mesh is canonicalised before export, and that is not cosmetic. OpenSCAD
+# emits the same geometry in a different facet order from one run to the next,
+# so a straight conversion produces a different GLB every rebuild: measured over
+# all 27 library meshes, rendered twice from an unchanged model,
+#
+#   naive conversion      0 of 27 byte-identical
+#   canonical conversion  27 of 27 byte-identical
+#
+# The reordering is a permutation of identical data, not noise, so unlike the
+# PNG guard below this needs no tolerance: sorting vertices and faces into one
+# defined order removes the difference exactly. Without it, every rebuild would
+# commit 27 changed binaries that contain the same meshes.
+#
+# trimesh is optional on purpose. It is a site dependency, not a model
+# dependency, and a contributor rebuilding STLs and renders should not have to
+# install it. Without it the GLBs are skipped and index.json reports them null.
+_TRIMESH_MISSING_REPORTED = False
+
+
+def canonical_mesh(mesh):
+    """The same mesh with vertices and faces in one defined order."""
+    import numpy as np
+
+    mesh.merge_vertices()          # ASCII STL repeats a vertex per facet
+    order = np.lexsort((mesh.vertices[:, 2], mesh.vertices[:, 1], mesh.vertices[:, 0]))
+    remap = np.empty(len(order), dtype=np.int64)
+    remap[order] = np.arange(len(order))
+    faces = remap[mesh.faces]
+    # Rotate each face to start at its lowest index. Rotation preserves winding,
+    # so the normals survive; only the arbitrary starting corner is removed.
+    roll = faces.argmin(axis=1)
+    faces = np.take_along_axis(faces, (np.arange(3)[None, :] + roll[:, None]) % 3, axis=1)
+    faces = faces[np.lexsort((faces[:, 2], faces[:, 1], faces[:, 0]))]
+    return type(mesh)(vertices=mesh.vertices[order], faces=faces, process=False)
+
+
+def to_glb(stl: Path) -> bool:
+    """Write <stl>.glb beside an STL. False if it could not be written."""
+    global _TRIMESH_MISSING_REPORTED
+    try:
+        import trimesh
+    except ImportError:
+        if not _TRIMESH_MISSING_REPORTED:
+            print("      NOTE: trimesh not installed, skipping GLB previews "
+                  "(pip install trimesh). STLs and renders are unaffected.")
+            _TRIMESH_MISSING_REPORTED = True
+        return False
+    try:
+        mesh = canonical_mesh(trimesh.load(stl, force="mesh"))
+        data = trimesh.exchange.gltf.export_glb(trimesh.Scene(mesh))
+    except Exception as exc:                       # noqa: BLE001
+        # A mesh this cannot read is a preview that will not exist, not a build
+        # that should fail: the STL is the artifact people print. Say so loudly
+        # and carry on, and index.json will report no GLB for this part.
+        print(f"      GLB FAILED for {stl.name}: {type(exc).__name__}: {exc}")
+        return False
+    stl.with_suffix(".glb").write_bytes(data)
+    return True
+
+
+def part_entries(name: str, box_only_dims) -> list[dict]:
+    """One entry per renderable part: its STL, GLB, still render, and envelope."""
+    out = []
+    for slug, label, _rot, _fixed in VIEWS:
+        stl = LIB / name / "stl" / f"{name}_{slug}.stl"
+        dims = box_only_dims if slug == "box-only" else None
+        if dims is None and stl.exists():
+            dims = bbox_size(stl_bbox(stl))
+        out.append({
+            "slug": slug,
+            "label": label,          # the Part_To_Render value that renders it
+            "size_mm": [round(v, 2) for v in dims] if dims else None,
+            "stl": file_entry(stl),
+            "glb": file_entry(stl.with_suffix(".glb")),
+            "image": file_entry(LIB / name / "images" / f"{name}_{slug}.png"),
+        })
+    return out
+
+
+def extra_images(name: str) -> list[dict]:
+    """Renders that are not a part view, such as the Gridfinity underside.
+
+    Discovered from disk rather than listed here, so a view added to the build
+    loop appears in the index without a second edit.
+    """
+    part_slugs = {slug for slug, _label, _rot, _fixed in VIEWS}
+    out = []
+    for png in sorted((LIB / name / "images").glob(f"{name}_*.png")):
+        slug = png.stem[len(name) + 1:]
+        if slug not in part_slugs:
+            out.append({"slug": slug, "image": file_entry(png)})
+    return out
+
+
+def preset_entry(preset: dict, defaults: dict, dims) -> dict:
+    """One preset as structured data for the docs site and the web customizer.
+
+    Values are real JSON types, unlike config.json, which must serialise
+    everything as strings because that is what OpenSCAD's parameter-set format
+    is. Only overrides are stored; defaults live once at the top of the index,
+    so the effective set is {...index.defaults, ...preset.params} and cannot
+    drift from the model the way nine copies of it would.
+    """
+    name = preset["name"]
+    eff = dict(defaults, **preset["params"])
+    sliced = bool(eff.get("Enable_Slicing"))
+    return {
+        "name": name,
+        "title": preset["title"],
+        "fits": preset["fits"],
+        "note": preset.get("note"),
+        "params": dict(preset["params"]),
+        "box_size_mm": [round(v, 2) for v in dims] if dims else None,
+        "features": {
+            "gridfinity_bottom": eff.get("Enable_Gridfinity_Bottom"),
+            "gridfinity_lid_top": eff.get("Enable_Gridfinity_Lid_Top"),
+            "gridfinity_magnets": eff.get("Enable_Gridfinity_Magnet_Screw"),
+            "sliced": sliced,
+            "slice_count": eff.get("Slice_Count") if sliced else None,
+            "post": eff.get("Enable_Post"),
+            "closed_post": eff.get("Closed_Post"),
+            "stabilizers": eff.get("Enable_Stabilizers"),
+        },
+        "config": file_entry(LIB / name / "config.json"),
+        "notes": file_entry(LIB / name / "notes.md"),
+        "parts": part_entries(name, dims),
+        "extra_images": extra_images(name),
+    }
 
 
 # OpenSCAD rasterises through OpenGL, so pixels along polygon edges land
@@ -287,6 +489,7 @@ def main() -> int:
     ap.add_argument("--only", default="")
     ap.add_argument("--no-stl", action="store_true")
     ap.add_argument("--no-png", action="store_true")
+    ap.add_argument("--no-glb", action="store_true")
     args = ap.parse_args()
 
     scad = find_openscad()
@@ -294,7 +497,7 @@ def main() -> int:
     print(f"OpenSCAD: {scad}\nBuilding {len(presets)} preset(s)\n")
 
     built_dims = {}
-    png_written = png_kept = 0
+    png_written = png_kept = glb_written = 0
     for preset in presets:
         name = preset["name"]
         base = LIB / name
@@ -306,7 +509,7 @@ def main() -> int:
         # a change to the model defaults.
         cfg = {"fileFormatVersion": "1",
                "parameterSets": {name: {k: as_param(v) for k, v in preset["params"].items()}}}
-        (base / "config.json").write_text(json.dumps(cfg, indent=2) + "\n", encoding="utf-8")
+        write_text(base / "config.json", json.dumps(cfg, indent=2) + "\n")
 
         # Gridfinity features live on the underside of both parts, so a
         # top-down render shows none of them. Add a view from below.
@@ -331,6 +534,10 @@ def main() -> int:
                     bbox = stl_bbox(stl)
                     if slug == "box-only":
                         dims = bbox_size(bbox)
+                # Converted from whatever STL is on disk, so --no-stl still
+                # refreshes the previews, the same way it still reads bounds.
+                if stl.exists() and not args.no_glb and to_glb(stl):
+                    glb_written += 1
             if not args.no_png:
                 png = base / "images" / f"{name}_{slug}.png"
                 previous = png_payload(png) if png.exists() else None
@@ -362,7 +569,7 @@ def main() -> int:
         notes += ["", "Everything not listed uses the model default.", "",
                   "## Rebuild", "", "```bash",
                   f"python scripts/build_library.py --only {name}", "```", ""]
-        (base / "notes.md").write_text("\n".join(notes), encoding="utf-8")
+        write_text(base / "notes.md", "\n".join(notes))
 
         built_dims[name] = dims
 
@@ -372,7 +579,9 @@ def main() -> int:
     # `--only gridfinity-module` run shipped an index listing a single preset
     # while eight valid ones sat beside it on disk. Presets not rebuilt this
     # run get their dimensions from the STL already on disk.
+    defaults = customizer_defaults()
     index_rows = []
+    index_presets = []
     for preset in PRESETS:
         name = preset["name"]
         dims = built_dims.get(name)
@@ -382,6 +591,19 @@ def main() -> int:
                 dims = bbox_size(stl_bbox(stl))
         size = f"{dims[0]:.0f} x {dims[1]:.0f} x {dims[2]:.0f}" if dims else "n/a"
         index_rows.append((name, preset["title"], preset["fits"], size))
+        index_presets.append(preset_entry(preset, defaults, dims))
+
+    # The machine-readable twin of library/README.md, for the docs site's preset
+    # browser and anything else that would otherwise scrape the folder tree.
+    # Built from the same loop as the README rows so the two cannot disagree
+    # about which presets exist.
+    write_text(INDEX, json.dumps({
+        "schema": INDEX_SCHEMA,
+        "generator": "scripts/build_library.py",
+        "model_version": model_version(),
+        "defaults": defaults,
+        "presets": index_presets,
+    }, indent=2) + "\n")
 
     # One merged parameter-set file next to the model. OpenSCAD's Customizer
     # reads named sets from JSON, so this offers every preset in the dropdown
@@ -391,8 +613,7 @@ def main() -> int:
     merged = {"fileFormatVersion": "1",
               "parameterSets": {p["name"]: {k: as_param(v) for k, v in p["params"].items()}
                                 for p in PRESETS}}
-    (REPO / "cable-box-parametric.json").write_text(
-        json.dumps(merged, indent=2) + "\n", encoding="utf-8")
+    write_text(REPO / "cable-box-parametric.json", json.dumps(merged, indent=2) + "\n")
 
     readme = ["# Preset Library", "",
               "Ready-to-print configurations for common jobs. Each preset carries a",
@@ -417,11 +638,14 @@ def main() -> int:
                "## Adding a preset", "",
                "Add an entry to `PRESETS` in `scripts/build_library.py` and rerun it.",
                "Do not hand-edit generated files.", ""]
-    (LIB / "README.md").write_text("\n".join(readme), encoding="utf-8")
+    write_text(LIB / "README.md", "\n".join(readme))
     print(f"\nBuilt {len(presets)} preset(s); index covers {len(index_rows)}. "
-          f"Wrote library/README.md and cable-box-parametric.json ({len(PRESETS)} sets)")
+          f"Wrote library/README.md, library/index.json and "
+          f"cable-box-parametric.json ({len(PRESETS)} sets)")
     if not args.no_png:
         print(f"Renders: {png_written} written, {png_kept} unchanged and left alone")
+    if not args.no_glb:
+        print(f"GLB previews: {glb_written} written")
     return 0
 
 

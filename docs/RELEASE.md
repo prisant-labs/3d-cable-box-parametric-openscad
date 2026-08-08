@@ -40,7 +40,7 @@ silently:
 ```bash
 python scripts/regen_missing_bosl2_fixture.py    # tests/fixtures/missing_bosl2.scad
 python scripts/build_bundle.py                   # dist/ standalone bundle + sidecar
-python scripts/build_library.py                  # presets, renders, merged JSON
+python scripts/build_library.py                  # presets, renders, GLBs, indexes
 ```
 
 `build_library.py` is slow because it re-renders STLs. Use `--no-stl` when only

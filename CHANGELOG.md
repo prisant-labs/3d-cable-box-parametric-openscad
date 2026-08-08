@@ -18,6 +18,21 @@ placement are arithmetic, not measurements. E-10's flow for this state is a
 artifact; the date above belongs to the final release and should be corrected
 when it ships.
 
+### Added
+- **`library/index.json`**, the machine-readable twin of `library/README.md`:
+  every preset with its overrides, printed envelope, feature flags, and file
+  paths, plus the model's full parameter defaults once at the top. It carries a
+  schema version, and like the README it always covers every preset even when
+  `--only` rebuilt one.
+- **A GLB beside every library STL**, converted at build time by
+  `scripts/build_library.py`, for 3D preview in a browser. About a tenth the
+  size: the 481 KB `gridfinity-module` box-and-lid becomes 51 KB. The mesh is
+  canonicalised before export, which is not cosmetic: OpenSCAD emits identical
+  geometry in a different facet order every run, so a straight conversion
+  produced 27 changed binaries on every rebuild and a canonical one produces
+  zero. `trimesh` is an optional dependency; without it the GLBs are skipped
+  and the rest of the build is unaffected.
+
 ### Changed
 - **BREAKING: `Enable_Gridfinity_Lid_Top` now produces sockets, not studs.**
   Under [E-10 (versioning)](docs/internal/E-10_versioning.md) this is a major

@@ -209,7 +209,25 @@ When you add or change parameters:
 
 Do not hand-add files to `library/`. Everything there is generated: add an entry
 to `PRESETS` in `scripts/build_library.py` and rerun it, which regenerates that
-preset's `config.json`, STLs, renders and notes, plus `library/README.md` and the
-merged `cable-box-parametric.json`. Hand-edited files there are overwritten on
-the next build, and the point of generating them is that a preset cannot drift
-from the model.
+preset's `config.json`, STLs, GLB previews, renders and notes, plus
+`library/README.md`, the machine-readable `library/index.json`, and the merged
+`cable-box-parametric.json`. Hand-edited files there are overwritten on the next
+build, and the point of generating them is that a preset cannot drift from the
+model.
+
+`library/index.json` is what the docs site's preset browser reads. It records
+each preset's overrides and printed envelope, and the model's full parameter
+defaults once at the top, so the effective parameter set is the defaults with
+the overrides applied. It carries a `schema` number; bump `INDEX_SCHEMA` in
+`scripts/build_library.py` when its shape changes incompatibly, and the site
+refuses a version it does not know rather than rendering it wrong.
+
+The GLB previews need [trimesh](https://trimesh.org) (`pip install trimesh`).
+It is optional: without it the conversion is skipped with a note and everything
+else builds normally. Skip it with `--no-glb`.
+
+The conversion canonicalises each mesh before writing it. OpenSCAD emits the
+same geometry in a different facet order on every run, so a straight conversion
+produced a different GLB each rebuild and dirtied 27 tracked binaries that had
+not changed. Sorting vertices and faces into one defined order removes that
+exactly, which is why an unchanged model reconverts to byte-identical files.
