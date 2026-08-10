@@ -231,3 +231,9 @@ same geometry in a different facet order on every run, so a straight conversion
 produced a different GLB each rebuild and dirtied 27 tracked binaries that had
 not changed. Sorting vertices and faces into one defined order removes that
 exactly, which is why an unchanged model reconverts to byte-identical files.
+
+It then rotates the mesh from Z-up into glTF's Y-up convention. OpenSCAD models
+the printed object Z-up, sitting on the bed at z=0, and trimesh writes vertices
+through unchanged, so without the rotation every preview lies on its back in a
+viewer. The STLs are unaffected and stay Z-up, which is what a slicer wants; the
+rotation exists only in the GLB.

@@ -316,6 +316,27 @@ def canonical_mesh(mesh):
     return type(mesh)(vertices=mesh.vertices[order], faces=faces, process=False)
 
 
+def to_gltf_axes(mesh):
+    """Rotate a Z-up mesh into glTF's Y-up convention.
+
+    OpenSCAD models the printed object Z-up, sitting on the bed at z=0. glTF
+    specifies +Y as up, and trimesh's exporter writes vertices through
+    unchanged, so without this every preview lies on its back: a viewer reads
+    the box's 100 mm depth as its height and its 59.75 mm height as depth.
+
+    Baked into the vertices rather than set as a node transform so the file is
+    correct however a consumer treats node matrices, and so this stays inside
+    the canonicalisation that makes the output byte-stable. Applied after
+    canonical_mesh, which fixes vertex order first, so determinism is unchanged.
+    """
+    import numpy as np
+
+    v = mesh.vertices
+    # -90 degrees about X: (x, y, z) -> (x, z, -y). Up was z, up is now y.
+    return type(mesh)(vertices=np.column_stack((v[:, 0], v[:, 2], -v[:, 1])),
+                      faces=mesh.faces, process=False)
+
+
 def to_glb(stl: Path) -> bool:
     """Write <stl>.glb beside an STL. False if it could not be written."""
     global _TRIMESH_MISSING_REPORTED
@@ -328,7 +349,7 @@ def to_glb(stl: Path) -> bool:
             _TRIMESH_MISSING_REPORTED = True
         return False
     try:
-        mesh = canonical_mesh(trimesh.load(stl, force="mesh"))
+        mesh = to_gltf_axes(canonical_mesh(trimesh.load(stl, force="mesh")))
         data = trimesh.exchange.gltf.export_glb(trimesh.Scene(mesh))
     except Exception as exc:                       # noqa: BLE001
         # A mesh this cannot read is a preview that will not exist, not a build
