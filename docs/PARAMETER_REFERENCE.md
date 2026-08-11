@@ -136,7 +136,7 @@ off the bed with no overhang and stiffen the corner.
 | `All_Opening_Height` | number | `30` | Default opening height on enabled side walls. | Must be `> 0` and `<= Box_Height`. This is the true opening height; the cut is anchored at its bottom edge, not centered on the box floor. |
 | `All_Opening_Corner_Radius` | number | `-1` | Default corner radius for side openings. | `-1` keeps fully rounded ends; `0` is square; positive values are clamped to valid half-extents. |
 | `All_Openings_Right` | number | `0` | Global side-opening offset along each wall's local left/right direction. | Combines with each side-local `Move_Opening_*_to_Right` parameter. |
-| `All_Openings_Up` | number | `0` | Height of each side opening's bottom edge above the box floor. | `0` sits the opening flush with the box bottom, so a cable resting on the desk passes straight in. Raise it to lift openings off the surface. Combines with side-specific vertical offsets. |
+| `All_Openings_Up` | number | `5` | Height of each side opening's bottom edge above the box floor. | `0` sits the opening flush with the box bottom, so a cable resting on the desk passes straight in. Raise it to lift openings off the surface. Combines with side-specific vertical offsets. |
 | `Opening_On_Right` | boolean | `true` | Enables right wall opening. | Uses global size unless right override is set. |
 | `Opening_On_Left` | boolean | `true` | Enables left wall opening. | Uses global size unless left override is set. |
 | `Opening_On_Front` | boolean | `true` | Enables front wall opening. | Uses global size unless front override is set. |

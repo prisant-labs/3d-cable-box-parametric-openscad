@@ -111,7 +111,7 @@ All_Opening_Corner_Radius=-1;
 // Global side-opening offset along each wall's local left/right direction (mm).
 All_Openings_Right=0;
 // Height of each side opening's bottom edge above the box floor (mm). 0 sits it flush with the box bottom.
-All_Openings_Up=0;
+All_Openings_Up=5;
 Opening_On_Right=true;
 Opening_On_Left=true;
 Opening_On_Front=true;

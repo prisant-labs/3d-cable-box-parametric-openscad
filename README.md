@@ -7,8 +7,8 @@ splits oversized boxes into pieces that clip together.
 
 ![A printed cable box in black PETG](docs/images/printed-box-black-petg.jpg)
 
-*Printed in black PETG. Openings sit flush with the floor so a cable resting on
-the desk slides straight in.*
+*Printed in black PETG with `All_Openings_Up=0`, which sits the openings flush
+with the floor so a cable resting on the desk slides straight in.*
 
 [![scad-smoke](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/actions/workflows/scad-smoke.yml/badge.svg)](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/actions/workflows/scad-smoke.yml)
 [![docs](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/actions/workflows/docs-pages.yml/badge.svg)](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/actions/workflows/docs-pages.yml)
@@ -157,9 +157,10 @@ Published at
 interior is smaller by `Wall_Thickness` on each side, and smaller again wherever
 stabilizer fins sit. The model echoes the numbers at render time.
 
-Side openings are anchored at their **bottom edge**, so `All_Openings_Up = 0`
-puts the opening flush with the box bottom. That is usually what you want: a
-cable lying on the desk passes straight in without climbing a lip.
+Side openings are anchored at their **bottom edge**. The default
+`All_Openings_Up = 5` lifts that edge 5 mm above the box floor. Set it to `0`
+to put the opening flush with the box bottom, so a cable lying on the desk
+passes straight in without climbing a lip.
 
 ## Validation
 

@@ -32,7 +32,7 @@
     "All_Opening_Height": 30,
     "All_Opening_Corner_Radius": -1,
     "All_Openings_Right": 0,
-    "All_Openings_Up": 0,
+    "All_Openings_Up": 5,
     "Opening_On_Right": true,
     "Opening_On_Left": true,
     "Opening_On_Front": true,
@@ -162,15 +162,15 @@
           ],
           "stl": {
             "path": "desk-compact/stl/desk-compact_box-only.stl",
-            "bytes": 247552
+            "bytes": 238599
           },
           "glb": {
             "path": "desk-compact/stl/desk-compact_box-only.glb",
-            "bytes": 26780
+            "bytes": 25916
           },
           "image": {
             "path": "desk-compact/images/desk-compact_box-only.png",
-            "bytes": 26004
+            "bytes": 26351
           }
         },
         {
@@ -191,7 +191,7 @@
           },
           "image": {
             "path": "desk-compact/images/desk-compact_lid-only.png",
-            "bytes": 20228
+            "bytes": 20188
           }
         },
         {
@@ -204,15 +204,15 @@
           ],
           "stl": {
             "path": "desk-compact/stl/desk-compact_box-and-lid.stl",
-            "bytes": 392956
+            "bytes": 384003
           },
           "glb": {
             "path": "desk-compact/stl/desk-compact_box-and-lid.glb",
-            "bytes": 42040
+            "bytes": 41176
           },
           "image": {
             "path": "desk-compact/images/desk-compact_box-and-lid.png",
-            "bytes": 16396
+            "bytes": 16545
           }
         }
       ],
@@ -265,15 +265,15 @@
           ],
           "stl": {
             "path": "laptop-brick/stl/laptop-brick_box-only.stl",
-            "bytes": 258274
+            "bytes": 249480
           },
           "glb": {
             "path": "laptop-brick/stl/laptop-brick_box-only.glb",
-            "bytes": 27644
+            "bytes": 26780
           },
           "image": {
             "path": "laptop-brick/images/laptop-brick_box-only.png",
-            "bytes": 25780
+            "bytes": 25919
           }
         },
         {
@@ -307,15 +307,15 @@
           ],
           "stl": {
             "path": "laptop-brick/stl/laptop-brick_box-and-lid.stl",
-            "bytes": 403752
+            "bytes": 394958
           },
           "glb": {
             "path": "laptop-brick/stl/laptop-brick_box-and-lid.glb",
-            "bytes": 42904
+            "bytes": 42040
           },
           "image": {
             "path": "laptop-brick/images/laptop-brick_box-and-lid.png",
-            "bytes": 19367
+            "bytes": 19627
           }
         }
       ],
@@ -368,15 +368,15 @@
           ],
           "stl": {
             "path": "usb-charger/stl/usb-charger_box-only.stl",
-            "bytes": 248631
+            "bytes": 240021
           },
           "glb": {
             "path": "usb-charger/stl/usb-charger_box-only.glb",
-            "bytes": 26780
+            "bytes": 25916
           },
           "image": {
             "path": "usb-charger/images/usb-charger_box-only.png",
-            "bytes": 25682
+            "bytes": 25978
           }
         },
         {
@@ -410,15 +410,15 @@
           ],
           "stl": {
             "path": "usb-charger/stl/usb-charger_box-and-lid.stl",
-            "bytes": 393840
+            "bytes": 385230
           },
           "glb": {
             "path": "usb-charger/stl/usb-charger_box-and-lid.glb",
-            "bytes": 42040
+            "bytes": 41176
           },
           "image": {
             "path": "usb-charger/images/usb-charger_box-and-lid.png",
-            "bytes": 14657
+            "bytes": 14901
           }
         }
       ],
@@ -471,15 +471,15 @@
           ],
           "stl": {
             "path": "monitor-junction/stl/monitor-junction_box-only.stl",
-            "bytes": 258646
+            "bytes": 249725
           },
           "glb": {
             "path": "monitor-junction/stl/monitor-junction_box-only.glb",
-            "bytes": 27644
+            "bytes": 26780
           },
           "image": {
             "path": "monitor-junction/images/monitor-junction_box-only.png",
-            "bytes": 25186
+            "bytes": 25199
           }
         },
         {
@@ -500,7 +500,7 @@
           },
           "image": {
             "path": "monitor-junction/images/monitor-junction_lid-only.png",
-            "bytes": 19230
+            "bytes": 19329
           }
         },
         {
@@ -513,15 +513,15 @@
           ],
           "stl": {
             "path": "monitor-junction/stl/monitor-junction_box-and-lid.stl",
-            "bytes": 404098
+            "bytes": 395177
           },
           "glb": {
             "path": "monitor-junction/stl/monitor-junction_box-and-lid.glb",
-            "bytes": 42904
+            "bytes": 42040
           },
           "image": {
             "path": "monitor-junction/images/monitor-junction_box-and-lid.png",
-            "bytes": 20678
+            "bytes": 20869
           }
         }
       ],
@@ -574,15 +574,15 @@
           ],
           "stl": {
             "path": "surge-strip-6/stl/surge-strip-6_box-only.stl",
-            "bytes": 256603
+            "bytes": 247800
           },
           "glb": {
             "path": "surge-strip-6/stl/surge-strip-6_box-only.glb",
-            "bytes": 27500
+            "bytes": 26636
           },
           "image": {
             "path": "surge-strip-6/images/surge-strip-6_box-only.png",
-            "bytes": 23526
+            "bytes": 23615
           }
         },
         {
@@ -616,15 +616,15 @@
           ],
           "stl": {
             "path": "surge-strip-6/stl/surge-strip-6_box-and-lid.stl",
-            "bytes": 402065
+            "bytes": 393262
           },
           "glb": {
             "path": "surge-strip-6/stl/surge-strip-6_box-and-lid.glb",
-            "bytes": 42760
+            "bytes": 41896
           },
           "image": {
             "path": "surge-strip-6/images/surge-strip-6_box-and-lid.png",
-            "bytes": 23307
+            "bytes": 23476
           }
         }
       ],
@@ -680,15 +680,15 @@
           ],
           "stl": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-only.stl",
-            "bytes": 280502
+            "bytes": 277226
           },
           "glb": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-only.glb",
-            "bytes": 30528
+            "bytes": 30312
           },
           "image": {
             "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_box-only.png",
-            "bytes": 24983
+            "bytes": 25091
           }
         },
         {
@@ -709,7 +709,7 @@
           },
           "image": {
             "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_lid-only.png",
-            "bytes": 20766
+            "bytes": 20726
           }
         },
         {
@@ -722,15 +722,15 @@
           ],
           "stl": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-and-lid.stl",
-            "bytes": 450993
+            "bytes": 447717
           },
           "glb": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-and-lid.glb",
-            "bytes": 48764
+            "bytes": 48548
           },
           "image": {
             "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_box-and-lid.png",
-            "bytes": 21295
+            "bytes": 21176
           }
         }
       ],
@@ -785,15 +785,15 @@
           ],
           "stl": {
             "path": "gridfinity-module/stl/gridfinity-module_box-only.stl",
-            "bytes": 297042
+            "bytes": 288434
           },
           "glb": {
             "path": "gridfinity-module/stl/gridfinity-module_box-only.glb",
-            "bytes": 31916
+            "bytes": 31052
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_box-only.png",
-            "bytes": 25185
+            "bytes": 25288
           }
         },
         {
@@ -814,7 +814,7 @@
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_lid-only.png",
-            "bytes": 23069
+            "bytes": 23157
           }
         },
         {
@@ -827,15 +827,15 @@
           ],
           "stl": {
             "path": "gridfinity-module/stl/gridfinity-module_box-and-lid.stl",
-            "bytes": 481239
+            "bytes": 472631
           },
           "glb": {
             "path": "gridfinity-module/stl/gridfinity-module_box-and-lid.glb",
-            "bytes": 50632
+            "bytes": 49768
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_box-and-lid.png",
-            "bytes": 17955
+            "bytes": 18012
           }
         }
       ],
@@ -844,7 +844,7 @@
           "slug": "underside",
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_underside.png",
-            "bytes": 32049
+            "bytes": 31716
           }
         }
       ]
@@ -897,15 +897,15 @@
           ],
           "stl": {
             "path": "router-shelf/stl/router-shelf_box-only.stl",
-            "bytes": 274700
+            "bytes": 266033
           },
           "glb": {
             "path": "router-shelf/stl/router-shelf_box-only.glb",
-            "bytes": 29516
+            "bytes": 28652
           },
           "image": {
             "path": "router-shelf/images/router-shelf_box-only.png",
-            "bytes": 25819
+            "bytes": 25903
           }
         },
         {
@@ -926,7 +926,7 @@
           },
           "image": {
             "path": "router-shelf/images/router-shelf_lid-only.png",
-            "bytes": 18712
+            "bytes": 18643
           }
         },
         {
@@ -939,15 +939,15 @@
           ],
           "stl": {
             "path": "router-shelf/stl/router-shelf_box-and-lid.stl",
-            "bytes": 420177
+            "bytes": 411510
           },
           "glb": {
             "path": "router-shelf/stl/router-shelf_box-and-lid.glb",
-            "bytes": 44772
+            "bytes": 43908
           },
           "image": {
             "path": "router-shelf/images/router-shelf_box-and-lid.png",
-            "bytes": 23382
+            "bytes": 23511
           }
         }
       ],
@@ -1003,15 +1003,15 @@
           ],
           "stl": {
             "path": "under-desk-passthrough/stl/under-desk-passthrough_box-only.stl",
-            "bytes": 133627
+            "bytes": 129381
           },
           "glb": {
             "path": "under-desk-passthrough/stl/under-desk-passthrough_box-only.glb",
-            "bytes": 14824
+            "bytes": 14392
           },
           "image": {
             "path": "under-desk-passthrough/images/under-desk-passthrough_box-only.png",
-            "bytes": 23334
+            "bytes": 23147
           }
         },
         {
@@ -1045,15 +1045,15 @@
           ],
           "stl": {
             "path": "under-desk-passthrough/stl/under-desk-passthrough_box-and-lid.stl",
-            "bytes": 223446
+            "bytes": 219200
           },
           "glb": {
             "path": "under-desk-passthrough/stl/under-desk-passthrough_box-and-lid.glb",
-            "bytes": 24324
+            "bytes": 23892
           },
           "image": {
             "path": "under-desk-passthrough/images/under-desk-passthrough_box-and-lid.png",
-            "bytes": 17225
+            "bytes": 17310
           }
         }
       ],

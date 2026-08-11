@@ -128,9 +128,9 @@ Fit and engagement.
 
 Where cables enter and leave.
 
-### Default: 10 wide x 30 tall, flush with the floor
+### Default: 10 wide x 30 tall, 5 up from the floor
 
-![Default: 10 wide x 30 tall, flush with the floor](images/options/open-default.png)
+![Default: 10 wide x 30 tall, 5 up from the floor](images/options/open-default.png)
 
 ### Width 30
 
@@ -144,11 +144,17 @@ Where cables enter and leave.
 
 ![Height 15](images/options/open-short.png)
 
-### All_Openings_Up 12: lifted off the floor
+### All_Openings_Up 0: flush with the floor
+
+`All_Openings_Up=0`
+
+![All_Openings_Up 0: flush with the floor](images/options/open-flush.png)
+
+### All_Openings_Up 12: lifted further off the floor
 
 `All_Openings_Up=12`
 
-![All_Openings_Up 12: lifted off the floor](images/options/open-up.png)
+![All_Openings_Up 12: lifted further off the floor](images/options/open-up.png)
 
 ### Corner radius 0: square corners
 

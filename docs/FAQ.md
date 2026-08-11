@@ -20,7 +20,7 @@ Start at `0.10` for PLA and increase as needed. PETG and ABS often need slightly
 
 Global offsets (`All_Openings_Right`, `All_Openings_Up`) combine with each side-local move parameter. Reset one layer of offsets to zero and re-apply intentionally.
 
-Vertically, openings are anchored at their **bottom edge**. `All_Openings_Up=0` places that edge flush with the box bottom, which is usually what you want for a cable box: a cable lying on the desk passes straight in without climbing a lip. To centre an opening in the wall instead, set `All_Openings_Up` to `(Box_Height - All_Opening_Height) / 2`.
+Vertically, openings are anchored at their **bottom edge**. The default `All_Openings_Up=5` lifts that edge 5 mm above the box floor. Set `All_Openings_Up=0` to place it flush with the box bottom, so a cable lying on the desk passes straight in without climbing a lip. To centre an opening in the wall instead, set `All_Openings_Up` to `(Box_Height - All_Opening_Height) / 2`.
 
 ## How tall is my opening really?
 

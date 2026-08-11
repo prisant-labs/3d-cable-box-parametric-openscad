@@ -39,11 +39,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Magnets must be inserted with opposing poles facing. Symmetric geometry cannot
   enforce that.
 
-All four features default to a state that leaves existing geometry unchanged, so
-this is a minor bump under [E-10 (versioning)](docs/internal/E-10_versioning.md)
-and does not disturb the 2.0.0 candidate awaiting print validation. Nine
-regression scenarios cover them, including that the defaults render identically
-and that magnets survive slicing.
+All four features default to a state that leaves existing geometry unchanged.
+Nine regression scenarios cover them, including that the defaults render
+identically and that magnets survive slicing.
+
+### Changed
+- **`All_Openings_Up` now defaults to `5` instead of `0`.** Side openings are
+  anchored at their bottom edge, so every enabled side opening now sits 5 mm
+  above the box floor instead of flush with it. Set `All_Openings_Up=0` to
+  restore the previous output.
+
+  This changes geometry for unchanged inputs, which under
+  [E-10 (versioning)](docs/internal/E-10_versioning.md) is a **major** bump
+  rather than the minor one the features above would have been. No preset sets
+  `All_Openings_Up`, so all nine inherit the new value and every preset STL and
+  GLB shifts with it. A print made from `v2.0.0-rc.2` no longer matches what the
+  model produces from the same parameters.
 
 ## [2.0.0] - 2026-08-07
 
