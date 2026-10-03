@@ -62,6 +62,12 @@ identically and that magnets survive slicing.
   Geometry is unchanged, proven by canonical mesh hash across twelve
   configurations rather than by inspection. `THIRD_PARTY_NOTICES.md` now
   records where the earlier versions came from.
+- **New preview palette.** Teal, red and yellow become slate with an orange
+  post. This changes the OpenSCAD preview and every generated PNG render;
+  STLs carry no colour. The README's hero and feature images are now
+  rendered by `scripts/build_readme_images.py` instead of by hand, which
+  also corrects two that had drifted: the Gridfinity image still showed the
+  retired lid studs, and the hero showed openings flush with the floor.
 
 ## [2.0.0] - 2026-08-07
 

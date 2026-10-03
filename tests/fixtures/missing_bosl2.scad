@@ -355,11 +355,12 @@ OPENING_SIDES = ["Back", "Front", "Right", "Left"];
 PART_LAYOUT_GAP = 20;
 
 // Preview palette. Colour shows in the OpenSCAD preview and in the PNG renders
-// generated for the docs and library; exported STLs carry no colour.
-COLOR_BOX_SHELL       = "#009292";
-COLOR_BOX_INTERIOR    = "#88070B";
-COLOR_POST            = "#F65156";
-COLOR_LID             = "#FFCE13";
+// generated for the docs and library; exported STLs carry no colour. Slate
+// parts with one warm accent, so the cable path (post, openings) reads first.
+COLOR_BOX_SHELL       = "#3E4C5E";
+COLOR_BOX_INTERIOR    = "#28323F";
+COLOR_POST            = "#F28C38";
+COLOR_LID             = "#8FA6BF";
 COLOR_FINS_FRONT_BACK = "#5588FF";
 COLOR_FINS_LEFT_RIGHT = "#55FF88";
 COLOR_MAGNET_BOSS     = "#4FB0C6";
