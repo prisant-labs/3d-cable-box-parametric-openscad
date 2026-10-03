@@ -9,6 +9,28 @@ array-driven specification.
 **Depends on:** much easier after
 [E-02 (BOSL2 migration)](E-02_bosl2-migration.md). Best done together.
 
+**Also carries a provenance decision (2026-10-02).** The model began as a
+derivative of a 2022 Creative Commons Attribution design by Nick Talavera; see
+the "Earlier Versions" note in `THIRD_PARTY_NOTICES.md`. The decision is to
+make the model independent of it rather than to keep crediting it. The code
+was rewritten for 2.0.0 with no geometry change, and the inherited preview
+palette was replaced. What remains is the Customizer interface: 27 parameter lines (name and
+default) and 9 section headers inherited from the original. 24 of the
+original's 36 parameters are the per-wall opening block that this effort
+replaces, so E-03 is where that break happens, as a major version. When it
+lands:
+
+- replace the remaining inherited names, defaults, and section headers too:
+  `Box_*`, `Post_*`, `Lid_*`, `Part_To_Render` and its option strings;
+- re-run the overlap check, whose acceptance bar is no shared parameter lines
+  or section headers. It lives at `_local/audit/2026-10-02_scripts/overlap.py`
+  on the maintainer's machine only, because it compares against the original
+  file, which is deliberately not in the repository;
+- update the "Earlier Versions" note so it no longer says the names and
+  defaults follow the original;
+- ship a migration table and a converter for saved `config.json` parameter
+  sets, because every user's saved set breaks.
+
 ## The limitation
 
 The model supports **exactly one opening per wall, four maximum**. Real cable

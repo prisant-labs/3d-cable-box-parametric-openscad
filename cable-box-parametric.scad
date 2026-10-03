@@ -345,6 +345,24 @@ $fn = 40;
 SPACER=0.04;
 WELD=0.2;
 
+// The four walls that can carry a side opening, in the order they are cut.
+OPENING_SIDES = ["Back", "Front", "Right", "Left"];
+
+// Clear space between parts laid out side by side in "Box and Lid" renders.
+PART_LAYOUT_GAP = 20;
+
+// Preview palette. Colour shows in the OpenSCAD preview and in the PNG renders
+// generated for the docs and library; exported STLs carry no colour.
+COLOR_BOX_SHELL       = "#009292";
+COLOR_BOX_INTERIOR    = "#88070B";
+COLOR_POST            = "#F65156";
+COLOR_LID             = "#FFCE13";
+COLOR_FINS_FRONT_BACK = "#5588FF";
+COLOR_FINS_LEFT_RIGHT = "#55FF88";
+COLOR_MAGNET_BOSS     = "#4FB0C6";
+COLOR_GRIDFINITY      = "#7A5CFF";
+COLOR_CLIP            = "#00FF00";
+
 // Calculate inner dimensions (accounting for walls)
 Inner_Width = Box_Width - Wall_Thickness * 2;
 Inner_Depth = Box_Depth - Wall_Thickness * 2;
@@ -518,7 +536,11 @@ assert(Stabilizers_Front_Back_Count >= 0 && Stabilizers_Left_Right_Count >= 0, "
 assert(All_Opening_Height <= Box_Height, "All_Opening_Height must not exceed Box_Height");
 assert(!Enable_Bottom_Openings || Bottom_Openings_Count >= 1, "Bottom_Openings_Count must be >= 1 when bottom openings are enabled");
 assert(!Enable_Bottom_Openings || (Bottom_Opening_Width > 0 && Bottom_Opening_Depth > 0), "Bottom opening width and depth must be > 0");
-assert(Override_Opening_Height_Front >= 0 && Override_Opening_Width_Front >= 0 && Override_Opening_Height_Back >= 0 && Override_Opening_Width_Back >= 0 && Override_Opening_Height_Left >= 0 && Override_Opening_Width_Left >= 0 && Override_Opening_Height_Right >= 0 && Override_Opening_Width_Right >= 0,"Height and width overrides must be positive or zero");
+// 0 is the sentinel for "use the global size", so only negatives are invalid.
+// Checked per side so the message names the wall that is wrong.
+for (side = OPENING_SIDES)
+    assert(min(opening_size_overrides(side)) >= 0,
+           str(side, " opening width and height overrides must be 0 (use the global size) or positive"));
 assert(All_Opening_Corner_Radius >= -1 && Override_Opening_Corner_Radius_Front >= -1 && Override_Opening_Corner_Radius_Back >= -1 && Override_Opening_Corner_Radius_Left >= -1 && Override_Opening_Corner_Radius_Right >= -1, "Corner radius values must be >= -1");
 assert(All_Opening_Height > 0 && All_Opening_Width > 0, "All_Opening_Height and All_Opening_Width must be > 0");
 assert(Stabilizer_FB_Spacing >= 0 && Stabilizer_LR_Spacing >= 0, "Stabilizer spacing must be >= 0");
@@ -630,6 +652,38 @@ function get_opening_center_offset(side) =
     (side == "Right") ?
         Move_Opening_Right_to_Right + All_Openings_Right :
     0;
+
+// Raw [width, height] overrides for one wall, before 0 falls back to the
+// global size. Only the validation needs the raw values.
+function opening_size_overrides(side) =
+    (side == "Front") ? [Override_Opening_Width_Front, Override_Opening_Height_Front] :
+    (side == "Back")  ? [Override_Opening_Width_Back,  Override_Opening_Height_Back]  :
+    (side == "Left")  ? [Override_Opening_Width_Left,  Override_Opening_Height_Left]  :
+    (side == "Right") ? [Override_Opening_Width_Right, Override_Opening_Height_Right] :
+    [0, 0];
+
+// Height of an opening's bottom edge above the floor: the global lift plus
+// the wall's own adjustment.
+function get_opening_lift(side) =
+    All_Openings_Up +
+    ((side == "Front") ? Move_Opening_Front_Up :
+     (side == "Back")  ? Move_Opening_Back_Up :
+     (side == "Left")  ? Move_Opening_Left_Up :
+     (side == "Right") ? Move_Opening_Right_Up :
+     0);
+
+// Where an opening's cutter is centred in plan: on the wall's mid-plane,
+// shifted along the wall by the centre offset. Front and Back walls run
+// along X; Left and Right run along Y.
+function opening_plan_position(side) =
+    let(along  = get_opening_center_offset(side),
+        y_wall = Box_Depth/2 - Wall_Thickness/2,
+        x_wall = Box_Width/2 - Wall_Thickness/2)
+    (side == "Back")  ? [along,  y_wall] :
+    (side == "Front") ? [along, -y_wall] :
+    (side == "Right") ? [ x_wall, along] :
+    (side == "Left")  ? [-x_wall, along] :
+    [0, 0];
 
 // Single stabilizer fin shape - triangular wedge
 // Full depth at bottom, tapering to wall at top
@@ -751,7 +805,7 @@ module m_stabilizers_front_back() {
                            Inner_Depth/2,
                            Wall_Thickness])
                     rotate([0, 0, 180])
-                    color("#5588FF")
+                    color(COLOR_FINS_FRONT_BACK)
                     m_stabilizer_fin(Stabilizer_Width, Stabilizer_Depth, Stabilizer_Height);
             }
 
@@ -765,7 +819,7 @@ module m_stabilizers_front_back() {
                 translate([x_pos_front - Stabilizer_Width/2,
                            -Inner_Depth/2,
                            Wall_Thickness])
-                    color("#5588FF")
+                    color(COLOR_FINS_FRONT_BACK)
                     m_stabilizer_fin(Stabilizer_Width, Stabilizer_Depth, Stabilizer_Height);
             }
         }
@@ -866,7 +920,7 @@ module m_stabilizers_left_right() {
                            y_pos_left + Stabilizer_Width/2,
                            Wall_Thickness])
                     rotate([0, 0, -90])
-                    color("#55FF88")
+                    color(COLOR_FINS_LEFT_RIGHT)
                     m_stabilizer_fin(Stabilizer_Width, Stabilizer_Depth, Stabilizer_Height);
             }
 
@@ -881,7 +935,7 @@ module m_stabilizers_left_right() {
                            y_pos_right - Stabilizer_Width/2,
                            Wall_Thickness])
                     rotate([0, 0, 90])
-                    color("#55FF88")
+                    color(COLOR_FINS_LEFT_RIGHT)
                     m_stabilizer_fin(Stabilizer_Width, Stabilizer_Depth, Stabilizer_Height);
             }
         }
@@ -1565,7 +1619,7 @@ module m_gridfinity_lid_top_solid() {
             GF_LIDTOP_PLATE_HEIGHT + WELD],
         rounding = Corner_Radius,
         except = [TOP, BOTTOM],
-        anchor = [0, 0, -1]);
+        anchor = BOTTOM);
 }
 
 // The two-stage mating socket cut into each cell of that slab, opening on the
@@ -1655,7 +1709,7 @@ module m_magnet_corner_positions() {
 // the floor also stiffens the corner.
 module m_box_magnet_bosses() {
     m_magnet_corner_positions()
-        cyl(d = Magnet_Boss_Diameter, h = Box_Height, anchor = [0, 0, -1]);
+        cyl(d = Magnet_Boss_Diameter, h = Box_Height, anchor = BOTTOM);
 }
 
 // SPACER past the opening face for the usual reason: a cut that stops exactly
@@ -1663,7 +1717,7 @@ module m_box_magnet_bosses() {
 module m_box_magnet_pockets() {
     m_magnet_corner_positions()
         up(Box_Height - Lid_Magnet_Depth)
-            cyl(d = Lid_Magnet_Diameter, h = Lid_Magnet_Depth + SPACER, anchor = [0, 0, -1]);
+            cyl(d = Lid_Magnet_Diameter, h = Lid_Magnet_Depth + SPACER, anchor = BOTTOM);
 }
 
 // The lid's mating face is the top of its slab, where the lip stands. The
@@ -1672,7 +1726,7 @@ module m_box_magnet_pockets() {
 module m_lid_magnet_pockets() {
     m_magnet_corner_positions()
         up(Lid_Height - Lid_Magnet_Depth)
-            cyl(d = Lid_Magnet_Diameter, h = Lid_Magnet_Depth + SPACER, anchor = [0, 0, -1]);
+            cyl(d = Lid_Magnet_Diameter, h = Lid_Magnet_Depth + SPACER, anchor = BOTTOM);
 }
 
 
@@ -1693,7 +1747,7 @@ module m_edge_treated_shell(size, fillet, chamfer) {
     w = size[0]; d = size[1]; h = size[2];
     if (fillet <= 0 && chamfer <= 0)
         cuboid([w, d, h], rounding = Corner_Radius, except = [TOP, BOTTOM],
-               anchor = [0, 0, -1]);
+               anchor = BOTTOM);
     else if (fillet > 0 && chamfer > 0)
         offset_sweep(rect([w, d], rounding = Corner_Radius), height = h,
                      bottom = os_circle(r = fillet), top = os_chamfer(width = chamfer));
@@ -1711,31 +1765,31 @@ module m_box_base() {
         {
             union() {
                 difference() {
-                    color("#009292")
+                    color(COLOR_BOX_SHELL)
                     m_edge_treated_shell([Box_Width, Box_Depth, Box_Height],
                         Bottom_Fillet_Effective, Top_Chamfer_Effective);
 
-                    color("#88070B")
+                    color(COLOR_BOX_INTERIOR)
                     up(Wall_Thickness)
                     cuboid([Box_Width-Wall_Thickness*2, Box_Depth-Wall_Thickness*2, Box_Height+SPACER],
                         rounding = Corner_Radius,
                         except = [TOP, BOTTOM],
-                        anchor = [0, 0, -1]);
+                        anchor = BOTTOM);
                 }
 
                 if (Enable_Post)
-                    color("#F65156")
-                    cyl(d = Post_Diameter, h = Box_Height, anchor = [0, 0, -1]);
+                    color(COLOR_POST)
+                    cyl(d = Post_Diameter, h = Box_Height, anchor = BOTTOM);
 
                 // Add stabilizers (v5)
                 m_stabilizers();
 
                 if (Enable_Lid_Magnets)
-                    color("#4FB0C6")
+                    color(COLOR_MAGNET_BOSS)
                     m_box_magnet_bosses();
 
                 if (GF_Bottom_Active)
-                    color("#7A5CFF")
+                    color(COLOR_GRIDFINITY)
                     m_gridfinity_bottom_solid();
             }
         }
@@ -1753,11 +1807,11 @@ module m_box_base() {
         // above the floor. Shortening the cut from the top instead would leave
         // a cap at the post's upper end and the floor still open.
         if (Enable_Post)
-            color("#F65156")
+            color(COLOR_POST)
             up(Closed_Post ? Wall_Thickness : -SPACER)
             cyl(d = Post_Diameter-Wall_Thickness*2,
                 h = Box_Height + SPACER*2,
-                anchor = [0, 0, -1]);
+                anchor = BOTTOM);
 
         if (Enable_Bottom_Openings)
             m_bottom_openings();
@@ -1768,43 +1822,15 @@ module m_box_with_openings() {
     difference() {
         m_box_base();
 
-        union() {
-            if (Opening_On_Back)
-                back((Box_Depth/2-Wall_Thickness/2))
-                right(get_opening_center_offset("Back"))
-                up(Move_Opening_Back_Up + All_Openings_Up)
-                m_opening(side="Back",
-                    width = Override_Opening_Width_Back > 0 ? Override_Opening_Width_Back: All_Opening_Width,
-                    height = Override_Opening_Height_Back > 0 ? Override_Opening_Height_Back: All_Opening_Height,
-                    corner_radius = get_effective_opening_corner_radius("Back"));
-
-            if (Opening_On_Front)
-                back(-(Box_Depth/2-Wall_Thickness/2))
-                right(get_opening_center_offset("Front"))
-                up(Move_Opening_Front_Up + All_Openings_Up)
-                m_opening(side="Front",
-                    width = Override_Opening_Width_Front > 0 ? Override_Opening_Width_Front: All_Opening_Width,
-                    height = Override_Opening_Height_Front > 0 ? Override_Opening_Height_Front: All_Opening_Height,
-                    corner_radius = get_effective_opening_corner_radius("Front"));
-
-            if (Opening_On_Right)
-                right(Box_Width/2-Wall_Thickness/2)
-                up(Move_Opening_Right_Up + All_Openings_Up)
-                back(get_opening_center_offset("Right"))
-                m_opening(side="Right",
-                    width = Override_Opening_Width_Right > 0 ? Override_Opening_Width_Right: All_Opening_Width,
-                    height = Override_Opening_Height_Right > 0 ? Override_Opening_Height_Right: All_Opening_Height,
-                    corner_radius = get_effective_opening_corner_radius("Right"));
-
-            if (Opening_On_Left)
-                left(Box_Width/2-Wall_Thickness/2)
-                up(Move_Opening_Left_Up + All_Openings_Up)
-                back(get_opening_center_offset("Left"))
-                m_opening(side="Left",
-                    width = Override_Opening_Width_Left > 0 ? Override_Opening_Width_Left: All_Opening_Width,
-                    height = Override_Opening_Height_Left > 0 ? Override_Opening_Height_Left: All_Opening_Height,
-                    corner_radius = get_effective_opening_corner_radius("Left"));
-        }
+        // One cutter per enabled wall. Every per-wall difference lives in the
+        // get_* helpers, so the placement itself is identical for all four.
+        for (side = OPENING_SIDES)
+            if (opening_enabled(side))
+                translate(concat(opening_plan_position(side), [get_opening_lift(side)]))
+                    m_opening(side = side,
+                              width = get_effective_opening_width(side),
+                              height = get_effective_opening_height(side),
+                              corner_radius = get_effective_opening_corner_radius(side));
     }
 }
 
@@ -1845,7 +1871,7 @@ module m_box_slice(slice_num) {
         }
 
         if (!is_last_slice) {
-            color("#00FF00")
+            color(COLOR_CLIP)
             m_place_floor_clips(slice_end_x, true);
         }
     }
@@ -1883,14 +1909,14 @@ module m_lid_relief(is_cut) {
 }
 
 
-module m_lid () {
+module m_lid() {
     difference() {
         union() {
             if (Enable_Post) {
-                color("#F65156")
+                color(COLOR_POST)
                 up(Lid_Height - WELD)
                 cyl(d = Post_Diameter + Wall_Thickness,
-                    h = Lid_Lip_Gap_Height + WELD, anchor = [0, 0, -1]);
+                    h = Lid_Lip_Gap_Height + WELD, anchor = BOTTOM);
             }
 
             // Both horizontal edges of the lid slab get the chamfer, not a
@@ -1898,38 +1924,38 @@ module m_lid () {
             // face at z=0 here is the exposed top of a closed box and the face
             // at Lid_Height overhangs the box wall: both are edges a hand meets,
             // and neither sits on the print bed the way the box bottom does.
-            color("#FFCE13")
+            color(COLOR_LID)
             m_edge_treated_shell([Box_Width + Wall_Thickness*2 + Lid_Lip_Gap,
                                   Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap,
                                   Lid_Height],
                 Lid_Chamfer_Effective, Lid_Chamfer_Effective);
 
             difference() {
-                color("#FFCE13")
+                color(COLOR_LID)
                 translate([0, 0, Lid_Height - WELD])
                 cuboid([Box_Width + Lid_Lip_Gap,
                         Box_Depth + Lid_Lip_Gap,
                         Lid_Lip_Gap_Height + WELD],
                     rounding = Corner_Radius,
                     except = [TOP, BOTTOM],
-                    anchor = [0, 0, -1]);
+                    anchor = BOTTOM);
 
-                color("#FFCE13")
+                color(COLOR_LID)
                 translate([0, 0, Lid_Height])
                 cuboid([Box_Width - Wall_Thickness + Lid_Lip_Gap,
                         Box_Depth - Wall_Thickness + Lid_Lip_Gap,
                         Lid_Lip_Gap_Height+SPACER],
                     rounding = Corner_Radius,
                     except = [TOP, BOTTOM],
-                    anchor = [0, 0, -1]);
+                    anchor = BOTTOM);
             }
 
             if (GF_Lid_Active)
-                color("#7A5CFF")
+                color(COLOR_GRIDFINITY)
                 m_gridfinity_lid_top_solid();
 
             if (Lid_Relief_Style == "Tab")
-                color("#FFCE13")
+                color(COLOR_LID)
                 m_lid_relief(is_cut = false);
         }
 
@@ -1945,13 +1971,16 @@ module m_lid () {
         if (GF_Lid_Active && Enable_Gridfinity_Magnet_Screw)
             m_gridfinity_lid_top_holes();
 
+        // Socket the post's top end seats into. It opens through the collar on
+        // the lip side and sinks into the lid slab by a wall, the lip gap, and
+        // a 0.2 mm allowance (capped at Lid_Height for very thin lids).
         if (Enable_Post) {
-            color("#F65156")
-            up(Lid_Height)
-            down(Wall_Thickness+Lid_Lip_Gap + min(0.2, Lid_Height))
-            cyl(d = Post_Diameter,
-                h = Lid_Lip_Gap_Height+Wall_Thickness+Lid_Lip_Gap+ min(0.2, Lid_Height) + SPACER,
-                anchor = [0, 0, -1]);
+            socket_depth = Wall_Thickness + Lid_Lip_Gap + min(0.2, Lid_Height);
+            color(COLOR_POST)
+            translate([0, 0, Lid_Height - socket_depth])
+                cyl(d = Post_Diameter,
+                    h = Lid_Lip_Gap_Height + socket_depth + SPACER,
+                    anchor = BOTTOM);
         }
 
     }
@@ -1997,7 +2026,7 @@ module m_lid_slice(slice_num) {
         }
 
         if (!is_last_slice) {
-            color("#00FF00")
+            color(COLOR_CLIP)
             m_place_lid_clips(slice_end_x, true);
         }
     }
@@ -2007,7 +2036,7 @@ module m_lid_slice(slice_num) {
 // edge, not its centre, so a caller placing it at z=0 gets the full requested
 // height sitting flush with the box floor. Centring the cut on the origin
 // instead would drop half of it below the box, silently halving the opening.
-module m_opening (side, width, height, corner_radius) {
+module m_opening(side, width, height, corner_radius) {
     new_thickness = Wall_Thickness + SPACER * 2;
     max_corner_radius = min(width, height) / 2;
     effective_corner_radius =
@@ -2154,7 +2183,7 @@ module full_render() {
                     if (Part_To_Render != "Box Only") {
                         lid_slice_width = (Box_Width + Wall_Thickness*2 + Lid_Lip_Gap) / Slice_Count;
                         lid_x_offset = (i - 1) * (lid_slice_width + Slice_Preview_Gap) - (Slice_Count - 1) * (lid_slice_width + Slice_Preview_Gap) / 2;
-                        translate([lid_x_offset - x_offset, Box_Depth + 20, 0])
+                        translate([lid_x_offset - x_offset, Box_Depth + PART_LAYOUT_GAP, 0])
                             m_lid_placed() m_lid_slice(i);
                     }
                 }
@@ -2164,18 +2193,19 @@ module full_render() {
                 m_box_placed() m_box_slice(Slice_Piece_To_Render);
             }
             if (Part_To_Render != "Box Only") {
-                translate([0, Box_Depth + 20, 0])
+                translate([0, Box_Depth + PART_LAYOUT_GAP, 0])
                     m_lid_placed() m_lid_slice(Slice_Piece_To_Render);
             }
         }
     } else {
-        if (Part_To_Render != "Box Only") {
-            right((Part_To_Render != "Lid Only") ? Box_Width + 20 : 0)
-                m_lid_part();
-        }
-        if (Part_To_Render != "Lid Only") {
+        show_box = Part_To_Render != "Lid Only";
+        show_lid = Part_To_Render != "Box Only";
+        if (show_box)
             m_box();
-        }
+        // Beside the box when both are shown, at the origin when alone.
+        if (show_lid)
+            translate([show_box ? Box_Width + PART_LAYOUT_GAP : 0, 0, 0])
+                m_lid_part();
     }
 }
 
