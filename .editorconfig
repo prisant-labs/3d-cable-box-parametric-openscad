@@ -11,5 +11,9 @@ indent_size = 2
 [*.md]
 trim_trailing_whitespace = false
 
-[*.scad]
-indent_size = 2
+[*.{scad,py}]
+indent_size = 4
+
+# The docs site's own code is tab-indented.
+[web/**.{mjs,js,ts,astro}]
+indent_style = tab

@@ -57,9 +57,16 @@ git show "$REF:CHANGELOG.md" > "$SNAP/CHANGELOG.md" 2>/dev/null || true
   echo "commit:      $(git rev-parse "$REF^{commit}")"
   echo "committed:   $(git log -1 --format=%cI "$REF")"
   echo "subject:     $(git log -1 --format=%s "$REF")"
-  echo "backed_up:   $(date -Iseconds)"
+  # UTC with an explicit format, because BSD date on macOS has no -I.
+  echo "backed_up:   $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   if [ -f "$SNAP/cable-box-parametric.scad" ]; then
-    echo "model_sha256: $(sha256sum "$SNAP/cable-box-parametric.scad" | cut -d' ' -f1)"
+    # macOS ships shasum rather than sha256sum.
+    if command -v sha256sum >/dev/null 2>&1; then
+      model_sha=$(sha256sum "$SNAP/cable-box-parametric.scad" | cut -d' ' -f1)
+    else
+      model_sha=$(shasum -a 256 "$SNAP/cable-box-parametric.scad" | cut -d' ' -f1)
+    fi
+    echo "model_sha256: $model_sha"
     echo "model_version: $(grep -oE '^Model_Version[[:space:]]*=[[:space:]]*"[^"]+"' \
         "$SNAP/cable-box-parametric.scad" | grep -oE '"[^"]+"' | tr -d '"' || echo unknown)"
   fi

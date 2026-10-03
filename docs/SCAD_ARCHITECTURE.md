@@ -16,7 +16,7 @@ The primary SCAD is organized in this order:
    - Slicing clips
    - Box/Lid assembly
 6. Render dispatcher (`full_render()`)
-7. Embedded BOSL2 utilities
+7. (BOSL2 is an external include, not part of the file; see below)
 
 ## Coordinate System and Axes
 
@@ -130,14 +130,21 @@ moved clear of it. Both report via `echo` rather than failing.
 
 See `docs/VALIDATION_RULES.md` for each rule with its trigger and resolution.
 
-## BOSL2 Embedding
+## BOSL2 Dependency
 
-The file includes embedded BOSL2 utility content under its original BSD-2-Clause terms.
+The model includes BOSL2 as an external library (`include <BOSL2/std.scad>`
+and `include <BOSL2/joiners.scad>`); it no longer carries embedded copies of
+BOSL2 code. The pinned version lives in `BOSL2_REF` in
+`.github/workflows/scad-smoke.yml`, and `scripts/bump-bosl2.sh` is the only
+thing that should change it.
 
 Implications:
 
-- The custom model logic is near top/mid file.
-- Search and edits should target your modules before the BOSL2 block.
+- Everything in `cable-box-parametric.scad` is this project's own code.
+- A missing BOSL2 install stops the render with a message naming the library;
+  `tests/fixtures/missing_bosl2.scad` exercises that guard.
+- For users who cannot install a library, `scripts/build_bundle.py` produces a
+  two-file standalone bundle with BOSL2 inlined, and releases attach it.
 - Attribution is tracked in `THIRD_PARTY_NOTICES.md`.
 
 ## Maintenance Workflow Recommendation
