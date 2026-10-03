@@ -244,6 +244,11 @@ end up pointing at the ceiling with nothing able to rest on them. It adds
 Turn on either, both, or neither. Both together gives a box that sits in a
 baseplate and is itself a baseplate.
 
+Both interfaces are built to the published Gridfinity dimensions, but neither
+has been confirmed against real Gridfinity parts yet. The two Gridfinity
+[calibration coupons](PRINTING.md#calibration-coupons) check exactly that,
+with one cell each, before you print a full box.
+
 ## Why does Gridfinity require `Closed_Post`?
 
 An open post bores through the box floor. A Gridfinity base sits directly under

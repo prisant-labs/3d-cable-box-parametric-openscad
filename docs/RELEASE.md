@@ -129,7 +129,12 @@ folded its changes into a dated section.
   candidate for `X.Y.Z` and saying further print validation would be helpful
   before the final release, with a link to the calibration coupons; then
   whatever is still in `[Unreleased]`, under "New in this candidate"; then
-  the `[X.Y.Z]` section, under "Earlier in X.Y.Z", if one exists.
+  the `[X.Y.Z]` section if one exists, both under one heading, "Full X.Y.Z
+  changelog so far". `[Unreleased]` can span several candidates, so the
+  script cannot know what is new since the previous one.
+- **Before publishing a candidate**, add a short "What's new since rc.N"
+  summary at the top of the draft, by hand. Readers of a candidate mostly
+  want that, and only a person can judge it.
 - **Final notes** are just the `[X.Y.Z]` section, verbatim.
   `scripts/release_notes.py` refuses to write them while `[Unreleased]` still
   has entries, because a final release that leaves work behind in

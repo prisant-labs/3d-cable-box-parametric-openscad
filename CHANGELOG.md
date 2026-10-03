@@ -82,6 +82,11 @@ identically and that magnets survive slicing.
   Geometry is unchanged, proven by canonical mesh hash across twelve
   configurations rather than by inspection. `THIRD_PARTY_NOTICES.md` now
   records where the earlier versions came from.
+- **README.** It leads with the preset library, and its options-guide links go
+  to the site, because GitHub shows a `.html` file as source. A fourth feature
+  image shows the finishing features. The Gridfinity text no longer promises a
+  fit that no print has confirmed yet, and print reports are now the first
+  contribution it asks for.
 - **CI.** The docs site now builds, without deploying, on every pull request,
   so a dependency break shows up in review rather than at deploy time.
   Dependabot proposes grouped monthly updates for the site and the workflows,

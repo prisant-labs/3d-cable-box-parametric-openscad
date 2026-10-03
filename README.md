@@ -16,21 +16,21 @@ with the floor so a cable resting on the desk slides straight in.*
 
 ## Get a box
 
-**Just want to print one?** Take an STL from
-[`library/`](library/) or the
-[Releases page](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/releases).
-Nine presets cover the common jobs, from a compact desk tidy to a six-outlet
-surge strip split for a 180 mm bed. No software needed beyond your slicer.
+**Just want to print one?** Pick a preset in the
+[preset library](https://projects.prisantlabs.com/3d-cable-box-parametric-openscad/library/), which has 3D previews and
+STL downloads, or take the files straight from [`library/`](library/). Nine
+presets cover the common jobs, from a compact desk tidy to a six-outlet surge
+strip split for a 180 mm bed. No software needed beyond your slicer.
 
-The two are not the same snapshot. `library/` and the docs site track `main`,
-so they always match the current model. A release is a tested, fixed
-snapshot: from 2.0.0 each one attaches all nine presets as
-`cable-box-presets.zip`, but releases up to `v2.0.0-rc.3` carried only a few
-sample STLs, and `v1.4.1` predates the 2.0.0 geometry changes.
+Both track `main`, so they match the current model. The
+[Releases page](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/releases) holds fixed, tested snapshots, and from `v2.0.0-rc.4` on
+each release attaches all nine presets as `cable-box-presets.zip`. Until 2.0.0
+ships as final, GitHub's "Latest" release is still `v1.4.1`, from before the
+2.0.0 changes, so take the newest "Pre-release" for the current geometry.
 
 Printing a feature for the first time, such as a Gridfinity base, snap clips,
-or magnets? The [calibration coupons](calibration/) are small test prints
-that check one fit each before you commit to a full box.
+or magnets? Print its [calibration coupon](calibration/) first: a small test
+print that checks one fit before you commit to a full box.
 
 **Want to change something?** The model needs
 [BOSL2](https://github.com/BelfrySCAD/BOSL2):
@@ -55,8 +55,9 @@ If you open the plain `.scad` without BOSL2 installed, the model stops with a
 message telling you so, rather than rendering nothing and exiting successfully.
 
 **Want to see what everything does first?** Open the
-[visual options guide](docs/options-guide.html). Every parameter is rendered
-from the model, in one self-contained file that works offline.
+[visual options guide](https://projects.prisantlabs.com/3d-cable-box-parametric-openscad/options-guide.html). Every parameter is rendered
+from the model, in one self-contained file you can also
+[download](docs/options-guide.html) to use offline.
 
 ![Box and lid](docs/images/hero_box-and-lid.png)
 
@@ -65,8 +66,9 @@ from the model, in one self-contained file that works offline.
 | | |
 |---|---|
 | ![Stabilizer fins and floor cutouts](docs/images/feature_stabilizers.png) | **Fins and floor cutouts.** Interior ribs stiffen long walls and automatically skip positions that would block an opening. Floor cutouts arrange along either axis and split around the centre post. |
-| ![Slicing into two clipping halves](docs/images/feature_slicing.png) | **Bigger than your printer?** Slicing mode splits the box and lid into pieces joined by tuneable snap clips, so a 265 mm box prints on a 180 mm bed. |
-| ![Gridfinity interfaces on the underside](docs/images/feature_gridfinity.png) | **Gridfinity, optionally.** A 42 mm base under the box so it drops into a baseplate, a matching profile on the lid, and optional magnet and screw pockets. |
+| ![Slicing into two clipping halves](docs/images/feature_slicing.png) | **Bigger than your printer?** Slicing mode splits the box and lid into pieces joined by tab or snap clips, so a 265 mm box prints on a 180 mm bed. |
+| ![Gridfinity interfaces on the underside](docs/images/feature_gridfinity.png) | **Gridfinity, optionally.** A 42 mm base under the box, made to sit in a standard baseplate, and a baseplate socket on the lid so bins sit on the closed box. Optional magnet and screw pockets. Both are built to the published spec, and their fit is being confirmed with [calibration coupons](calibration/). |
+| ![Rounded edges, lid grips and corner magnet bosses](docs/images/feature_finishing.png) | **Finishing touches.** A rounded bottom edge and a chamfered rim, a scallop or tab grip so a tight lid comes off without a tool, and corner magnets that hold the lid shut. All are off by default. |
 
 Plus: per-wall opening sizes and positions, an open or closed-bottom centre
 post, adjustable lid fit, and corner radii from crisp to soft.
@@ -120,7 +122,7 @@ complete `config.json`, STLs, renders, and notes. They are also browsable with
 | [`monitor-junction`](library/monitor-junction/) | Two monitor bricks | 210 x 95 x 62 |
 | [`router-shelf`](library/router-shelf/) | Router or modem plus PSU | 230 x 130 x 75 |
 | [`surge-strip-6`](library/surge-strip-6/) | Six-outlet surge protector | 265 x 100 x 62 |
-| [`surge-strip-6-sliced`](library/surge-strip-6-sliced/) | Same, split for a 180 mm bed | 265 x 100 x 62 |
+| [`surge-strip-6-sliced`](library/surge-strip-6-sliced/) | Same, split for a 180 mm bed | 265 x 100 x 62 assembled; largest piece 136 x 100 |
 
 All nine are also collected into `cable-box-parametric.json` next to the model,
 so opening `cable-box-parametric.scad` and pressing <kbd>F3</kbd> offers every
@@ -150,7 +152,7 @@ Published at
 
 | Doc | What's in it |
 |---|---|
-| [Options guide (HTML)](docs/options-guide.html) | Every parameter, rendered. Self-contained, works offline. |
+| [Options guide (HTML)](https://projects.prisantlabs.com/3d-cable-box-parametric-openscad/options-guide.html) | Every parameter, rendered. Self-contained; [download it](docs/options-guide.html) to use offline. |
 | [Options guide (Markdown)](docs/OPTIONS_GUIDE.md) | The same, readable on GitHub. |
 | [Parameter reference](docs/PARAMETER_REFERENCE.md) | Exhaustive tables for every parameter. |
 | [Workflows](docs/WORKFLOWS.md) | Setup, calibration, slicing, troubleshooting. |
@@ -172,6 +174,19 @@ Side openings are anchored at their **bottom edge**. The default
 to put the opening flush with the box bottom, so a cable lying on the desk
 passes straight in without climbing a lip.
 
+## Contributing
+
+The most useful contribution right now is a print report. Print a
+[calibration coupon](calibration/) and open an issue with the result, even when
+it fits, because that is what turns "renders cleanly" into "prints cleanly".
+
+Presets are the next easiest: add an entry to `PRESETS` in
+`scripts/build_library.py` and rerun it. See [`CONTRIBUTING.md`](CONTRIBUTING.md),
+[`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md), and [`SECURITY.md`](SECURITY.md).
+
+Behaviour changes need the docs updated in the same PR, and a test scenario if
+the change guards a failure mode that would otherwise exit `0`.
+
 ## Validation
 
 Model changes are gated by an automated geometry suite, not just a compile check.
@@ -192,15 +207,6 @@ correctly-sized part rotated onto the wrong axis.
 The runner prints which BOSL2 version OpenSCAD actually loads before running
 anything, because a local suite silently testing a different library version
 than CI is a real failure mode this project has already hit.
-
-## Contributing
-
-Presets are the easiest useful contribution: add an entry to `PRESETS` in
-`scripts/build_library.py` and rerun it. See [`CONTRIBUTING.md`](CONTRIBUTING.md),
-[`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md), and [`SECURITY.md`](SECURITY.md).
-
-Behaviour changes need the docs updated in the same PR, and a test scenario if
-the change guards a failure mode that would otherwise exit `0`.
 
 ## Licence
 
