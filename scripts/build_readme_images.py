@@ -7,11 +7,12 @@ retired Gridfinity lid studs. Declaring each scene here makes them reproducible
 the same way the library previews and the options guide already are.
 
 Usage:
-  python scripts/build_readme_images.py
+  python scripts/build_readme_images.py [--only STEM ...]
 """
 
 from __future__ import annotations
 
+import argparse
 import subprocess
 import sys
 from pathlib import Path
@@ -43,13 +44,31 @@ SCENES = [
       "Enable_Gridfinity_Lid_Top": True,
       "Closed_Post": True,
       "Enable_Gridfinity_Magnet_Screw": True}),
+    ("feature_finishing", (900, 600), CAM_ISO, None,
+     {"Part_To_Render": "Box and Lid",
+      "Bottom_Edge_Fillet": 1.5,
+      "Top_Edge_Chamfer": 0.8,
+      "Lid_Relief_Style": "Tab",
+      "Enable_Lid_Magnets": True}),
 ]
 
 
 def main() -> int:
+    ap = argparse.ArgumentParser(description="Render the README images.")
+    ap.add_argument("--only", nargs="+", metavar="STEM",
+                    help="render only these images; renders are not byte-stable, "
+                         "so re-rendering the rest would churn them for nothing")
+    args = ap.parse_args()
+    known = {s[0] for s in SCENES}
+    unknown = sorted(set(args.only or []) - known)
+    if unknown:
+        sys.exit(f"unknown image stem(s): {', '.join(unknown)}")
+
     scad = find_openscad()
     failed = 0
     for stem, (w, h), cam, preset, params in SCENES:
+        if args.only and stem not in args.only:
+            continue
         out = IMG_DIR / f"{stem}.png"
         preset_args = []
         if preset:

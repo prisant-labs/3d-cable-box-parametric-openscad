@@ -134,12 +134,14 @@ def main() -> int:
             f"release. The [calibration coupons]({coupons}) are small test "
             "prints for exactly that.",
         ]
-        # Headings say what a reader of the release page needs, not the
-        # changelog's own bookkeeping name for the section.
-        if unreleased:
-            out += ["", "## New in this candidate", "", unreleased]
-        if version_section:
-            out += ["", f"## Earlier in {version}", "", version_section]
+        # One heading over both sections. [Unreleased] can span several
+        # candidates, so calling it "new in this candidate" would claim
+        # changes an earlier candidate already shipped. What changed since the
+        # previous candidate is a judgement, so the person reviewing the draft
+        # writes that summary above this (docs/RELEASE.md, section 5).
+        body = [part for part in (unreleased, version_section) if part]
+        if body:
+            out += ["", f"## Full {version} changelog so far", "", "\n\n".join(body)]
         print("\n".join(out))
         return 0
 
