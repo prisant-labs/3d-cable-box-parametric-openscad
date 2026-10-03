@@ -125,7 +125,7 @@ jobs:
 
       - name: Upload release assets and notes
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: release-${{ env.TAG }}
           path: |
@@ -144,7 +144,7 @@ jobs:
       # The artifact keeps paths relative to the workspace root, so it holds
       # dist/release/* and notes.md exactly as the build job wrote them.
       - name: Download release assets and notes
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: release-${{ needs.build.outputs.tag }}
           path: release
