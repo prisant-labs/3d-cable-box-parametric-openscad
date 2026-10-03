@@ -22,6 +22,16 @@ with the floor so a cable resting on the desk slides straight in.*
 Nine presets cover the common jobs, from a compact desk tidy to a six-outlet
 surge strip split for a 180 mm bed. No software needed beyond your slicer.
 
+The two are not the same snapshot. `library/` and the docs site track `main`,
+so they always match the current model. A release is a tested, fixed
+snapshot: from 2.0.0 each one attaches all nine presets as
+`cable-box-presets.zip`, but releases up to `v2.0.0-rc.3` carried only a few
+sample STLs, and `v1.4.1` predates the 2.0.0 geometry changes.
+
+Printing a feature for the first time, such as a Gridfinity base, snap clips,
+or magnets? The [calibration coupons](calibration/) are small test prints
+that check one fit each before you commit to a full box.
+
 **Want to change something?** The model needs
 [BOSL2](https://github.com/BelfrySCAD/BOSL2):
 
@@ -98,7 +108,7 @@ a face-down-printed lid is up.
 Nine ready-to-print configurations live in [`library/`](library/), each with a
 complete `config.json`, STLs, renders, and notes. They are also browsable with
 3D previews at
-[the preset library on the docs site](https://prisant-labs.github.io/3d-cable-box-parametric-openscad/library/).
+[the preset library on the docs site](https://projects.prisantlabs.com/3d-cable-box-parametric-openscad/library/).
 
 | Preset | Fits | Size (mm) |
 |---|---|---|
@@ -136,7 +146,7 @@ desktop Customizer drops straight back in, and settings survive a round trip.
 ## Documentation
 
 Published at
-**[prisant-labs.github.io/3d-cable-box-parametric-openscad](https://prisant-labs.github.io/3d-cable-box-parametric-openscad/)**.
+**[projects.prisantlabs.com/3d-cable-box-parametric-openscad](https://projects.prisantlabs.com/3d-cable-box-parametric-openscad/)**.
 
 | Doc | What's in it |
 |---|---|
@@ -144,7 +154,7 @@ Published at
 | [Options guide (Markdown)](docs/OPTIONS_GUIDE.md) | The same, readable on GitHub. |
 | [Parameter reference](docs/PARAMETER_REFERENCE.md) | Exhaustive tables for every parameter. |
 | [Workflows](docs/WORKFLOWS.md) | Setup, calibration, slicing, troubleshooting. |
-| [Printing guide](docs/PRINTING.md) | Materials, orientation, fit calibration. |
+| [Printing guide](docs/PRINTING.md) | Materials, orientation, fit calibration, calibration coupons. |
 | [FAQ](docs/FAQ.md) | Common questions and fixes. |
 | [Validation rules](docs/VALIDATION_RULES.md) | Every assertion, what triggers it, how to resolve it. |
 | [Module reference](docs/MODULE_REFERENCE.md) | Module-by-module geometry breakdown. |
@@ -167,7 +177,7 @@ passes straight in without climbing a lip.
 Model changes are gated by an automated geometry suite, not just a compile check.
 
 ```bash
-python tests/run_tests.py          # 65 scenarios
+python tests/run_tests.py          # 80 scenarios
 bash scripts/scad-smoke.sh         # quick render smoke
 bash scripts/check-version.sh      # version consistency
 bash scripts/bump-bosl2.sh         # verified BOSL2 dependency upgrades

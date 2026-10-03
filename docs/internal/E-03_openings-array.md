@@ -22,6 +22,9 @@ lands:
 
 - replace the remaining inherited names, defaults, and section headers too:
   `Box_*`, `Post_*`, `Lid_*`, `Part_To_Render` and its option strings;
+- decide the product name: the README title, the `.scad` header, and the
+  bundle header still say "Parametric Cable Management Box", which is the
+  original's title ([backlog item 16 (product name)](BACKLOG.md));
 - re-run the overlap check, whose acceptance bar is no shared parameter lines
   or section headers. It lives at `_local/audit/2026-10-02_scripts/overlap.py`
   on the maintainer's machine only, because it compares against the original

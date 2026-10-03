@@ -23,7 +23,7 @@ cosmetic one, and it makes the current `PRINTING.md` guidance incomplete:
 > Material: PLA or PETG recommended for first-fit calibration
 
 That is fine for fit calibration and inadequate as material guidance for a box
-containing a power supply. Backlog item 4 has ventilation listed as a normal
+containing a power supply. [Backlog item 4 (vent generator)](BACKLOG.md) had ventilation listed as a normal
 feature; this doc argues for promoting it and pairing it with documentation.
 
 The documentation half costs almost nothing and should not wait for the

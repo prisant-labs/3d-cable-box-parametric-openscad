@@ -103,7 +103,7 @@ handling the printed object, and it costs almost nothing.
 **Problem.** Lid retention is friction only. Bump the box or pick it up by the
 lid and it comes off.
 
-**Context.** Backlog items 7 and 8 cover screw-down and hinged lids. Magnets are
+**Context.** [Backlog items 7 and 8 (screw-down and hinged lids)](BACKLOG.md) cover those lid styles. Magnets are
 the option most printed enclosures actually use, and they are the cheapest of
 the three to implement: two mirrored pockets, no moving parts, no fasteners.
 

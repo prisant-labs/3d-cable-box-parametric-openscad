@@ -43,6 +43,26 @@ All four features default to a state that leaves existing geometry unchanged.
 Nine regression scenarios cover them, including that the defaults render
 identically and that magnets survive slicing.
 
+- **Calibration coupons.** `calibration/` holds eight small test prints, each
+  isolating one fit that a full box would otherwise be the first print of: the
+  lid fit, the magnet pockets, the Gridfinity base and lid socket, snap and tab
+  seam clips, the edge treatment, and a side opening. Several 2.0.0 features
+  render cleanly but have not yet been confirmed on a printer, so further print
+  validation would be helpful; the coupons make that cheap. They are OpenSCAD
+  parameter sets in `calibration/config.json`, exported and checked by
+  `scripts/build_calibration.py` for exit code, a clean log, and body count.
+- **Release automation.** Pushing a `v*` tag runs `.github/workflows/release.yml`.
+  It runs the version check, the geometry suite, and the standalone-bundle
+  render, then drafts a GitHub release for review rather than publishing one.
+  `scripts/package_release.py` builds the assets reproducibly, and
+  `scripts/release_notes.py` writes the notes from this file. A final tag is
+  refused while `[Unreleased]` still has entries.
+- **Every release attaches all nine presets** as `cable-box-presets.zip`, plus
+  the coupons as `cable-box-calibration.zip`. Releases up to `v2.0.0-rc.3`
+  carried only a few hand-picked sample STLs.
+- **Options guide section for the finishing features**: the bottom fillet, the
+  top chamfer, both lid reliefs, and the magnet bosses.
+
 ### Changed
 - **`All_Openings_Up` now defaults to `5` instead of `0`.** Side openings are
   anchored at their bottom edge, so every enabled side opening now sits 5 mm
@@ -62,12 +82,58 @@ identically and that magnets survive slicing.
   Geometry is unchanged, proven by canonical mesh hash across twelve
   configurations rather than by inspection. `THIRD_PARTY_NOTICES.md` now
   records where the earlier versions came from.
+- **CI.** The docs site now builds, without deploying, on every pull request,
+  so a dependency break shows up in review rather than at deploy time.
+  Dependabot proposes grouped monthly updates for the site and the workflows,
+  and holds back `three` until `@google/model-viewer` accepts a newer version.
 - **New preview palette.** Teal, red and yellow become slate with an orange
   post. This changes the OpenSCAD preview and every generated PNG render;
   STLs carry no colour. The README's hero and feature images are now
   rendered by `scripts/build_readme_images.py` instead of by hand, which
   also corrects two that had drifted: the Gridfinity image still showed the
   retired lid studs, and the hero showed openings flush with the floor.
+
+### Fixed
+- **Lid relief over a raised opening.** The check that drops a relief above an
+  opening reaching the rim counted only `All_Openings_Up`. An opening raised to
+  the rim by its own `Move_Opening_*_Up` still got a tab standing over it. The
+  check now uses the opening's real top edge.
+- **Relief width on long, narrow boxes.** `Lid_Relief_Width` was checked
+  against the shorter of `Box_Width` and `Box_Depth` for every wall, so a
+  150 mm wall rejected a 100 mm relief because the box was 60 mm wide. Each
+  enabled wall is now checked against its own length, and the message names
+  the wall.
+- **Openings lifted past the rim are reported.** An opening whose top edge ends
+  above `Box_Height` is cut open to the rim as a notch. That is still allowed,
+  but it used to happen without any message; the model now prints one.
+- **Closed boxes shallower than the default opening.** `All_Opening_Height`
+  was checked against `Box_Height` even with every side opening off, so a
+  12 mm box with closed walls was rejected for a 30 mm opening it never cuts.
+  The check now applies only when a side opening is on.
+
+Five regression scenarios cover these fixes, and each fails against the
+previous model.
+
+- **Sliced preset sizes.** `surge-strip-6-sliced` reported 270 mm, the width
+  of the preview layout with both halves side by side. It now reports the
+  assembled box (265 mm) and the largest printed piece (136 mm) separately, in
+  `library/index.json` and on the site. The site's printer-bed filter checks
+  that piece instead of passing every sliced preset regardless of bed size.
+- **Docs site links and metadata.** Canonical links, `og:url` and the sitemap
+  pointed at the `github.io` address, which only redirects to
+  `projects.prisantlabs.com`. Each page now also has its own meta description,
+  and the preset filter and tables follow the theme and fit a phone screen.
+- **Docs site dependencies.** `npm audit fix` cleared the critical Astro
+  advisory. Five high-severity advisories remain in a transitive dependency of
+  Starlight; their only offered fix is a major Astro downgrade.
+- **Tooling.** The test harness wrote Windows paths with backslashes into the
+  `.scad` it uses for point probes, where a backslash is an escape, so a run
+  from PowerShell reported false probe failures. A hung render now fails its
+  own scenario instead of the whole run, and `SCAD_TEST_TIMEOUT` sets the
+  limit. The options guide and the bundle header printed the model version as
+  "unknown", because they searched only the top of the file. Generated files
+  are written with LF line endings on Windows, and the maintenance scripts run
+  on macOS.
 
 ## [2.0.0] - 2026-08-07
 

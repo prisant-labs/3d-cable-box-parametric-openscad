@@ -6,7 +6,7 @@ traceability from an exported STL back to source.
 **Status:** Shipped in v1.1.1 (2026-07-29). `Model_Version` is echoed at
 render and `scripts/check-version.sh` fails the build when it disagrees with
 the changelog or a tag. The pre-release flow described here has been used
-twice: `v1.2.0-rc.1`, and `v2.0.0-rc.1`/`rc.2`.
+twice: `v1.2.0-rc.1`, and `v2.0.0-rc.1` through `rc.3`.
 
 **Effort:** S
 **Depends on:** nothing. Pairs with
@@ -97,7 +97,7 @@ relying on memory, and have CI fail the release if `Model_Version`, the tag, and
 the top `CHANGELOG.md` section disagree.
 
 Consider also embossing the version on the box underside behind a toggle,
-defaulting to off. Cheap once labels exist (backlog item 6), and it makes a
+defaulting to off. Cheap once labels exist ([backlog item 6 (labels)](BACKLOG.md)), and it makes a
 printed object self-identifying.
 
 ## Release checklist additions
