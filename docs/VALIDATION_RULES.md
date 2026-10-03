@@ -119,15 +119,22 @@ Fix: use `0` for touching fins, or any positive gap.
 ```scad
 assert(All_Opening_Height > 0 && All_Opening_Width > 0,
        "All_Opening_Height and All_Opening_Width must be > 0");
-assert(All_Opening_Height <= Box_Height,
-       "All_Opening_Height must not exceed Box_Height");
+assert(len([for (side = OPENING_SIDES) if (opening_enabled(side)) side]) == 0 ||
+       All_Opening_Height <= Box_Height, "All_Opening_Height must not exceed Box_Height");
 ```
 
 Why: openings must have real dimensions, and an opening taller than the wall
-removes the entire wall rather than cutting a slot in it.
+removes the entire wall rather than cutting a slot in it. The height bound
+applies only when at least one side opening is on, so a shallow box with
+closed walls is not blocked by an opening height it never cuts.
 
 Fix: keep the height at or below `Box_Height`. Width may be larger or smaller
 than height; vertical, horizontal, and square profiles are all allowed.
+
+This bound covers the height alone. An opening's top edge also moves with
+`All_Openings_Up` and its wall's `Move_Opening_*_Up`, and a lifted opening can
+end above the rim. That is reported rather than rejected; see
+[Clamped Values Rather Than Assertions](#clamped-values-rather-than-assertions).
 
 ### Override dimensions must be non-negative
 
@@ -280,13 +287,20 @@ so the two treatments cannot meet in the middle of a short box, and
 
 ```scad
 assert(Lid_Relief_Style != "Scallop" || Lid_Relief_Depth * 2 < Lid_Height, ...);
-assert(Lid_Relief_Style == "None" || Lid_Relief_Width < min(Box_Width, Box_Depth) - Corner_Radius * 2, ...);
+for (side = OPENING_SIDES)
+    assert(!lid_relief_requested(side) || Lid_Relief_Width < wall_length(side) - Corner_Radius * 2, ...);
 ```
 
 Why: a scallop is a half-cylinder groove, so its diameter is `Lid_Relief_Depth *
 2` and a deeper one cuts through both faces of the lid. A relief wider than the
 flat part of a wall runs into the rounded corners, where there is no flat face
 to cut or build on.
+
+The width check runs once per wall that has a relief turned on, against that
+wall's own length: `Box_Width` for Front and Back, `Box_Depth` for Left and
+Right. A long, narrow box can therefore carry a wide relief on its long walls.
+The message names the wall, for example "Lid_Relief_Width must leave the
+rounded corners alone on the Front wall".
 
 Fix: reduce `Lid_Relief_Depth`, reduce `Lid_Relief_Width`, or reduce
 `Box_Corner_Radius`.
@@ -331,6 +345,19 @@ When clamping occurs the model emits:
 ```
 ECHO: "Box_Corner_Radius reduced from 40 to 35.65 (limited by the inner cavity at Wall_Thickness=1.85)"
 ```
+
+A side opening whose top edge ends above the rim is reported the same way. Its
+top edge is the wall's lift (`All_Openings_Up` plus `Move_Opening_*_Up`) plus
+its height. Above `Box_Height`, the cut opens through the top of the wall as a
+notch, and its upper corners are lost. That shape is legal, since a slot open
+to the rim is a real use, so the model reports it and does not stop:
+
+```
+ECHO: "Front opening top edge at 65 mm is above Box_Height 50 mm; it is cut open to the rim as a notch"
+```
+
+An opening sized exactly to the wall stays quiet, because the check is strictly
+above `Box_Height`.
 
 Seam clip placement is corrected the same way. A clip whose center falls inside
 the post opening has no material to bond to, so its position is pushed clear of

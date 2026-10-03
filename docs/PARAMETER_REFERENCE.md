@@ -110,7 +110,11 @@ to grip. These give the lid somewhere to be held.
 A side is skipped automatically when an opening on that wall reaches the box
 rim. The relief is in the lid and openings are in the box, so they normally
 cannot meet; a full-height opening is the exception, and a tab standing over a
-hole grips nothing.
+hole grips nothing. The rim check uses the opening's real top edge, so it
+counts that wall's `Move_Opening_*_Up` as well as `All_Openings_Up`.
+
+`Lid_Relief_Width` is checked against each enabled wall's own length:
+`Box_Width` for Front and Back, `Box_Depth` for Left and Right.
 
 ## 4b) Lid Magnets
 
@@ -133,10 +137,10 @@ off the bed with no overhang and stiffen the corner.
 | Parameter | Type | Default | Description | Interactions |
 |---|---|---:|---|---|
 | `All_Opening_Width` | number | `10` | Default opening width on enabled side walls. | Used unless side-specific width override is greater than `0`. |
-| `All_Opening_Height` | number | `30` | Default opening height on enabled side walls. | Must be `> 0` and `<= Box_Height`. This is the true opening height; the cut is anchored at its bottom edge, not centered on the box floor. |
+| `All_Opening_Height` | number | `30` | Default opening height on enabled side walls. | Must be `> 0`, and `<= Box_Height` while any side opening is on. This is the true opening height; the cut is anchored at its bottom edge, not centered on the box floor. |
 | `All_Opening_Corner_Radius` | number | `-1` | Default corner radius for side openings. | `-1` keeps fully rounded ends; `0` is square; positive values are clamped to valid half-extents. |
 | `All_Openings_Right` | number | `0` | Global side-opening offset along each wall's local left/right direction. | Combines with each side-local `Move_Opening_*_to_Right` parameter. |
-| `All_Openings_Up` | number | `5` | Height of each side opening's bottom edge above the box floor. | `0` sits the opening flush with the box bottom, so a cable resting on the desk passes straight in. Raise it to lift openings off the surface. Combines with side-specific vertical offsets. |
+| `All_Openings_Up` | number | `5` | Height of each side opening's bottom edge above the box floor. | `0` sits the opening flush with the box bottom, so a cable resting on the desk passes straight in. Raise it to lift openings off the surface. Combines with side-specific vertical offsets. An opening lifted past the rim is cut open as a notch, and the model reports it with an `echo`. |
 | `Opening_On_Right` | boolean | `true` | Enables right wall opening. | Uses global size unless right override is set. |
 | `Opening_On_Left` | boolean | `true` | Enables left wall opening. | Uses global size unless left override is set. |
 | `Opening_On_Front` | boolean | `true` | Enables front wall opening. | Uses global size unless front override is set. |

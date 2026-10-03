@@ -698,6 +698,62 @@
       "defines": ["Part_To_Render=\"Box Only\"", "Enable_Lid_Magnets=true",
                   "Lid_Magnet_Diameter=40"],
       "expect": { "rc": 1, "message": "Magnet bosses do not fit" }
+    },
+    {
+      "name": "e04_lid_relief_skipped_by_per_wall_lift",
+      "_why": "The rim check once added only All_Openings_Up, so an opening raised",
+      "_why2": "to the rim by Move_Opening_Right_Up still got a tab over it. Only",
+      "_why3": "the right wall reaches the rim here, so the left tab must stay:",
+      "_why4": "the envelope is asymmetric, 54.4 on the left and 51.9 on the right.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Relief_Style=\"Tab\"",
+                  "Move_Opening_Right_Up=15"],
+      "expect": {
+        "rc": 0, "solids": 1,
+        "bbox": { "x": [-54.4, 51.9], "y": [-39.4, 39.4] }
+      }
+    },
+    {
+      "name": "e04_opening_above_rim_reported",
+      "_why": "An opening lifted past the rim is cut open to the top as a notch.",
+      "_why2": "That is legal, so it is reported rather than rejected; before the",
+      "_why3": "report it rendered with no message at all.",
+      "defines": ["Part_To_Render=\"Box Only\"", "All_Openings_Up=35"],
+      "expect": {
+        "rc": 0, "solids": 1,
+        "output_contains": "Front opening top edge at 65 mm is above Box_Height 50 mm"
+      }
+    },
+    {
+      "name": "e04_lid_relief_width_long_wall",
+      "_why": "The width check once used the shorter of the two walls for every",
+      "_why2": "relief. The left and right walls here are 150 mm, so a 100 mm",
+      "_why3": "relief fits them even though the 60 mm front wall could not take it.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Relief_Style=\"Tab\"",
+                  "Box_Width=60", "Box_Depth=150", "Lid_Relief_Width=100"],
+      "expect": {
+        "rc": 0, "solids": 1,
+        "bbox": { "x": [-34.4, 34.4], "y": [-76.9, 76.9] }
+      }
+    },
+    {
+      "name": "e04_lid_relief_width_short_wall_blocked",
+      "_why": "The same box still rejects a relief too long for its short wall,",
+      "_why2": "and the message names that wall.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Relief_Style=\"Tab\"",
+                  "Box_Width=60", "Box_Depth=150", "Lid_Relief_Width=60",
+                  "Lid_Relief_On_Left=false", "Lid_Relief_On_Right=false",
+                  "Lid_Relief_On_Front=true"],
+      "expect": { "rc": 1, "message": "rounded corners alone on the Front wall" }
+    },
+    {
+      "name": "validation_opening_height_ignored_when_walls_closed",
+      "_why": "The opening-height bound once fired with every side opening off,",
+      "_why2": "so a 12 mm box was rejected for a 30 mm opening it never cuts.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Box_Height=12",
+                  "Enable_Stabilizers=false", "Opening_On_Front=false",
+                  "Opening_On_Back=false", "Opening_On_Left=false",
+                  "Opening_On_Right=false"],
+      "expect": { "rc": 0, "solids": 1 }
     }
   ]
 }

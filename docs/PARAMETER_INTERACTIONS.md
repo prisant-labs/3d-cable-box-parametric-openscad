@@ -4,7 +4,7 @@ This page captures interactions that most affect model behavior and print outcom
 
 ## Side Openings
 
-## Global vs per-side dimensions
+### Global vs per-side dimensions
 
 - Global: `All_Opening_Width`, `All_Opening_Height`, `All_Opening_Corner_Radius`
 - Per-side width/height overrides apply when override value is greater than `0`.
@@ -19,13 +19,19 @@ Corner-radius behavior:
 - `All_Opening_Corner_Radius = -1` keeps fully rounded slot ends.
 - Side override radius `>= 0` takes precedence (`0` square, `>0` rounded rectangle).
 
-## Global and local offsets combine
+### Global and local offsets combine
 
 Global offset terms are added to side-local terms, but axis semantics differ by wall.
 
 Implication:
 
 - If placement looks wrong, zero global offsets first and tune side-local offsets independently.
+
+The vertical terms combine the same way. An opening's top edge is
+`All_Openings_Up + Move_Opening_<wall>_Up + its height`. When that passes
+`Box_Height`, the opening is cut open to the rim as a notch and the model
+reports it with an `echo`. When it comes within `Wall_Thickness` of the rim,
+the lid relief on that wall is skipped.
 
 ## Stabilizers and Side Openings
 
