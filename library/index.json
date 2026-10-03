@@ -170,7 +170,7 @@
           },
           "image": {
             "path": "desk-compact/images/desk-compact_box-only.png",
-            "bytes": 26351
+            "bytes": 27341
           }
         },
         {
@@ -191,7 +191,7 @@
           },
           "image": {
             "path": "desk-compact/images/desk-compact_lid-only.png",
-            "bytes": 20188
+            "bytes": 20421
           }
         },
         {
@@ -212,7 +212,7 @@
           },
           "image": {
             "path": "desk-compact/images/desk-compact_box-and-lid.png",
-            "bytes": 16545
+            "bytes": 16795
           }
         }
       ],
@@ -273,7 +273,7 @@
           },
           "image": {
             "path": "laptop-brick/images/laptop-brick_box-only.png",
-            "bytes": 25919
+            "bytes": 27512
           }
         },
         {
@@ -294,7 +294,7 @@
           },
           "image": {
             "path": "laptop-brick/images/laptop-brick_lid-only.png",
-            "bytes": 19429
+            "bytes": 19120
           }
         },
         {
@@ -315,7 +315,7 @@
           },
           "image": {
             "path": "laptop-brick/images/laptop-brick_box-and-lid.png",
-            "bytes": 19627
+            "bytes": 20432
           }
         }
       ],
@@ -376,7 +376,7 @@
           },
           "image": {
             "path": "usb-charger/images/usb-charger_box-only.png",
-            "bytes": 25978
+            "bytes": 27182
           }
         },
         {
@@ -397,7 +397,7 @@
           },
           "image": {
             "path": "usb-charger/images/usb-charger_lid-only.png",
-            "bytes": 20848
+            "bytes": 20820
           }
         },
         {
@@ -418,7 +418,7 @@
           },
           "image": {
             "path": "usb-charger/images/usb-charger_box-and-lid.png",
-            "bytes": 14901
+            "bytes": 15385
           }
         }
       ],
@@ -479,7 +479,7 @@
           },
           "image": {
             "path": "monitor-junction/images/monitor-junction_box-only.png",
-            "bytes": 25199
+            "bytes": 26256
           }
         },
         {
@@ -500,7 +500,7 @@
           },
           "image": {
             "path": "monitor-junction/images/monitor-junction_lid-only.png",
-            "bytes": 19329
+            "bytes": 18857
           }
         },
         {
@@ -521,7 +521,7 @@
           },
           "image": {
             "path": "monitor-junction/images/monitor-junction_box-and-lid.png",
-            "bytes": 20869
+            "bytes": 21749
           }
         }
       ],
@@ -582,7 +582,7 @@
           },
           "image": {
             "path": "surge-strip-6/images/surge-strip-6_box-only.png",
-            "bytes": 23615
+            "bytes": 24825
           }
         },
         {
@@ -603,7 +603,7 @@
           },
           "image": {
             "path": "surge-strip-6/images/surge-strip-6_lid-only.png",
-            "bytes": 18369
+            "bytes": 18284
           }
         },
         {
@@ -624,7 +624,7 @@
           },
           "image": {
             "path": "surge-strip-6/images/surge-strip-6_box-and-lid.png",
-            "bytes": 23476
+            "bytes": 24715
           }
         }
       ],
@@ -688,7 +688,7 @@
           },
           "image": {
             "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_box-only.png",
-            "bytes": 25091
+            "bytes": 26347
           }
         },
         {
@@ -709,7 +709,7 @@
           },
           "image": {
             "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_lid-only.png",
-            "bytes": 20726
+            "bytes": 20751
           }
         },
         {
@@ -730,7 +730,7 @@
           },
           "image": {
             "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_box-and-lid.png",
-            "bytes": 21176
+            "bytes": 22019
           }
         }
       ],
@@ -793,7 +793,7 @@
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_box-only.png",
-            "bytes": 25288
+            "bytes": 27141
           }
         },
         {
@@ -814,7 +814,7 @@
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_lid-only.png",
-            "bytes": 23157
+            "bytes": 22607
           }
         },
         {
@@ -835,7 +835,7 @@
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_box-and-lid.png",
-            "bytes": 18012
+            "bytes": 18445
           }
         }
       ],
@@ -844,7 +844,7 @@
           "slug": "underside",
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_underside.png",
-            "bytes": 31716
+            "bytes": 32804
           }
         }
       ]
@@ -905,7 +905,7 @@
           },
           "image": {
             "path": "router-shelf/images/router-shelf_box-only.png",
-            "bytes": 25903
+            "bytes": 27373
           }
         },
         {
@@ -926,7 +926,7 @@
           },
           "image": {
             "path": "router-shelf/images/router-shelf_lid-only.png",
-            "bytes": 18643
+            "bytes": 18261
           }
         },
         {
@@ -947,7 +947,7 @@
           },
           "image": {
             "path": "router-shelf/images/router-shelf_box-and-lid.png",
-            "bytes": 23511
+            "bytes": 24661
           }
         }
       ],
@@ -1011,7 +1011,7 @@
           },
           "image": {
             "path": "under-desk-passthrough/images/under-desk-passthrough_box-only.png",
-            "bytes": 23147
+            "bytes": 24925
           }
         },
         {
@@ -1032,7 +1032,7 @@
           },
           "image": {
             "path": "under-desk-passthrough/images/under-desk-passthrough_lid-only.png",
-            "bytes": 17849
+            "bytes": 17438
           }
         },
         {
@@ -1053,7 +1053,7 @@
           },
           "image": {
             "path": "under-desk-passthrough/images/under-desk-passthrough_box-and-lid.png",
-            "bytes": 17310
+            "bytes": 18713
           }
         }
       ],

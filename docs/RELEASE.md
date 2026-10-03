@@ -48,6 +48,14 @@ metadata or renders changed. It reports how many renders it wrote versus left
 alone; unchanged renders are deliberately not rewritten, because OpenSCAD's
 rasteriser is not byte-deterministic and would otherwise dirty every image.
 
+Two more generators do not embed the version, but they go stale the same way.
+Rerun them when default geometry or the preview palette changes:
+
+```bash
+python scripts/build_options_guide.py            # docs/images/options/ + options-guide.html
+python scripts/build_readme_images.py            # README hero and feature images
+```
+
 - [ ] Regenerate whichever apply, and check `git status` matches expectations.
 - [ ] If a preset's parameters changed, rebuild without `--no-stl`.
 
