@@ -1,0 +1,162 @@
+name: release
+
+# Three ways in:
+#   - push of a real version tag: the actual release path, ends in a draft
+#     GitHub release.
+#   - workflow_dispatch with a tag: a dry run of everything up to (but not
+#     including) creating a release, against a tag of your choosing.
+#   - pull_request touching the release machinery itself: so a change to this
+#     workflow or to the scripts it calls is exercised in review, not just on
+#     the next real tag.
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: >-
+          Tag to dry-run (e.g. v2.0.0-rc.4). Nothing is tagged or released;
+          this only exercises packaging and release-notes generation. Leave
+          blank to derive a plausible rc tag from Model_Version.
+        required: false
+        type: string
+  pull_request:
+    paths:
+      - '.github/workflows/release.yml'
+      - 'scripts/package_release.py'
+      - 'scripts/release_notes.py'
+      - 'scripts/build_bundle.py'
+
+# Read-only by default. Only the publish job, which runs on tags alone, can
+# write, so a pull-request or dry run never holds a token that can release.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Determine the tag for this run
+        id: tag
+        env:
+          # Passed through the environment, never pasted into the script, so a
+          # dispatch input cannot inject shell.
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            tag="${GITHUB_REF#refs/tags/}"
+          elif [ -n "$INPUT_TAG" ]; then
+            if [[ ! "$INPUT_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$ ]]; then
+              echo "tag input must look like v1.2.3 or v1.2.3-rc.4, got: $INPUT_TAG" >&2
+              exit 1
+            fi
+            tag="$INPUT_TAG"
+          else
+            # PR runs and a dispatch with no tag given: exercise the release-
+            # candidate notes path with a plausible tag nobody will push,
+            # using check-version.sh's own grep so the two cannot disagree.
+            version=$(grep -oE '^Model_Version[[:space:]]*=[[:space:]]*"[^"]+"' cable-box-parametric.scad \
+                        | grep -oE '"[^"]+"' | tr -d '"')
+            tag="v${version}-rc.0"
+          fi
+          echo "Resolved tag: $tag"
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Check version consistency
+        run: bash scripts/check-version.sh
+
+      - name: Install OpenSCAD
+        run: sudo apt-get update && sudo apt-get install -y openscad
+
+      - name: Read the BOSL2 pin from scad-smoke.yml
+        run: |
+          ref=$(grep -oE '^\s*BOSL2_REF:\s*\S+' .github/workflows/scad-smoke.yml | awk '{print $2}')
+          if [ -z "$ref" ]; then
+            echo "could not read BOSL2_REF out of .github/workflows/scad-smoke.yml" >&2
+            exit 1
+          fi
+          echo "Pinned to BOSL2 $ref (same pin as scad-smoke; bump it there with scripts/bump-bosl2.sh)"
+          echo "BOSL2_REF=$ref" >> "$GITHUB_ENV"
+
+      - name: Install BOSL2 (pinned, same ref as scad-smoke)
+        run: |
+          mkdir -p "$HOME/.local/share/OpenSCAD/libraries"
+          git clone --no-checkout https://github.com/BelfrySCAD/BOSL2.git \
+            "$HOME/.local/share/OpenSCAD/libraries/BOSL2"
+          git -C "$HOME/.local/share/OpenSCAD/libraries/BOSL2" checkout -q "$BOSL2_REF"
+          grep -m1 BOSL_VERSION "$HOME/.local/share/OpenSCAD/libraries/BOSL2/version.scad"
+
+      - name: Geometry regression tests
+        run: python3 tests/run_tests.py
+
+      - name: Build standalone bundle
+        run: python3 scripts/build_bundle.py
+
+      - name: Verify the bundle renders with no library installed
+        run: |
+          # Move BOSL2 out of reach, so a bundle that still depends on it fails
+          # here rather than in a user's hands. Mirrors scad-smoke.yml exactly.
+          mv "$HOME/.local/share/OpenSCAD/libraries/BOSL2" /tmp/BOSL2-hidden
+          openscad -o /tmp/bundle.stl dist/cable-box-parametric-bundled.scad 2>&1 | tee /tmp/bundle.log
+          mv /tmp/BOSL2-hidden "$HOME/.local/share/OpenSCAD/libraries/BOSL2"
+          if grep -qE 'ERROR|WARNING' /tmp/bundle.log; then
+            echo "bundle did not render cleanly standalone"; exit 1
+          fi
+          test -s /tmp/bundle.stl || { echo "bundle produced no STL"; exit 1; }
+          echo "bundle renders standalone"
+
+      - name: Package release assets
+        run: python3 scripts/package_release.py
+
+      - name: Generate release notes
+        run: |
+          # Written to the repo root, not dist/release/, so it is never
+          # mistaken for a release asset. Runs before any draft is created,
+          # so a final tag with unfolded [Unreleased] entries fails here.
+          python3 scripts/release_notes.py "$TAG" > notes.md
+          echo "----- notes.md -----"
+          cat notes.md
+
+      - name: Upload release assets and notes
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: release-${{ env.TAG }}
+          path: |
+            dist/release
+            notes.md
+          if-no-files-found: warn
+
+  publish:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      # The artifact keeps paths relative to the workspace root, so it holds
+      # dist/release/* and notes.md exactly as the build job wrote them.
+      - name: Download release assets and notes
+        uses: actions/download-artifact@v5
+        with:
+          name: release-${{ needs.build.outputs.tag }}
+          path: release
+
+      - name: Create draft GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          args=(--draft --verify-tag --title "$TAG" --notes-file release/notes.md)
+          case "$TAG" in
+            *-*) args+=(--prerelease) ;;
+          esac
+          gh release create "$TAG" "${args[@]}" release/dist/release/*

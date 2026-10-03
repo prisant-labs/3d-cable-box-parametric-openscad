@@ -120,7 +120,9 @@ def main() -> int:
     print(f"BOSL2 {version} from {root}")
 
     model = MODEL.read_text(encoding="utf-8", errors="replace").splitlines()
-    model_version = next((l.split('"')[1] for l in model[:80]
+    # Search the whole file: Model_Version sits below the Customizer sections,
+    # past any fixed header window.
+    model_version = next((l.split('"')[1] for l in model
                           if l.startswith("Model_Version")), "unknown")
 
     header = [
