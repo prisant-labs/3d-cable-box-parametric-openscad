@@ -133,6 +133,8 @@
         80.0,
         55.0
       ],
+      "assembled_size_mm": null,
+      "largest_piece_mm": null,
       "features": {
         "gridfinity_bottom": false,
         "gridfinity_lid_top": false,
@@ -236,6 +238,8 @@
         105.0,
         70.0
       ],
+      "assembled_size_mm": null,
+      "largest_piece_mm": null,
       "features": {
         "gridfinity_bottom": false,
         "gridfinity_lid_top": false,
@@ -339,6 +343,8 @@
         75.0,
         45.0
       ],
+      "assembled_size_mm": null,
+      "largest_piece_mm": null,
       "features": {
         "gridfinity_bottom": false,
         "gridfinity_lid_top": false,
@@ -442,6 +448,8 @@
         95.0,
         62.0
       ],
+      "assembled_size_mm": null,
+      "largest_piece_mm": null,
       "features": {
         "gridfinity_bottom": false,
         "gridfinity_lid_top": false,
@@ -545,6 +553,8 @@
         100.0,
         62.0
       ],
+      "assembled_size_mm": null,
+      "largest_piece_mm": null,
       "features": {
         "gridfinity_bottom": false,
         "gridfinity_lid_top": false,
@@ -651,6 +661,16 @@
         100.0,
         62.58
       ],
+      "assembled_size_mm": [
+        265.0,
+        100.0,
+        62.58
+      ],
+      "largest_piece_mm": [
+        136.46,
+        100.0,
+        62.58
+      ],
       "features": {
         "gridfinity_bottom": false,
         "gridfinity_lid_top": false,
@@ -667,7 +687,7 @@
       },
       "notes": {
         "path": "surge-strip-6-sliced/notes.md",
-        "bytes": 722
+        "bytes": 793
       },
       "parts": [
         {
@@ -756,6 +776,8 @@
         100.0,
         59.75
       ],
+      "assembled_size_mm": null,
+      "largest_piece_mm": null,
       "features": {
         "gridfinity_bottom": true,
         "gridfinity_lid_top": true,
@@ -868,6 +890,8 @@
         130.0,
         75.0
       ],
+      "assembled_size_mm": null,
+      "largest_piece_mm": null,
       "features": {
         "gridfinity_bottom": false,
         "gridfinity_lid_top": false,
@@ -974,6 +998,8 @@
         85.0,
         50.0
       ],
+      "assembled_size_mm": null,
+      "largest_piece_mm": null,
       "features": {
         "gridfinity_bottom": false,
         "gridfinity_lid_top": false,

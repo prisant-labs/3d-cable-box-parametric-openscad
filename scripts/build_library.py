@@ -337,16 +337,31 @@ def to_gltf_axes(mesh):
                       faces=mesh.faces, process=False)
 
 
-def to_glb(stl: Path) -> bool:
-    """Write <stl>.glb beside an STL. False if it could not be written."""
+def _import_trimesh():
+    """trimesh if installed, else None with a one-time console note.
+
+    Shared by to_glb and largest_piece: both are optional, trimesh-dependent
+    features that fail the same way for the same reason, and reporting a
+    missing dependency twice per preset would be noise for one fix
+    (pip install trimesh).
+    """
     global _TRIMESH_MISSING_REPORTED
     try:
         import trimesh
+        return trimesh
     except ImportError:
         if not _TRIMESH_MISSING_REPORTED:
             print("      NOTE: trimesh not installed, skipping GLB previews "
-                  "(pip install trimesh). STLs and renders are unaffected.")
+                  "and largest_piece_mm (pip install trimesh). STLs, renders "
+                  "and other index.json fields are unaffected.")
             _TRIMESH_MISSING_REPORTED = True
+        return None
+
+
+def to_glb(stl: Path) -> bool:
+    """Write <stl>.glb beside an STL. False if it could not be written."""
+    trimesh = _import_trimesh()
+    if trimesh is None:
         return False
     try:
         mesh = to_gltf_axes(canonical_mesh(trimesh.load(stl, force="mesh")))
@@ -359,6 +374,76 @@ def to_glb(stl: Path) -> bool:
         return False
     stl.with_suffix(".glb").write_bytes(data)
     return True
+
+
+def largest_piece(stl: Path) -> tuple[float, float, float] | None:
+    """[x, y, z] extent of the largest printed piece in a box-only STL.
+
+    A sliced preset's box-only STL lays every piece out side by side so the
+    render shows them all at once (see sliced_box_sizes below); each
+    connected body in that STL is one printed piece, protruding clips
+    included, because those clips are physically part of what has to lie
+    flat on the print bed. "Largest" is by footprint, matching how a slicer
+    decides whether a part fits a bed: max(x, y) of whichever body has the
+    biggest one, not total volume.
+
+    None if the STL does not exist, trimesh is not installed, or the mesh
+    cannot be read -- a size that cannot be computed is not a build failure,
+    the same as a GLB that fails to convert.
+    """
+    if not stl.exists():
+        return None
+    trimesh = _import_trimesh()
+    if trimesh is None:
+        return None
+    try:
+        mesh = trimesh.load(stl, force="mesh")
+        bodies = mesh.split(only_watertight=False)
+        if len(bodies) == 0:
+            return None
+        best = max(bodies, key=lambda b: max(b.extents[0], b.extents[1]))
+        x, y, z = best.extents
+        return (round(float(x), 2), round(float(y), 2), round(float(z), 2))
+    except Exception as exc:                       # noqa: BLE001
+        print(f"      NOTE: largest_piece_mm failed for {stl.name}: "
+              f"{type(exc).__name__}: {exc}")
+        return None
+
+
+def sliced_box_sizes(name: str, eff: dict, dims) -> tuple[list[float] | None, list[float] | None]:
+    """Assembled box size and the largest single printed piece.
+
+    (None, None) for a preset that does not slice, or when dims (the
+    box-only STL's bounding box) is unknown.
+
+    box_size_mm records the box-only STL's own bounding box, which for a
+    sliced preset is the preview layout: every piece laid out side by side so
+    one render shows them all, not a size that corresponds to anything
+    printed or owned. Nobody prints that layout and nobody has the assembled
+    box as a single piece either, because it does not exist until the pieces
+    are joined.
+
+    assembled_size_mm is the box that exists once the pieces are joined: its
+    width is Box_Width, read from the effective (default-merged) parameters
+    rather than the preview STL, because slicing does not change the box's
+    depth or height, dims' y and z extents are reused unchanged.
+
+    largest_piece_mm is the single biggest piece from largest_piece() above,
+    which is the one a bed-fit check actually needs: a preset can be narrower
+    assembled than any one printer bed and still fail to fit if that is not
+    also true of its largest piece.
+    """
+    if not eff.get("Enable_Slicing") or not dims:
+        return None, None
+    box_width = eff.get("Box_Width")
+    assembled = (
+        [round(float(box_width), 2), round(dims[1], 2), round(dims[2], 2)]
+        if box_width is not None else None
+    )
+    stl = LIB / name / "stl" / f"{name}_box-only.stl"
+    piece = largest_piece(stl)
+    largest = list(piece) if piece else None
+    return assembled, largest
 
 
 def part_entries(name: str, box_only_dims) -> list[dict]:
@@ -407,6 +492,7 @@ def preset_entry(preset: dict, defaults: dict, dims) -> dict:
     name = preset["name"]
     eff = dict(defaults, **preset["params"])
     sliced = bool(eff.get("Enable_Slicing"))
+    assembled_size_mm, largest_piece_mm = sliced_box_sizes(name, eff, dims)
     return {
         "name": name,
         "title": preset["title"],
@@ -414,6 +500,14 @@ def preset_entry(preset: dict, defaults: dict, dims) -> dict:
         "note": preset.get("note"),
         "params": dict(preset["params"]),
         "box_size_mm": [round(v, 2) for v in dims] if dims else None,
+        # assembled_size_mm / largest_piece_mm (schema 1, additive): only a
+        # sliced preset gets these, and only once a box-only STL exists to
+        # measure. Both None otherwise. See sliced_box_sizes() for why
+        # box_size_mm is not enough on its own for a sliced preset: it is the
+        # preview layout, not the assembled box or the piece that has to fit
+        # a bed. largest_piece_mm is also None when trimesh is not installed.
+        "assembled_size_mm": assembled_size_mm,
+        "largest_piece_mm": largest_piece_mm,
         "features": {
             "gridfinity_bottom": eff.get("Enable_Gridfinity_Bottom"),
             "gridfinity_lid_top": eff.get("Enable_Gridfinity_Lid_Top"),
@@ -517,6 +611,11 @@ def main() -> int:
     presets = [p for p in PRESETS if not args.only or args.only in p["name"]]
     print(f"OpenSCAD: {scad}\nBuilding {len(presets)} preset(s)\n")
 
+    # Read once up front: notes.md (below, per preset built this run) and
+    # index.json (after the loop, for every preset) both need the effective,
+    # default-merged parameters to tell whether a preset slices.
+    defaults = customizer_defaults()
+
     built_dims = {}
     png_written = png_kept = glb_written = 0
     for preset in presets:
@@ -583,7 +682,18 @@ def main() -> int:
                  preset["fits"], ""]
         if preset.get("note"):
             notes += [f"**Note:** {preset['note']}", ""]
-        if dims:
+        eff = dict(defaults, **preset["params"])
+        assembled, largest = sliced_box_sizes(name, eff, dims)
+        if assembled:
+            notes += [f"Assembled box: `{assembled[0]:.1f} x {assembled[1]:.1f} x "
+                      f"{assembled[2]:.1f} mm`", ""]
+            if largest:
+                notes += [f"Largest printed piece: `{largest[0]:.1f} x {largest[1]:.1f} x "
+                          f"{largest[2]:.1f} mm` (includes protruding clips)", ""]
+            else:
+                notes += ["Largest printed piece: unknown "
+                          "(trimesh not installed; pip install trimesh)", ""]
+        elif dims:
             notes += [f"Printed box envelope: `{dims[0]:.1f} x {dims[1]:.1f} x {dims[2]:.1f} mm`", ""]
         notes += ["## Parameters", "", "| Parameter | Value |", "|---|---|"]
         notes += [f"| `{k}` | `{v}` |" for k, v in sorted(preset["params"].items())]
@@ -600,7 +710,6 @@ def main() -> int:
     # `--only gridfinity-module` run shipped an index listing a single preset
     # while eight valid ones sat beside it on disk. Presets not rebuilt this
     # run get their dimensions from the STL already on disk.
-    defaults = customizer_defaults()
     index_rows = []
     index_presets = []
     for preset in PRESETS:
@@ -610,9 +719,21 @@ def main() -> int:
             stl = LIB / name / "stl" / f"{name}_box-only.stl"
             if stl.exists():
                 dims = bbox_size(stl_bbox(stl))
-        size = f"{dims[0]:.0f} x {dims[1]:.0f} x {dims[2]:.0f}" if dims else "n/a"
+        entry = preset_entry(preset, defaults, dims)
+        a, lp = entry["assembled_size_mm"], entry["largest_piece_mm"]
+        if a:
+            # Sliced: box_size_mm (what `dims` holds) is the preview layout, so
+            # the README column shows the size that matters instead -- the
+            # assembled box, and the one piece that has to fit a bed.
+            size = f"{a[0]:.0f} x {a[1]:.0f} x {a[2]:.0f} assembled"
+            size += (f"; {lp[0]:.0f} x {lp[1]:.0f} x {lp[2]:.0f} largest piece" if lp
+                     else "; largest piece unknown (trimesh not installed)")
+        elif dims:
+            size = f"{dims[0]:.0f} x {dims[1]:.0f} x {dims[2]:.0f}"
+        else:
+            size = "n/a"
         index_rows.append((name, preset["title"], preset["fits"], size))
-        index_presets.append(preset_entry(preset, defaults, dims))
+        index_presets.append(entry)
 
     # The machine-readable twin of library/README.md, for the docs site's preset
     # browser and anything else that would otherwise scrape the folder tree.

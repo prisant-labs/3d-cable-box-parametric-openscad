@@ -4,8 +4,15 @@ import starlight from '@astrojs/starlight';
 
 // GitHub Pages project site: served under /<repo>/, so `base` is required and
 // internal links in the content use relative paths to stay under it.
+//
+// `site` is the custom domain, not the github.io host the repo is actually
+// hosted from: the org's Pages site answers to projects.prisantlabs.com, and
+// prisant-labs.github.io/3d-cable-box-parametric-openscad/ 301-redirects
+// there. Astro bakes `site` into the canonical link, og:url and the sitemap,
+// so pointing it at the github.io host would make every one of those lie
+// about where the page actually lives.
 export default defineConfig({
-	site: 'https://prisant-labs.github.io',
+	site: 'https://projects.prisantlabs.com',
 	base: '/3d-cable-box-parametric-openscad',
 	integrations: [
 		starlight({

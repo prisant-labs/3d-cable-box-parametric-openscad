@@ -1,5 +1,9 @@
 # Documentation Index
 
+Every page in the documentation set and every generated file beside it, with
+one line on what each covers, so you can find the right page before you open
+one.
+
 - `index.md`: Site landing page for the docs site and local builds.
 - `OPTIONS_GUIDE.md`: Every parameter rendered from the model, with images.
 - `options-guide.html`: The same guide as one self-contained file that works offline.
@@ -9,9 +13,13 @@
 - `VALIDATION_RULES.md`: Assertion constraints, triggers, and resolution guidance.
 - `PARAMETER_INTERACTIONS.md`: Cross-parameter behavior and tuning order.
 - `WORKFLOWS.md`: Practical setup, calibration, slicing, and troubleshooting workflows.
-- `PRINTING.md`: Printing-specific baseline settings and process guidance.
+- `PRINTING.md`: Printing-specific baseline settings and process guidance,
+  including Gridfinity, magnets, edge treatment, and the calibration coupons.
 - `FAQ.md`: Common questions and issue resolution.
-- `RELEASE.md`: Release checklist, from version bump through snapshot.
+- `RELEASE.md`: Release checklist, from version bump through the drafted
+  GitHub release that `.github/workflows/release.yml` creates from a tag.
+- `../calibration/README.md`: Small test prints that each check one fit, such
+  as the lid gap, a Gridfinity base, or a seam clip, before a full box.
 - `../library/README.md`: The nine presets, what each fits, and their sizes.
   The same catalogue with 3D previews and downloads is the
   [preset library](../library/), which resolves to the browser on the docs site
