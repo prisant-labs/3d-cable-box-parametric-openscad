@@ -48,6 +48,31 @@ const badges = featureLabels(preset.features);
 			</p>
 		)
 	}
+	{
+		// A sliced preset's box-only STL (and so every part's size_mm below) is
+		// the preview layout -- every piece laid out side by side so one render
+		// shows them all -- not a size anyone experiences: nobody prints that
+		// layout, and the assembled box does not exist as a single piece until
+		// the pieces are joined. Show both real sizes once, up front, instead.
+		preset.features.sliced && preset.assembled_size_mm && (
+			<p class="sizes">
+				<strong>Assembled box:</strong> {formatSize(preset.assembled_size_mm)}
+				{preset.largest_piece_mm ? (
+					<>
+						{' '}
+						&middot; <strong>Largest printed piece:</strong>{' '}
+						{formatSize(preset.largest_piece_mm)} (includes protruding clips)
+					</>
+				) : (
+					<>
+						{' '}
+						&middot; largest printed piece unknown (trimesh not installed at build
+						time)
+					</>
+				)}
+			</p>
+		)
+	}
 
 	<h2 id="preview">Preview</h2>
 	{
@@ -94,39 +119,41 @@ const badges = featureLabels(preset.features);
 	}
 
 	<h2 id="downloads">Downloads</h2>
-	<table>
-		<thead>
-			<tr><th>Part</th><th>Size</th><th>STL</th><th>GLB</th></tr>
-		</thead>
-		<tbody>
-			{
-				parts.map((part) => (
-					<tr>
-						<td>{part.label}</td>
-						<td class="mono">{formatSize(part.size_mm)}</td>
-						<td>
-							{part.stl ? (
-								<a href={libraryUrl(base, part.stl.path)} download>
-									STL ({formatBytes(part.stl.bytes)})
-								</a>
-							) : (
-								<span class="absent">not built</span>
-							)}
-						</td>
-						<td>
-							{part.glb ? (
-								<a href={libraryUrl(base, part.glb.path)} download>
-									GLB ({formatBytes(part.glb.bytes)})
-								</a>
-							) : (
-								<span class="absent">not built</span>
-							)}
-						</td>
-					</tr>
-				))
-			}
-		</tbody>
-	</table>
+	<div class="table-wrap">
+		<table>
+			<thead>
+				<tr><th>Part</th><th>Size</th><th>STL</th><th>GLB</th></tr>
+			</thead>
+			<tbody>
+				{
+					parts.map((part) => (
+						<tr>
+							<td>{part.label}</td>
+							<td class="mono">{formatSize(part.size_mm)}</td>
+							<td>
+								{part.stl ? (
+									<a href={libraryUrl(base, part.stl.path)} download>
+										STL ({formatBytes(part.stl.bytes)})
+									</a>
+								) : (
+									<span class="absent">not built</span>
+								)}
+							</td>
+							<td>
+								{part.glb ? (
+									<a href={libraryUrl(base, part.glb.path)} download>
+										GLB ({formatBytes(part.glb.bytes)})
+									</a>
+								) : (
+									<span class="absent">not built</span>
+								)}
+							</td>
+						</tr>
+					))
+				}
+			</tbody>
+		</table>
+	</div>
 
 	{
 		preset.config && (
@@ -148,26 +175,28 @@ const badges = featureLabels(preset.features);
 		the model default, and the full list of defaults is in the{' '}
 		<a href={`${base}/parameter-reference/`}>parameter reference</a>.
 	</p>
-	<table>
-		<thead>
-			<tr><th>Parameter</th><th>Value</th><th>Default</th></tr>
-		</thead>
-		<tbody>
-			{
-				Object.entries(preset.params)
-					.sort(([a], [b]) => a.localeCompare(b))
-					.map(([key, value]) => (
-						<tr>
-							<td class="mono">{key}</td>
-							<td class="mono">{String(value)}</td>
-							<td class="mono absent">
-								{key in library.defaults ? String(library.defaults[key]) : '?'}
-							</td>
-						</tr>
-					))
-			}
-		</tbody>
-	</table>
+	<div class="table-wrap">
+		<table>
+			<thead>
+				<tr><th>Parameter</th><th>Value</th><th>Default</th></tr>
+			</thead>
+			<tbody>
+				{
+					Object.entries(preset.params)
+						.sort(([a], [b]) => a.localeCompare(b))
+						.map(([key, value]) => (
+							<tr>
+								<td class="mono">{key}</td>
+								<td class="mono">{String(value)}</td>
+								<td class="mono absent">
+									{key in library.defaults ? String(library.defaults[key]) : '?'}
+								</td>
+							</tr>
+						))
+				}
+			</tbody>
+		</table>
+	</div>
 
 	{
 		preset.extra_images.length > 0 && (
@@ -215,6 +244,16 @@ const badges = featureLabels(preset.features);
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.3rem;
+	}
+	.sizes {
+		font-family: var(--sl-font-mono, monospace);
+		font-size: var(--sl-text-sm);
+	}
+	/* The Downloads and Parameters tables have a fixed column count but a
+	   phone-width viewport does not; scope scrolling to the table instead of
+	   letting it widen the page and force horizontal scroll on everything. */
+	.table-wrap {
+		overflow-x: auto;
 	}
 	.badge {
 		font-size: var(--sl-text-xs);

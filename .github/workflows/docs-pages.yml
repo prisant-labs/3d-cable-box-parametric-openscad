@@ -3,6 +3,8 @@ name: docs-pages
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -10,9 +12,15 @@ permissions:
   pages: write
   id-token: write
 
+# A PR build must never cancel a live deploy: a push to main and the PR that
+# introduced it would otherwise share one queue slot and race. Scoping the
+# group by ref keeps every ref's builds serialized against themselves while
+# leaving every other ref alone, and cancel-in-progress stays true for
+# everything but main, where a half-deployed site is worse than a slightly
+# stale queue.
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: pages-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build:
@@ -41,16 +49,23 @@ jobs:
         run: npm run build
         working-directory: web
 
+      # A pull_request run still builds the site (so a dependency break, like
+      # the three/model-viewer peer conflict, shows up in review) but never
+      # deploys: there is nothing to configure Pages for or to hand the
+      # deploy job on a branch that will not be published.
       - name: Setup Pages
+        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v6
 
       - name: Upload artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
           path: web/dist
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

@@ -2,7 +2,8 @@
 
 [Astro Starlight](https://starlight.astro.build/) site publishing the
 repository's documentation to GitHub Pages at
-<https://prisant-labs.github.io/3d-cable-box-parametric-openscad/>.
+<https://projects.prisantlabs.com/3d-cable-box-parametric-openscad/>. (The
+organisation's `prisant-labs.github.io` address redirects there.)
 
 The content is not authored here. `sync-docs.mjs` regenerates
 `src/content/docs/` from the repo's `docs/` directory before every dev run and

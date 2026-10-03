@@ -44,6 +44,17 @@ export interface Preset {
 	note: string | null;
 	params: Record<string, string | number | boolean>;
 	box_size_mm: [number, number, number] | null;
+	// Set only for a sliced preset (features.sliced), and only once a box-only
+	// STL exists to measure; null otherwise, including when largest_piece_mm
+	// could not be computed because trimesh was not installed at build time.
+	// box_size_mm for a sliced preset is the preview layout -- every piece
+	// laid out side by side so one render shows them all -- not a size that
+	// corresponds to anything printed or owned. assembled_size_mm is the box
+	// that exists once the pieces are joined; largest_piece_mm is the [x, y,
+	// z] extent of the single biggest printed piece, protruding clips
+	// included, which is what a bed-fit check actually needs.
+	assembled_size_mm: [number, number, number] | null;
+	largest_piece_mm: [number, number, number] | null;
 	features: Features;
 	config: FileRef;
 	notes: FileRef;

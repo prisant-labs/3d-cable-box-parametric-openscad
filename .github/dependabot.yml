@@ -1,0 +1,39 @@
+version: 2
+
+updates:
+  # web/ is the Astro Starlight docs site (web/package.json). Grouping every
+  # npm bump into one monthly PR keeps this from drowning the repo in
+  # single-dependency PRs the way the default per-update behaviour would.
+  - package-ecosystem: "npm"
+    directory: "/web"
+    schedule:
+      interval: "monthly"
+    groups:
+      web-npm:
+        patterns:
+          - "*"
+    ignore:
+      # three is 0.x, so npm/semver treats 0.183 -> 0.184 as a MINOR bump, and
+      # @google/model-viewer 4.3.1 pins a peerDependency of three ^0.183.0.
+      # `npm install` tolerates violating that; `npm ci` (what CI and this
+      # workflow's pull_request build both run) rejects it outright and the
+      # build breaks. Bump three only together with @google/model-viewer,
+      # once a model-viewer release widens its peer range to match. This
+      # ignore rule plus the docs-pages.yml pull_request build (added
+      # alongside this file) are the two guards against that trap: this stops
+      # Dependabot from proposing the break, and that build catches it if
+      # something else (a manual bump, a transitive update) introduces it
+      # anyway.
+      - dependency-name: "three"
+        update-types: ["version-update:semver-minor"]
+
+  # The workflow files live at the repo root regardless of what they build,
+  # so this one entry covers every workflow in .github/workflows/.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

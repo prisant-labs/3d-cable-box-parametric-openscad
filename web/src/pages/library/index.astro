@@ -20,7 +20,13 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const cards = presets.map((preset) => {
 	const card = preset.parts.find((p) => p.slug === 'box-and-lid') ?? preset.parts[0];
 	const [w, d] = preset.box_size_mm ?? [0, 0];
-	return { preset, image: card?.image ?? null, w, d };
+	// largest_piece_mm is the footprint that actually has to fit a bed for a
+	// sliced preset; box_size_mm for a sliced preset is the preview layout
+	// (every piece side by side), which is why the filter below needs this
+	// instead. undefined, not null, when absent, so the attribute below is
+	// dropped rather than rendered as the literal string "null".
+	const [pw, pd] = preset.largest_piece_mm ?? [undefined, undefined];
+	return { preset, image: card?.image ?? null, w, d, pw, pd };
 });
 ---
 
@@ -54,11 +60,13 @@ const cards = presets.map((preset) => {
 
 	<ul class="grid">
 		{
-			cards.map(({ preset, image, w, d }) => (
+			cards.map(({ preset, image, w, d, pw, pd }) => (
 				<li
 					class="card"
 					data-w={w}
 					data-d={d}
+					data-pw={pw}
+					data-pd={pd}
 					data-gridfinity={String(
 						preset.features.gridfinity_bottom || preset.features.gridfinity_lid_top,
 					)}
@@ -78,7 +86,7 @@ const cards = presets.map((preset) => {
 						<strong>{preset.title}</strong>
 					</a>
 					<p class="fits">{preset.fits}</p>
-					<p class="size">{formatSize(preset.box_size_mm)}</p>
+					<p class="size">{formatSize(preset.assembled_size_mm ?? preset.box_size_mm)}</p>
 					{featureLabels(preset.features).length > 0 && (
 						<p class="badges">
 							{featureLabels(preset.features).map((label) => (
@@ -124,8 +132,8 @@ const cards = presets.map((preset) => {
 		padding: 0.2rem 0.4rem;
 		border: 1px solid var(--sl-color-gray-5);
 		border-radius: 0.25rem;
-		background: var(--sl-color-black);
-		color: var(--sl-color-white);
+		background: var(--sl-color-bg);
+		color: var(--sl-color-text);
 	}
 	#count {
 		margin-inline-start: auto;
@@ -214,7 +222,21 @@ const cards = presets.map((preset) => {
 			// round, so compare the smaller dimension against the smaller limit.
 			const w = Number(card.dataset.w);
 			const d = Number(card.dataset.d);
-			const fits = Math.max(w, d) <= limit || card.dataset.sliced === 'true';
+			let fits: boolean;
+			if (card.dataset.sliced === 'true') {
+				// A sliced preset's own w/d is the preview layout (every piece
+				// side by side), not what has to fit the bed: the largest single
+				// piece does. data-pw/data-pd hold that piece's footprint and are
+				// absent only when largest_piece_mm could not be computed (no
+				// trimesh at build time), in which case fall back to the old,
+				// always-passes behaviour rather than block a preset on data we
+				// do not have.
+				fits = card.dataset.pw !== undefined
+					? Math.max(Number(card.dataset.pw), Number(card.dataset.pd)) <= limit
+					: true;
+			} else {
+				fits = Math.max(w, d) <= limit;
+			}
 			const matches = wanted.every((key) => card.dataset[key] === 'true');
 			const visible = fits && matches;
 			card.hidden = !visible;
