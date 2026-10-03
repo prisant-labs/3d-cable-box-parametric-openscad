@@ -58,6 +58,13 @@ implemented independently from the published dimensions, deliberately, because
 MakerWorld's parametric customizer permits only its own bundled libraries and a
 vendored Gridfinity dependency would block publishing there.
 
+## Earlier Versions
+
+Releases up to and including `v2.0.0-rc.3` were derived from *Parametric Cable
+Management Box* by Nick Talavera (2022), licensed under Creative Commons
+Attribution. From 2.0.0 the model's code is an independent rewrite; its
+Customizer parameter names and default dimensions still follow the original.
+
 ## Licensing Interaction Note
 
 Repository-level licensing is `MIT`. Included third-party code remains under its own original license terms, which MIT does not override.

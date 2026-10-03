@@ -132,12 +132,13 @@ than height; vertical, horizontal, and square profiles are all allowed.
 ### Override dimensions must be non-negative
 
 ```scad
-assert(Override_Opening_Height_Front >= 0 && Override_Opening_Width_Front >= 0 &&
-       Override_Opening_Height_Back >= 0  && Override_Opening_Width_Back >= 0  &&
-       Override_Opening_Height_Left >= 0  && Override_Opening_Width_Left >= 0  &&
-       Override_Opening_Height_Right >= 0 && Override_Opening_Width_Right >= 0,
-       "Height and width overrides must be positive or zero");
+for (side = OPENING_SIDES)
+    assert(min(opening_size_overrides(side)) >= 0,
+           str(side, " opening width and height overrides must be 0 (use the global size) or positive"));
 ```
+
+The check runs once per wall, so the message names the wall at fault, for
+example "Left opening width and height overrides must be 0 ...".
 
 Why: override values use `0` as the sentinel for "use the global default".
 

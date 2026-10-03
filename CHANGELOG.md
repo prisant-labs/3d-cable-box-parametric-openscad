@@ -55,6 +55,13 @@ identically and that magnets survive slicing.
   `All_Openings_Up`, so all nine inherit the new value and every preset STL and
   GLB shifts with it. A print made from `v2.0.0-rc.2` no longer matches what the
   model produces from the same parameters.
+- **The code inherited from the 2022 original is rewritten.** Side openings
+  are placed by one loop over the four walls instead of four copied blocks.
+  The lid's post socket and the part layout use named values, and the override
+  check names the wall at fault. Every preview colour is now a named constant.
+  Geometry is unchanged, proven by canonical mesh hash across twelve
+  configurations rather than by inspection. `THIRD_PARTY_NOTICES.md` now
+  records where the earlier versions came from.
 
 ## [2.0.0] - 2026-08-07
 

@@ -57,6 +57,13 @@ for it, so its "load a preset" path is already fed.
 
 ## Cross-cutting decisions still open
 
+- ~~**Provenance of the original design.**~~ **Decided 2026-10-02: become
+  independent rather than credit it going forward.** Releases through
+  `v2.0.0-rc.3` derived from a 2022 Creative Commons Attribution design, and
+  `THIRD_PARTY_NOTICES.md` says so. The code is rewritten as of 2.0.0. The
+  inherited Customizer interface goes in [E-03 (openings array)](E-03_openings-array.md),
+  which carries the checklist.
+
 - ~~**License.**~~ **Resolved 2026-07-29: MIT.** Reasoning recorded in
   [E-11 (distribution)](E-11_distribution.md). Matches Gridfinity's own licence,
   suits a model that is really source code, and is GPL-compatible for
