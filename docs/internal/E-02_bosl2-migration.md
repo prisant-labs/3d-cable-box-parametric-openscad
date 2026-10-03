@@ -27,10 +27,10 @@ Verified against current BOSL2 docs:
 | Need | Module | Replaces |
 |---|---|---|
 | Seam clips | `joiners.scad`: `rabbit_clip(type="pin"/"socket", snap, compression, lock)` | Hand-rolled `m_floor_clip_male/female`, which are plain cuboids relying on friction and `Clip_Tolerance` |
-| Slide-in dividers | `joiners.scad`: `dovetail("male"/"female", slide, width, height, slope)` | Backlog item 2 (modular divider slots) |
-| Hinged lid | `hinges.scad`: `knuckle_hinge()`, `apply_folding_hinges_and_snaps()` | Backlog item 8 |
-| Screw-down lid | `joiners.scad`: `joiner(screwsize=)`, plus `screws.scad` | Backlog item 7 |
-| Labels | attachable `text3d` | Backlog item 6 |
+| Slide-in dividers | `joiners.scad`: `dovetail("male"/"female", slide, width, height, slope)` | [Backlog item 2 (modular divider slots)](BACKLOG.md) |
+| Hinged lid | `hinges.scad`: `knuckle_hinge()`, `apply_folding_hinges_and_snaps()` | [Backlog item 8 (hinged lid)](BACKLOG.md) |
+| Screw-down lid | `joiners.scad`: `joiner(screwsize=)`, plus `screws.scad` | [Backlog item 7 (screw-down lid)](BACKLOG.md) |
+| Labels | attachable `text3d` | [Backlog item 6 (labels)](BACKLOG.md) |
 | Edge fillets and chamfers | `rounding.scad`, `masks3d.scad` | [E-04 (quick wins)](E-04_quick-wins.md) |
 
 `rabbit_clip()` is the notable one. It is a real cantilever snap with a defined

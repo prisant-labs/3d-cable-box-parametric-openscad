@@ -5,7 +5,7 @@ interfaces on the box underside and the lid topside.
 
 **Status:** Shipped in v1.2.0 (2026-07-30). The lid interface was reworked from
 a stud to a socket in 2.0.0, which resolves the profile-direction question below.
-Both interfaces remain **unvalidated by print**; `v2.0.0-rc.2` is the artifact
+Both interfaces remain **unvalidated by print**; `v2.0.0-rc.3` is the artifact
 to print.
 **Effort:** S (promotion and documentation, not construction)
 **Depends on:** nothing. Benefits from [E-09 (testing automation)](E-09_testing-automation.md).
@@ -51,7 +51,7 @@ it is a real implementation, not a sketch.
 **Out of scope**
 
 - Gridfinity bin dividers or internal gridding. Different feature, see
-  [E-03 (openings array)](E-03_openings-array.md) and the dividers backlog item.
+  [E-03 (openings array)](E-03_openings-array.md) and [backlog item 2 (modular divider slots)](BACKLOG.md).
 - Non-42 mm grid variants. The prototype locked 42 mm; keep it.
 
 ## Design notes carried from the prototype
