@@ -510,8 +510,13 @@ assert(Lid_Relief_Style == "None" || Lid_Relief_Depth > 0,
        "Lid_Relief_Depth must be > 0");
 assert(Lid_Relief_Style != "Scallop" || Lid_Relief_Depth * 2 < Lid_Height,
        "A scallop is a half-cylinder groove, so Lid_Relief_Depth*2 must be less than Lid_Height or it cuts through both faces of the lid.");
-assert(Lid_Relief_Style == "None" || Lid_Relief_Width < min(Box_Width, Box_Depth) - Corner_Radius * 2,
-       "Lid_Relief_Width must leave the rounded corners alone; reduce it or reduce Box_Corner_Radius.");
+// A relief spans Lid_Relief_Width along its own wall, so each wall is checked
+// against its own length: a long, narrow box can carry a wide relief on its
+// long walls that would not fit on its short ones.
+for (side = OPENING_SIDES)
+    assert(!lid_relief_requested(side) || Lid_Relief_Width < wall_length(side) - Corner_Radius * 2,
+           str("Lid_Relief_Width must leave the rounded corners alone on the ", side,
+               " wall; reduce it or reduce Box_Corner_Radius."));
 
 assert(Lid_Magnet_Diameter > 0 && Lid_Magnet_Depth > 0 && Lid_Magnet_Wall > 0,
        "Lid magnet dimensions must be > 0");
@@ -537,7 +542,10 @@ assert(!Enable_Stabilizers || Stabilizer_Height + Wall_Thickness <= Box_Height, 
 assert(!Enable_Stabilizers || Stabilizer_Depth * 2 < min(Inner_Width, Inner_Depth), "Stabilizer_Depth is too large for the box interior");
 assert(!Enable_Stabilizers || Stabilizer_Width > 0, "Stabilizer_Width must be > 0");
 assert(Stabilizers_Front_Back_Count >= 0 && Stabilizers_Left_Right_Count >= 0, "Stabilizer counts must be >= 0");
-assert(All_Opening_Height <= Box_Height, "All_Opening_Height must not exceed Box_Height");
+// Gated on any side opening being on, so a shallow box with every wall closed
+// is not blocked by the default 30 mm opening height it never cuts.
+assert(len([for (side = OPENING_SIDES) if (opening_enabled(side)) side]) == 0 ||
+       All_Opening_Height <= Box_Height, "All_Opening_Height must not exceed Box_Height");
 assert(!Enable_Bottom_Openings || Bottom_Openings_Count >= 1, "Bottom_Openings_Count must be >= 1 when bottom openings are enabled");
 assert(!Enable_Bottom_Openings || (Bottom_Opening_Width > 0 && Bottom_Opening_Depth > 0), "Bottom opening width and depth must be > 0");
 // 0 is the sentinel for "use the global size", so only negatives are invalid.
@@ -579,6 +587,16 @@ if (Box_Corner_Radius > Max_Corner_Radius)
              " to ", Max_Corner_Radius,
              " (limited by the inner cavity at Wall_Thickness=", Wall_Thickness, ")"));
 
+// An opening whose top edge is above the rim is cut open to the top of the
+// wall, a notch rather than a window, and its upper corners are lost. That is
+// legal, since a full-height slot is a real use, so it is reported rather than
+// rejected. Strictly above, so a slot sized exactly to the wall stays quiet.
+for (side = OPENING_SIDES)
+    if (opening_enabled(side) && opening_top(side) > Box_Height)
+        echo(str(side, " opening top edge at ", opening_top(side),
+                 " mm is above Box_Height ", Box_Height,
+                 " mm; it is cut open to the rim as a notch"));
+
 // ============================================
 // STABILIZERS MODULE (v5)
 // ============================================
@@ -607,16 +625,24 @@ function get_effective_opening_height(side) =
         (Override_Opening_Height_Right > 0 ? Override_Opening_Height_Right : All_Opening_Height) :
     All_Opening_Height;
 
+// Height of an opening's top edge above the floor, including every lift.
+function opening_top(side) =
+    get_opening_lift(side) + get_effective_opening_height(side);
+
 // Whether a wall's opening reaches the box rim.
 //
 // Lid relief and side openings live in different parts, the lid and the box, so
 // they normally cannot touch: an opening 30 mm tall in a 50 mm box stops well
 // below the rim the lid sits on. They only meet when an opening runs the full
 // height, which is legal and tested, and then a relief above it would open into
-// the opening rather than give anything to grip.
+// the opening rather than give anything to grip. The per-wall Move_Opening_*_Up
+// counts too, because it raises the top edge exactly as All_Openings_Up does.
 function opening_reaches_rim(side) =
-    opening_enabled(side) &&
-    (All_Openings_Up + get_effective_opening_height(side) >= Box_Height - Wall_Thickness);
+    opening_enabled(side) && opening_top(side) >= Box_Height - Wall_Thickness;
+
+// Length of a wall in plan. Front and Back run along X; Left and Right along Y.
+function wall_length(side) =
+    (side == "Front" || side == "Back") ? Box_Width : Box_Depth;
 
 function opening_enabled(side) =
     (side == "Front") ? Opening_On_Front :
@@ -625,13 +651,16 @@ function opening_enabled(side) =
     (side == "Right") ? Opening_On_Right :
     false;
 
-function lid_relief_enabled(side) =
+// Whether the user asked for a relief on this wall, before the rim check.
+function lid_relief_requested(side) =
     Lid_Relief_Style != "None" &&
     ((side == "Front") ? Lid_Relief_On_Front :
      (side == "Back")  ? Lid_Relief_On_Back :
      (side == "Left")  ? Lid_Relief_On_Left :
-     (side == "Right") ? Lid_Relief_On_Right : false) &&
-    !opening_reaches_rim(side);
+     (side == "Right") ? Lid_Relief_On_Right : false);
+
+function lid_relief_enabled(side) =
+    lid_relief_requested(side) && !opening_reaches_rim(side);
 
 // Calculate the effective opening corner radius for a given wall
 function get_effective_opening_corner_radius(side) =
