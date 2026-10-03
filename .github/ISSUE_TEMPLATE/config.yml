@@ -1,1 +1,11 @@
 blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/prisant-labs/3d-cable-box-parametric-openscad/security/advisories/new
+    about: Please report security issues privately, as SECURITY.md describes, not in a public issue.
+  - name: Documentation and preset library
+    url: https://projects.prisantlabs.com/3d-cable-box-parametric-openscad/
+    about: Parameter reference, FAQ, printing guide, and the browsable presets.
+  - name: Calibration coupons
+    url: https://github.com/prisant-labs/3d-cable-box-parametric-openscad/tree/main/calibration
+    about: Small test prints for fits that need validating. A print result is welcome as a blank issue.

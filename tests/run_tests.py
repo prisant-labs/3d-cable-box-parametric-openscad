@@ -20,6 +20,10 @@ Checks per scenario:
 
 Usage:
   python tests/run_tests.py [--filter SUBSTRING] [--keep] [--verbose]
+
+Environment:
+  OPENSCAD_BIN        OpenSCAD binary to use, if not on PATH
+  SCAD_TEST_TIMEOUT   per-render timeout in seconds (default 900)
 """
 
 from __future__ import annotations
@@ -62,29 +66,49 @@ def find_openscad() -> str:
 
 
 def native(path: Path) -> str:
-    """Return a path OpenSCAD's import() can resolve.
+    """Return a path OpenSCAD's import() can resolve from inside a .scad string.
 
-    OpenSCAD on Windows is a native binary and cannot resolve MSYS-style
-    /tmp/... paths. Passing one makes import() silently yield nothing, which
-    reads as a passing 'empty' probe. Convert when cygpath is available.
+    Two traps, and either one makes import() silently yield nothing, which
+    reads as a passing 'empty' probe:
+
+    - A backslash in a .scad string literal is an escape, so a native Windows
+      path such as C:\\Users\\... must be written with forward slashes.
+      as_posix() does that, and changes nothing on Linux or macOS. This is
+      what made a run from PowerShell, which has no cygpath, report false
+      probe failures.
+    - An MSYS or Cygwin Python hands out /tmp/... paths, which a native
+      Windows OpenSCAD cannot open. Those still go through cygpath.
     """
-    if sys.platform.startswith("win") or shutil.which("cygpath"):
+    text = str(path)
+    if text.startswith("/") and shutil.which("cygpath"):
         try:
             out = subprocess.run(
-                ["cygpath", "-m", str(path)], capture_output=True, text=True, timeout=10
+                ["cygpath", "-m", text], capture_output=True, text=True, timeout=10
             )
             if out.returncode == 0 and out.stdout.strip():
                 return out.stdout.strip()
         except (OSError, subprocess.SubprocessError):
             pass
-    return str(path)
+    return path.as_posix()
+
+
+# Per-render ceiling in seconds. The default suits CI's CGAL build; a slow
+# machine can raise it with SCAD_TEST_TIMEOUT rather than editing the file.
+RENDER_TIMEOUT = int(os.environ.get("SCAD_TEST_TIMEOUT", "900"))
 
 
 def render(scad_bin: str, src: Path, out_stl: Path, defines: list[str]) -> tuple[int, str]:
     cmd = [scad_bin, "-o", str(out_stl), str(src)]
     for d in defines:
         cmd += ["-D", d]
-    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=RENDER_TIMEOUT)
+    except subprocess.TimeoutExpired as exc:
+        # One hung render fails its own scenario instead of ending the run.
+        partial = exc.stdout or ""
+        if isinstance(partial, bytes):
+            partial = partial.decode(errors="replace")
+        return 124, f"ERROR: render timed out after {RENDER_TIMEOUT} s\n{partial}"
     return proc.returncode, (proc.stdout or "") + "\n" + (proc.stderr or "")
 
 

@@ -9,7 +9,7 @@ Also emits a Markdown companion at docs/OPTIONS_GUIDE.md that references the
 same renders as files, for people reading on GitHub.
 
 Usage:
-  python scripts/build_options_guide.py [--no-render]
+  python scripts/build_options_guide.py [--no-render] [--only SLUG ...]
 """
 
 from __future__ import annotations
@@ -64,6 +64,19 @@ SECTIONS = [
          {"Part_To_Render": "Lid Only", "Lid_Height": 16}),
         ("lid-deep-lip", "Lid_Lip_Gap_Height 8", CAM_UNDER,
          {"Part_To_Render": "Lid Only", "Lid_Lip_Gap_Height": 8}),
+    ]),
+    ("finish", "Edges, lid grip and magnets",
+     "Optional finishing features. All are off by default.", [
+        ("edge-fillet", "Bottom_Edge_Fillet 1.5", CAM_LOW,
+         {"Bottom_Edge_Fillet": 1.5}),
+        ("edge-chamfer", "Top_Edge_Chamfer 0.8", CAM_ISO,
+         {"Top_Edge_Chamfer": 0.8}),
+        ("relief-scallop", "Lid_Relief_Style Scallop", CAM_ISO,
+         {"Part_To_Render": "Lid Only", "Lid_Relief_Style": "Scallop"}),
+        ("relief-tab", "Lid_Relief_Style Tab", CAM_ISO,
+         {"Part_To_Render": "Lid Only", "Lid_Relief_Style": "Tab"}),
+        ("lid-magnets", "Enable_Lid_Magnets: corner bosses", CAM_ISO,
+         {"Enable_Lid_Magnets": True}),
     ]),
     ("openings", "Side openings", "Where cables enter and leave.", [
         ("open-default", "Default: 10 wide x 30 tall, 5 up from the floor", CAM_ISO, {}),
@@ -175,10 +188,20 @@ def data_uri(slug: str) -> str:
 
 
 def model_version() -> str:
-    for line in MODEL.read_text(encoding="utf-8", errors="replace").splitlines()[:60]:
+    # The whole file, not a header window: Model_Version sits below the
+    # Customizer sections, and a fixed window silently printed "unknown" once
+    # those sections grew past it.
+    for line in MODEL.read_text(encoding="utf-8", errors="replace").splitlines():
         if line.startswith("Model_Version"):
             return line.split('"')[1]
     return "unknown"
+
+
+def write_lf(path: Path, text: str) -> None:
+    """Write with LF endings on every platform, matching .gitattributes, so a
+    rebuild on Windows does not show every line as changed."""
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(text)
 
 
 CSS = """
@@ -371,25 +394,34 @@ def build_md(version: str) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--no-render", action="store_true")
+    ap.add_argument("--no-render", action="store_true",
+                    help="rebuild the HTML and Markdown from the existing images")
+    ap.add_argument("--only", nargs="+", metavar="SLUG",
+                    help="render only these images, then rebuild both pages; "
+                         "avoids re-rendering, and churning, all the others")
     args = ap.parse_args()
 
     IMG_DIR.mkdir(parents=True, exist_ok=True)
     version = model_version()
 
+    if args.only:
+        known = {slug for _, _, _, items in SECTIONS for slug, *_ in items}
+        unknown = sorted(set(args.only) - known)
+        if unknown:
+            sys.exit(f"unknown image slug(s): {', '.join(unknown)}")
+
     if not args.no_render:
         scad = find_openscad()
-        total = sum(len(i) for _, _, _, i in SECTIONS)
-        n = 0
-        for sid, title, _, items in SECTIONS:
-            print(f"  {title}")
-            for slug, caption, cam, params in items:
-                n += 1
-                print(f"    [{n}/{total}] {slug}")
-                render(scad, slug, cam, params)
+        todo = [(slug, cam, params)
+                for _, _, _, items in SECTIONS
+                for slug, _, cam, params in items
+                if not args.only or slug in args.only]
+        for n, (slug, cam, params) in enumerate(todo, 1):
+            print(f"    [{n}/{len(todo)}] {slug}")
+            render(scad, slug, cam, params)
 
-    HTML_OUT.write_text(build_html(version), encoding="utf-8")
-    MD_OUT.write_text(build_md(version), encoding="utf-8")
+    write_lf(HTML_OUT, build_html(version))
+    write_lf(MD_OUT, build_md(version))
     kb = HTML_OUT.stat().st_size / 1024
     print(f"\nWrote {HTML_OUT.relative_to(REPO)} ({kb:.0f} KB, self-contained)")
     print(f"Wrote {MD_OUT.relative_to(REPO)}")

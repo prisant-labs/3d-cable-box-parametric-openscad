@@ -3,6 +3,9 @@
 # Model source
 /*.scad @jprisant
 
-# Documentation set and docs site config
+# Documentation set and docs site
 /docs/ @jprisant
-/mkdocs.yml @jprisant
+/web/ @jprisant
+
+# CI and release automation
+/.github/workflows/ @jprisant

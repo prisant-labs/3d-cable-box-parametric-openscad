@@ -1,6 +1,6 @@
 # Options Guide
 
-Visual reference for every parameter, rendered from the model at `unknown`.
+Visual reference for every parameter, rendered from the model at `2.0.0`.
 
 A self-contained HTML version with the images embedded is at [`options-guide.html`](options-guide.html); it works offline.
 
@@ -123,6 +123,40 @@ Fit and engagement.
 `Part_To_Render=Lid Only`, `Lid_Lip_Gap_Height=8`
 
 ![Lid_Lip_Gap_Height 8](images/options/lid-deep-lip.png)
+
+## Edges, lid grip and magnets
+
+Optional finishing features. All are off by default.
+
+### Bottom_Edge_Fillet 1.5
+
+`Bottom_Edge_Fillet=1.5`
+
+![Bottom_Edge_Fillet 1.5](images/options/edge-fillet.png)
+
+### Top_Edge_Chamfer 0.8
+
+`Top_Edge_Chamfer=0.8`
+
+![Top_Edge_Chamfer 0.8](images/options/edge-chamfer.png)
+
+### Lid_Relief_Style Scallop
+
+`Part_To_Render=Lid Only`, `Lid_Relief_Style=Scallop`
+
+![Lid_Relief_Style Scallop](images/options/relief-scallop.png)
+
+### Lid_Relief_Style Tab
+
+`Part_To_Render=Lid Only`, `Lid_Relief_Style=Tab`
+
+![Lid_Relief_Style Tab](images/options/relief-tab.png)
+
+### Enable_Lid_Magnets: corner bosses
+
+`Enable_Lid_Magnets=True`
+
+![Enable_Lid_Magnets: corner bosses](images/options/lid-magnets.png)
 
 ## Side openings
 

@@ -180,7 +180,10 @@ fi
 
 echo "Clean: volumes unchanged and the suite passes against BOSL2 $NEW_VERSION."
 if [ "$APPLY" = "--apply" ]; then
-  sed -i "s|^\(\s*BOSL2_REF:\s*\).*|\1$TARGET|" "$WORKFLOW"
+  # Portable rewrite: BSD sed on macOS needs a different -i syntax and does
+  # not know \s, so use POSIX classes and a temp file instead.
+  sed "s|^\([[:space:]]*BOSL2_REF:[[:space:]]*\).*|\1$TARGET|" "$WORKFLOW" > "$WORKFLOW.tmp" \
+    && mv "$WORKFLOW.tmp" "$WORKFLOW"
   echo "Updated $WORKFLOW to $TARGET"
   echo "Remember to note the bump in CHANGELOG.md."
 else
