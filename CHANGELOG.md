@@ -129,8 +129,9 @@ previous model.
   `projects.prisantlabs.com`. Each page now also has its own meta description,
   and the preset filter and tables follow the theme and fit a phone screen.
 - **Docs site dependencies.** `npm audit fix` cleared the critical Astro
-  advisory. Five high-severity advisories remain in a transitive dependency of
-  Starlight; their only offered fix is a major Astro downgrade.
+  advisory, and Starlight 0.42 plus one more in-range fix cleared the five
+  high ones that sat behind it. `npm audit` now reports no vulnerabilities.
+  The workflows use `upload-artifact` v7 and `download-artifact` v8.
 - **Tooling.** The test harness wrote Windows paths with backslashes into the
   `.scad` it uses for point probes, where a backslash is an escape, so a run
   from PowerShell reported false probe failures. A hung render now fails its
