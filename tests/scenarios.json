@@ -373,7 +373,7 @@
       "_why2": "sized from Lid_Height alone stopped short of the plate, leaving",
       "_why3": "a 0.15mm full-width layer welded to every slice: piece 1",
       "_why4": "measured 103.8mm wide instead of ~52 and defeated slicing.",
-      "_why5": "x-max 29.91 is the slice plus its clip tabs; the broken",
+      "_why5": "x-max 29.96 is the slice plus its clip tabs; the broken",
       "_why6": "residual reached 77.85.",
       "_why7": "The probes below double as the regression for the sliver",
       "_why8": "degeneracy: the lid clip used to sit flush with the top of the",
@@ -381,15 +381,17 @@
       "_why10": "OpenSCAD tessellate four zero-area triangles into every sliced",
       "_why11": "lid piece. CGAL asserted on those, and probe() raises on that,",
       "_why12": "so any probe here fails if the flush placement comes back.",
+      "_why13": "rc.5 lid footprint is Box + 2*(Wall_Thickness + Lid_Lip_Gap), 104 mm",
+      "_why14": "here, so the seam moved from 25.95 to 26.0 and x-max from 29.91.",
       "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Lid_Top=true",
                   "Lid_Height=4.6", "Enable_Slicing=true", "Slice_Count=2",
                   "Slice_Piece_To_Render=1"],
       "expect": {
         "rc": 0,
-        "bbox": { "x": [-25.95, 29.91], "z": [0.0, 12.35] },
+        "bbox": { "x": [-26.0, 29.96], "z": [0.0, 12.35] },
         "probes": [
           { "translate": [27.0, 65.0, 8.0], "size": [1, 1, 0.2], "expect": "material",
-            "why": "clip tab, past the seam at x=25.95 and mid its 6.31-9.31 height" },
+            "why": "clip tab, past the seam at x=26.0 and mid its 6.31-9.31 height" },
           { "translate": [27.0, 65.0, 9.6], "size": [1, 1, 0.2], "expect": "empty",
             "why": "above the tab: it must stop below the 9.35 panel top, not at it" },
           { "translate": [-0.5, 94.5, 9.0], "size": [1, 1, 0.2], "expect": "material",
@@ -475,26 +477,37 @@
       "_why3": "The bbox pins the clip's ORIENTATION, which solid counts cannot.",
       "_why4": "rabbit_clip builds length on Z, width on X, depth on Y, so it needs",
       "_why5": "orient=RIGHT AND spin=90. With orient alone, width (10) lands on Z",
-      "_why6": "instead of depth (3), and z-min drops from -0.57 to about -4.08",
+      "_why6": "instead of depth (3), and z-min drops from 0 to about -3.5",
       "_why7": "while the model still renders and still counts as one solid.",
+      "_why8": "z-min is 0 since rc.5 (F-51, floor clips below the bed): the clip",
+      "_why9": "was centred on the floor and hung 0.575 mm below it, so a slicer",
+      "_why10": "stood the whole piece on its clips. It now starts at the floor's",
+      "_why11": "bottom face. rc.4 coupons printed with only the clip tabs on the bed.",
       "defines": ["Clip_Style=\"Snap\"", "Enable_Slicing=true", "Slice_Count=2",
                   "Slice_Piece_To_Render=1", "Part_To_Render=\"Box Only\""],
       "expect": {
         "rc": 0,
         "solids": 1,
-        "bbox": { "x": [-25.0, 32.8], "y": [-37.5, 37.5], "z": [-0.575, 50.0] }
+        "bbox": { "x": [-25.0, 32.8], "y": [-37.5, 37.5], "z": [0.0, 50.0] }
       }
     },
     {
       "name": "tabclip_single_piece_export",
       "_why": "Same measurement for the Tab style, so a change to shared clip",
       "_why2": "placement cannot silently move one style and not the other.",
+      "_why3": "The probe proves the F-51 fix kept the full 3 mm clip and raised it",
+      "_why4": "rather than shortening it: the tab spans z 0 to 3 at y 25.65-35.65,",
+      "_why5": "and the rc.4 tab stopped at 2.425.",
       "defines": ["Enable_Slicing=true", "Slice_Count=2",
                   "Slice_Piece_To_Render=1", "Part_To_Render=\"Box Only\""],
       "expect": {
         "rc": 0,
         "solids": 1,
-        "bbox": { "x": [-25.0, 28.96], "y": [-37.5, 37.5], "z": [-0.575, 50.0] }
+        "bbox": { "x": [-25.0, 28.96], "y": [-37.5, 37.5], "z": [0.0, 50.0] },
+        "probes": [
+          { "translate": [26.0, 30.15, 2.6], "size": [1, 1, 0.3], "expect": "material",
+            "why": "top of the tab clip, above the 1.85 mm floor" }
+        ]
       }
     },
     {
@@ -614,10 +627,12 @@
       "name": "e04_lid_relief_scallop",
       "_why": "A scallop cuts a half-cylinder groove into the lid's outer face,",
       "_why2": "so it removes material without moving the envelope.",
+      "_why3": "rc.5 lid footprint is Box + 2*(Wall_Thickness + Lid_Lip_Gap):",
+      "_why4": "104 x 79 on the default box, up from 103.8 x 78.8.",
       "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Relief_Style=\"Scallop\""],
       "expect": {
         "rc": 0, "solids": 1,
-        "bbox": { "x": [-51.9, 51.9], "y": [-39.4, 39.4] },
+        "bbox": { "x": [-52.0, 52.0], "y": [-39.5, 39.5] },
         "probes": [
           { "translate": [51.0, -0.5, 4.05], "size": [1, 1, 0.4], "expect": "empty",
             "why": "inside the groove at mid lid height" },
@@ -630,10 +645,11 @@
       "name": "e04_lid_relief_tab",
       "_why": "A tab adds material, so unlike the scallop it does move the",
       "_why2": "envelope: exactly Lid_Relief_Depth on the two enabled sides.",
+      "_why3": "rc.5 lid footprint: 52.0 + 2.5 per side, up from 51.9 + 2.5.",
       "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Relief_Style=\"Tab\""],
       "expect": {
         "rc": 0, "solids": 1,
-        "bbox": { "x": [-54.4, 54.4], "y": [-39.4, 39.4] }
+        "bbox": { "x": [-54.5, 54.5], "y": [-39.5, 39.5] }
       }
     },
     {
@@ -641,12 +657,12 @@
       "_why": "Relief lives in the lid and openings in the box, so they only",
       "_why2": "meet when an opening runs to the rim. Then the relief is dropped:",
       "_why3": "a Tab would otherwise stand over a hole. The envelope proves it,",
-      "_why4": "because a placed tab would push x to 54.4.",
+      "_why4": "because a placed tab would push x to 54.5 (rc.5 lid footprint).",
       "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Relief_Style=\"Tab\"",
                   "All_Opening_Height=48.2"],
       "expect": {
         "rc": 0, "solids": 1,
-        "bbox": { "x": [-51.9, 51.9], "y": [-39.4, 39.4] }
+        "bbox": { "x": [-52.0, 52.0], "y": [-39.5, 39.5] }
       }
     },
     {
@@ -704,12 +720,13 @@
       "_why": "The rim check once added only All_Openings_Up, so an opening raised",
       "_why2": "to the rim by Move_Opening_Right_Up still got a tab over it. Only",
       "_why3": "the right wall reaches the rim here, so the left tab must stay:",
-      "_why4": "the envelope is asymmetric, 54.4 on the left and 51.9 on the right.",
+      "_why4": "the envelope is asymmetric, 54.5 on the left and 52.0 on the right",
+      "_why5": "(rc.5 lid footprint; 54.4 and 51.9 before).",
       "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Relief_Style=\"Tab\"",
                   "Move_Opening_Right_Up=15"],
       "expect": {
         "rc": 0, "solids": 1,
-        "bbox": { "x": [-54.4, 51.9], "y": [-39.4, 39.4] }
+        "bbox": { "x": [-54.5, 52.0], "y": [-39.5, 39.5] }
       }
     },
     {
@@ -728,11 +745,12 @@
       "_why": "The width check once used the shorter of the two walls for every",
       "_why2": "relief. The left and right walls here are 150 mm, so a 100 mm",
       "_why3": "relief fits them even though the 60 mm front wall could not take it.",
+      "_why4": "rc.5 lid footprint: 64 x 154, so x is 32.0 + 2.5 and y is 77.0.",
       "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Relief_Style=\"Tab\"",
                   "Box_Width=60", "Box_Depth=150", "Lid_Relief_Width=100"],
       "expect": {
         "rc": 0, "solids": 1,
-        "bbox": { "x": [-34.4, 34.4], "y": [-76.9, 76.9] }
+        "bbox": { "x": [-34.5, 34.5], "y": [-77.0, 77.0] }
       }
     },
     {
@@ -754,6 +772,129 @@
                   "Opening_On_Back=false", "Opening_On_Left=false",
                   "Opening_On_Right=false"],
       "expect": { "rc": 0, "solids": 1 }
+    },
+
+    {
+      "name": "assembly_skirt_lid_does_not_overlap_box",
+      "_why": "From v1.0.0 to rc.4 the lid's lip ring spanned 48.25 to 50.10 mm on",
+      "_why2": "a 50 mm box whose wall spans 46.30 to 50.00, so it landed on the",
+      "_why3": "rim and the lid could not fit. Printed coupons stacked 19 mm, not 16.",
+      "_why4": "Seated, the default Skirt lid must overlap nothing, including the",
+      "_why5": "post collar, whose bore once matched the post with zero clearance.",
+      "_why6": "OpenSCAD exits 1 on an empty export, so rc 1 is the proof.",
+      "source": "tests/assembly/lid_seated.scad",
+      "defines": ["Render_On_Include=false"],
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "assembly_plug_lid_does_not_overlap_box",
+      "_why": "The Plug lip sits inside the wall, beside the stabilizer fins.",
+      "defines": ["Render_On_Include=false", "Lid_Style=\"Plug\""],
+      "source": "tests/assembly/lid_seated.scad",
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "assembly_plug_lid_clears_magnet_bosses",
+      "_why": "The magnet bosses fill the box's inside corners to the rim, where",
+      "_why2": "a Plug ring would run into them; the ring is notched around each.",
+      "source": "tests/assembly/lid_seated.scad",
+      "defines": ["Render_On_Include=false", "Lid_Style=\"Plug\"",
+                  "Enable_Lid_Magnets=true"],
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "assembly_skirt_lid_engages_outside_wall",
+      "_why": "An empty overlap would also pass for a lid hovering over the box,",
+      "_why2": "so this proves the skirt hangs past the rim, outside the wall.",
+      "_why3": "Skirt spans x 50.15 to 52.0 on the 100 mm default box.",
+      "source": "tests/assembly/lid_seated.scad",
+      "defines": ["Render_On_Include=false", "Assembly_Check=\"seated\""],
+      "expect": {
+        "rc": 0,
+        "probes": [
+          { "translate": [50.6, -0.5, 48.0], "size": [1, 1, 0.5], "expect": "material",
+            "why": "skirt beside the right wall, 2 mm below the rim" }
+        ]
+      }
+    },
+    {
+      "name": "assembly_plug_lid_engages_inside_wall",
+      "_why": "The same proof for the Plug: its ring spans x 46.15 to 48.0, inside",
+      "_why2": "the right wall's inner face at 48.15.",
+      "source": "tests/assembly/lid_seated.scad",
+      "defines": ["Render_On_Include=false", "Assembly_Check=\"seated\"",
+                  "Lid_Style=\"Plug\""],
+      "expect": {
+        "rc": 0,
+        "probes": [
+          { "translate": [46.5, -0.5, 48.0], "size": [1, 1, 0.5], "expect": "material",
+            "why": "plug ring inside the right wall, 2 mm below the rim" }
+        ]
+      }
+    },
+    {
+      "name": "lid_plug_notched_for_magnets",
+      "_why": "Lid on its own: the plug ring is present along the wall and cut",
+      "_why2": "away around each magnet boss at (44.05, 31.55), radius 4.45.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Style=\"Plug\"",
+                  "Enable_Lid_Magnets=true"],
+      "expect": {
+        "rc": 0, "solids": 1,
+        "probes": [
+          { "translate": [46.5, -0.5, 9.5], "size": [1, 1, 0.5], "expect": "material",
+            "why": "plug ring mid right wall" },
+          { "translate": [46.5, 30.5, 9.5], "size": [1, 1, 0.5], "expect": "empty",
+            "why": "notch around the corner magnet boss" }
+        ]
+      }
+    },
+    {
+      "name": "lid_plug_survives_slicing",
+      "_why": "Piece 1 of a two-slice Plug lid stays one solid and keeps its ring.",
+      "_why2": "Ring on the left wall spans x -22.0 to -20.15 once the piece is",
+      "_why3": "centred; the lid is laid out 95 mm along y.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Style=\"Plug\"",
+                  "Enable_Slicing=true", "Slice_Count=2", "Slice_Piece_To_Render=1"],
+      "expect": {
+        "rc": 0, "solids": 1,
+        "probes": [
+          { "translate": [-21.5, 94.5, 9.5], "size": [1, 1, 0.5], "expect": "material",
+            "why": "plug ring on the left wall of piece 1" }
+        ]
+      }
+    },
+    {
+      "name": "validation_lid_style_value",
+      "defines": ["Lid_Style=\"Lid\""],
+      "expect": { "rc": 1, "message": "Lid_Style must be Skirt or Plug" }
+    },
+    {
+      "name": "validation_plug_blocked_by_tall_stabilizers",
+      "_why": "Fins reaching within Lid_Lip_Gap_Height of the rim would meet a",
+      "_why2": "Plug. 1.85 + 37 = 38.85 passes the box's own check (<= 40) but not",
+      "_why3": "the plug's (<= 37). The same box with the default Skirt renders.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Lid_Style=\"Plug\"",
+                  "Box_Height=40", "Stabilizer_Height=37"],
+      "expect": { "rc": 1, "message": "Stabilizer_Height" }
+    },
+    {
+      "name": "validation_plug_needs_room_inside_walls",
+      "_why": "A 7.5 mm box leaves 3.8 mm inside its walls, too little for a",
+      "_why2": "1.85 mm plug ring with 0.15 mm clearance on each side.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Style=\"Plug\"",
+                  "Box_Width=7.5", "Enable_Post=false", "Enable_Stabilizers=false",
+                  "Opening_On_Front=false", "Opening_On_Back=false",
+                  "Opening_On_Left=false", "Opening_On_Right=false"],
+      "expect": { "rc": 1, "message": "too small for a Plug lid" }
+    },
+    {
+      "name": "validation_plug_blocked_by_wide_post",
+      "_why": "A 33 mm post fits a 40 mm box's 36.3 mm interior, but its radius",
+      "_why2": "plus clearance (16.65) passes the plug ring's inner face (16.15).",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Lid_Style=\"Plug\"",
+                  "Box_Width=40", "Box_Depth=40", "Post_Diameter=33",
+                  "Enable_Stabilizers=false"],
+      "expect": { "rc": 1, "message": "Post_Diameter" }
     }
   ]
 }

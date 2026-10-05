@@ -123,12 +123,16 @@ Common mistake:
 
 ## Lid Fit Parameters
 
-- `Lid_Lip_Gap` controls mating clearance
+- `Lid_Style` chooses whether the lip wraps the outside of the box (`Skirt`) or drops inside the wall (`Plug`)
+- `Lid_Lip_Gap` controls mating clearance on each side, for both styles and for the post socket
 - `Lid_Lip_Gap_Height` and `Lid_Height` affect engagement and rigidity
 
 Interaction pattern:
 
 - Tightening `Lid_Lip_Gap` may require small increases in height or stronger cooling control for consistent fit.
+- A Skirt fits against the box's outside face and a Plug against its inside face, so the same `Lid_Lip_Gap` can feel different between them on one printer. Tune each with its own coupon.
+- With `Lid_Style=Plug`, the ring is notched around `Enable_Lid_Magnets` bosses, and `Stabilizer_Height` and `Post_Diameter` must leave it room; the model asserts otherwise.
+- Any side opening that runs to the rim loses its top `Lid_Lip_Gap_Height` under a seated lid, with either style.
 
 ## Post and Lid
 

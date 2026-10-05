@@ -41,7 +41,9 @@ STL_DIR = CAL / "stl"
 # entry here fails, so nothing ships unchecked.
 EXPECTED_BODIES = {
     "lid-fit": 2,
+    "lid-fit-plug": 2,
     "magnet-boss": 2,
+    "magnet-boss-plug": 2,
     "gridfinity-base-1x1": 1,
     "gridfinity-lid-socket-1x1": 1,
     "snap-clip-pair": 2,

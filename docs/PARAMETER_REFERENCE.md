@@ -88,14 +88,19 @@ and at `0` the model renders exactly as it did before these existed.
 
 | Parameter | Type | Default | Description | Tuning strategy |
 |---|---|---:|---|---|
+| `Lid_Style` | enum | `"Skirt"` | `"Skirt"` wraps a wall around the outside of the box; `"Plug"` drops a ring just inside the box wall. | Skirt touches nothing inside the box. Plug keeps the lid's overhang as a finger grip, is notched around magnet bosses, and asserts if stabilizer fins or the post would reach it. |
 | `Lid_Height` | number | `8.1` | Height of lid wall above top plane. | Increase for stronger lid walls and clip volume in sliced mode. |
-| `Lid_Lip_Gap` | number | `0.1` | Fit clearance between lid and box mating walls. | Tight fit: reduce by `0.05`; loose fit: increase by `0.05`. |
-| `Lid_Lip_Gap_Height` | number | `3` | Height of inner engagement lip. | Taller lip improves hold; too tall may increase insertion force. |
+| `Lid_Lip_Gap` | number | `0.15` | Clearance on each side between the lip and the box wall it fits against. Also opens the lid's post socket by the same amount. | Tight fit: reduce by `0.05`; loose fit: increase by `0.05`. The default is a starting point that the `lid-fit` coupons will confirm. |
+| `Lid_Lip_Gap_Height` | number | `3` | How far the lip, skirt or plug, reaches past the rim into the box. | Taller lip improves hold; too tall may increase insertion force. With a Plug, stabilizer fins must stop this far below the rim. |
+
+The lid's footprint is `Box_Width + 2*(Wall_Thickness + Lid_Lip_Gap)` by
+`Box_Depth + 2*(Wall_Thickness + Lid_Lip_Gap)` for both styles, which is
+exactly a skirt's outside. A lip covers the top `Lid_Lip_Gap_Height` of any
+side opening that runs to the rim.
 
 ## 4a) Lid Relief
 
-`Lid_Lip_Gap` defaults to `0.1`, a deliberately tight friction fit with nothing
-to grip. These give the lid somewhere to be held.
+A friction-fit lid has nothing to grip. These give the lid somewhere to be held.
 
 | Parameter | Type | Default | Description | Practical guidance |
 |---|---|---:|---|---|
@@ -310,7 +315,7 @@ off the bed with no overhang and stiffen the corner.
 | `Clips_Per_Edge` | integer | `2` | Number of clips along each split edge. | Higher values improve alignment but add assembly friction. |
 | `Clip_Tab_Width` | number | `10` | Clip extent along split edge. | Increase for strength; reduce if edge space is limited. |
 | `Clip_Tab_Depth` | number | `4` | Clip insertion depth. | Deeper clips improve retention but may over-constrain fit. |
-| `Clip_Tab_Height` | number | `3` | Clip tab height. | Larger values increase engagement force. |
+| `Clip_Tab_Height` | number | `3` | Clip tab height. | Larger values increase engagement force. Floor clips start at the floor's bottom face, so anything above `Wall_Thickness` rises inside the box rather than hanging below the piece. |
 | `Slice_Preview_Spacing` | number | `5` | Gap between pieces in all-slices preview. | Visual layout only; does not affect exported single-part geometry. Snap clips add their travel on top, so pieces never touch in the preview. |
 | `Clip_Style` | enum | `"Tab"` | `"Tab"` is the original friction fit; `"Snap"` is a BOSL2 cantilever snap clip. | See the snap clip section below. |
 
@@ -414,6 +419,13 @@ Post:
 
 - `Post_Diameter` must exceed `Wall_Thickness*2` so the post has a wall.
 - `Post_Diameter` must be less than `min(Inner_Width, Inner_Depth)`.
+
+Lid:
+
+- `Lid_Style` must be `Skirt` or `Plug`.
+- With `Lid_Style=Plug`, the interior must hold two `Wall_Thickness` ring walls plus `Lid_Lip_Gap` on each side.
+- With `Lid_Style=Plug` and stabilizers on, `Stabilizer_Height + Wall_Thickness` must not exceed `Box_Height - Lid_Lip_Gap_Height`.
+- With `Lid_Style=Plug` and the post on, `Post_Diameter/2 + Lid_Lip_Gap` must not reach the plug ring's inside face.
 
 Stabilizers:
 

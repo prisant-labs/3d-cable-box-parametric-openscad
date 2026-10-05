@@ -90,7 +90,8 @@ The model generally builds robust base solids first, then subtractive features.
 ### Non-sliced
 
 - box path: `m_box_with_openings()`
-- lid path: `m_lid()`
+- lid path: `m_lid()`, whose slab and lip come from `m_lid_body()` in the
+  `Lid_Style` chosen
 - selected by `Part_To_Render`
 
 ### Sliced preview (`Slice_Piece_To_Render = 0`)

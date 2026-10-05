@@ -21,8 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Lid removal relief.** `Lid_Relief_Style` takes `Scallop` (a concave groove)
   or `Tab` (a protruding grip), placed by `Lid_Relief_On_Left/Right/Front/Back`
   mirroring the existing `Opening_On_*` block, and sized by `Lid_Relief_Width`
-  and `Lid_Relief_Depth`. `Lid_Lip_Gap` defaults to 0.1 mm, which is a
-  deliberately tight friction fit with nothing to grip. A side is skipped
+  and `Lid_Relief_Depth`. A friction-fit lid otherwise has nothing to grip.
+  A side is skipped
   automatically when an opening on that wall reaches the rim, which is the only
   case where the lid feature and the box feature meet. Defaults to `None`.
 - **Magnetic lid retention.** `Enable_Lid_Magnets` cuts mating pockets in the
@@ -43,14 +43,16 @@ All four features default to a state that leaves existing geometry unchanged.
 Nine regression scenarios cover them, including that the defaults render
 identically and that magnets survive slicing.
 
-- **Calibration coupons.** `calibration/` holds eight small test prints, each
+- **Calibration coupons.** `calibration/` holds ten small test prints, each
   isolating one fit that a full box would otherwise be the first print of: the
-  lid fit, the magnet pockets, the Gridfinity base and lid socket, snap and tab
-  seam clips, the edge treatment, and a side opening. Several 2.0.0 features
-  render cleanly but have not yet been confirmed on a printer, so further print
-  validation would be helpful; the coupons make that cheap. They are OpenSCAD
-  parameter sets in `calibration/config.json`, exported and checked by
-  `scripts/build_calibration.py` for exit code, a clean log, and body count.
+  lid fit and the magnet pockets with each lid style, the Gridfinity base and
+  lid socket, snap and tab seam clips, the edge treatment, and a side opening.
+  Several 2.0.0 features render cleanly but have not yet been confirmed on a
+  printer, so further print validation would be helpful; the coupons make that
+  cheap. They are OpenSCAD parameter sets in `calibration/config.json`,
+  exported and checked by `scripts/build_calibration.py` for exit code, a clean
+  log, and body count. The coupon README records the results of the first
+  print round, on rc.4, which found the two lid and clip defects fixed below.
 - **Release automation.** Pushing a `v*` tag runs `.github/workflows/release.yml`.
   It runs the version check, the geometry suite, and the standalone-bundle
   render, then drafts a GitHub release for review rather than publishing one.
@@ -63,7 +65,22 @@ identically and that magnets survive slicing.
 - **Options guide section for the finishing features**: the bottom fillet, the
   top chamfer, both lid reliefs, and the magnet bosses.
 
+- **`Lid_Style` chooses how the lid locates.** `Skirt`, the default, wraps a
+  wall around the outside of the box. `Plug` drops a ring just inside the box
+  wall and leaves the lid's overhang as a finger grip; it is notched around the
+  magnet bosses, and asserts when stabilizer fins or the post would reach it,
+  or when the box is too small to hold it. Two calibration coupons,
+  `lid-fit-plug` and `magnet-boss-plug`, test it.
+
 ### Changed
+- **`Lid_Lip_Gap` is now a clearance on each side, and defaults to `0.15`.**
+  It was added once to the lid's overall width, which made it a total. The
+  same value now separates the lip from the wall on every side, for both lid
+  styles, and also opens up the lid's post socket. The lid's footprint is
+  `Box + 2*(Wall_Thickness + Lid_Lip_Gap)`, so the default lid is 104 x 79 mm
+  instead of 103.8 x 78.8. **The `0.15` default is untested:** no lid has fitted
+  a box before, so the `lid-fit` reprints will settle it. No preset sets
+  `Lid_Lip_Gap`.
 - **`All_Openings_Up` now defaults to `5` instead of `0`.** Side openings are
   anchored at their bottom edge, so every enabled side opening now sits 5 mm
   above the box floor instead of flush with it. Set `All_Openings_Up=0` to
@@ -99,6 +116,28 @@ identically and that magnets survive slicing.
   retired lid studs, and the hero showed openings flush with the floor.
 
 ### Fixed
+- **The lid fits the box.** In every version from v1.0.0 to v2.0.0-rc.4,
+  including v1.4.1, the lid's lip ring was sized to land on top of the box
+  wall: on a 50 mm box it spanned 48.25 to 50.10 mm against a wall from 46.30
+  to 50.00. The lid stood on the rim instead of fitting, which the rc.4
+  `lid-fit` coupon confirmed by stacking 19 mm instead of 16. The lip is now a
+  skirt around the wall by default, or a plug inside it (see `Lid_Style`
+  above). The suite never caught it because it rendered one part at a time;
+  `tests/assembly/lid_seated.scad` now seats the lid on the box and asserts
+  that the two do not overlap. This changes the lid for unchanged inputs, a
+  **major** change under [E-10 (versioning)](docs/internal/E-10_versioning.md),
+  and every preset's lid changes with it.
+- **The lid's post socket has clearance.** Its bore was exactly
+  `Post_Diameter`, a zero-clearance fit that no lid reached while the lip held
+  it off the rim. It now takes `Lid_Lip_Gap` on each side, and the sleeve
+  around it grows to match.
+- **Sliced pieces sit on their floor (F-51).** Each floor clip was centred on
+  the floor, so a 3 mm clip in a 1.85 mm floor hung 0.575 mm below the piece. A
+  slicer stands the part on its lowest point, which left the floor and walls in
+  the air on the clip footprints alone: the rc.4 tab-clip coupon's first layer
+  was exactly the two clips' 80 mm². Clips now start at the floor's bottom face
+  and keep their full height, rising inside the box instead. This changes
+  every sliced box piece, another **major** change.
 - **Lid relief over a raised opening.** The check that drops a relief above an
   opening reaching the rim counted only `All_Openings_Up`. An opening raised to
   the rim by its own `Move_Opening_*_Up` still got a tab standing over it. The
@@ -116,8 +155,10 @@ identically and that magnets survive slicing.
   12 mm box with closed walls was rejected for a 30 mm opening it never cuts.
   The check now applies only when a side opening is on.
 
-Five regression scenarios cover these fixes, and each fails against the
-previous model.
+Five regression scenarios cover the four fixes from the lid relief onward,
+and each fails against the previous model. The lid, post socket and floor clip
+changes, together with `Lid_Style`, add eleven scenarios and update eight, and
+all nineteen fail against rc.4.
 
 - **Sliced preset sizes.** `surge-strip-6-sliced` reported 270 mm, the width
   of the preview layout with both halves side by side. It now reports the
