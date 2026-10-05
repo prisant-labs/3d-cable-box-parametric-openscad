@@ -24,7 +24,7 @@ incomplete, **Spec** for written but not begun.
 | [E-06](E-06_thermal-and-vents.md) | **Thermal and vents** | Ventilation generator plus material guidance for powered contents | Spec | M | E-03 (shares cut logic) |
 | [E-07](E-07_preset-library.md) | **Preset library** | A real catalogue of common sizes and configurations | Shipped: catalogue v1.2.0, browser 2.0.0 | M | E-09 (needs artifact automation) |
 | [E-08](E-08_web-customizer.md) | **Web customizer** | Browser-based customizer on GitHub Pages | Open. Site shell and preset browser shipped; the WASM playground is not built | M | E-02 (library availability) |
-| [E-09](E-09_testing-automation.md) | **Testing automation** | Automated geometry regression testing beyond compile checks | Shipped v1.1.1; 80 scenarios today | M | none |
+| [E-09](E-09_testing-automation.md) | **Testing automation** | Automated geometry regression testing beyond compile checks | Shipped v1.1.1; 91 scenarios today | M | none |
 | [E-10](E-10_versioning.md) | **Versioning** | Version scheme, pre-release flow, traceability from STL to source | Shipped v1.1.1; rc flow used for v1.2.0-rc.1 and v2.0.0-rc.1 through rc.4; releases drafted by `release.yml` | S | none |
 | [E-11](E-11_distribution.md) | **Distribution** | MakerWorld, Printables, and the licensing question that gates them | Open. Licence settled (MIT); listing drafted, nothing published | S | E-02 (MakerWorld benefits) |
 

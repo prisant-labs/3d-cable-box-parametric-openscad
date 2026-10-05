@@ -42,17 +42,36 @@ Used by:
 
 ### `m_lid()`
 
-Builds lid shell, lip geometry, and optional center-post mating features.
+Builds the lid: the body from `m_lid_body()`, plus the optional center-post
+collar and socket, magnet pockets, Gridfinity lid top, and finger relief.
 
 Behavior:
 
-- Uses `Lid_Height`, `Lid_Lip_Gap`, and `Lid_Lip_Gap_Height`
-- Handles post opening if `Enable_Post=true`
+- Handles the post socket if `Enable_Post=true`. The socket bore is
+  `Post_Diameter + 2*Lid_Lip_Gap`, so the post has the same clearance as the
+  lip.
 
 Used by:
 
 - non-sliced render path
 - `m_lid_slice()`
+
+### `m_lid_body()`
+
+Builds the lid's slab and its lip, in the style `Lid_Style` selects. Both
+styles share the footprint `Lid_Outer_Width` x `Lid_Outer_Depth` and the total
+height `Lid_Height + Lid_Lip_Gap_Height`.
+
+- `Skirt`: one shell with a pocket cut into its top `Lid_Lip_Gap_Height`. The
+  pocket is the box's outline plus `Lid_Lip_Gap` per side, so the skirt wraps
+  the outside of the wall.
+- `Plug`: a slab with a ring on top. The ring's outside is the box interior
+  minus `Lid_Lip_Gap` per side, it is `Wall_Thickness` thick, and it is
+  notched around the magnet bosses when `Enable_Lid_Magnets=true`.
+
+Before 2.0.0-rc.5 the lip was a ring that overlapped the outer half of the box
+wall, so the lid stood on the rim. The `assembly_*` scenarios seat the lid on
+the box through `tests/assembly/lid_seated.scad` and fail on any overlap.
 
 ### `m_opening(side, width, height, corner_radius)`
 
@@ -136,7 +155,10 @@ Splits opening placement around center post clearance when arranged along Y.
 
 ### `m_floor_clip_male()`
 
-Creates one male clip tab for box slice seams.
+Creates one male clip tab for box slice seams. `m_place_floor_clips` stands it
+on `z=0`, so it spans z 0 to `Clip_Tab_Height` and the piece sits flat on its
+floor. Before 2.0.0-rc.5 it was centred on the floor and hung 0.575 mm below
+it.
 
 ### `m_floor_clip_female()`
 
@@ -230,7 +252,7 @@ box sitting on `z=0`. The declared envelope includes any Gridfinity base.
 | Anchor | Where it is |
 |---|---|
 | `"lid-face"` | the face that ends up **exposed** when the box is closed, pointing away from the lid |
-| `"lip"` | the engagement lip that drops into the box |
+| `"lip"` | the free edge of the engagement lip, a skirt or a plug, which meets the box |
 
 `"lid-face"` is worth understanding. The lid prints face-down: its engagement
 lip points up, into the box, so the exposed face is the model's `z=0` face and

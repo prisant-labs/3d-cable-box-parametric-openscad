@@ -14,7 +14,7 @@ automation, and an Astro + Starlight docs site in `web/`.
 
 | Task | Command |
 |---|---|
-| Geometry suite (80 scenarios) | `python tests/run_tests.py [--filter NAME]` |
+| Geometry suite (91 scenarios) | `python tests/run_tests.py [--filter NAME]` |
 | Version consistency | `bash scripts/check-version.sh` |
 | Standalone bundle | `python scripts/build_bundle.py` |
 | Calibration coupons | `python scripts/build_calibration.py [--only NAME ...]` |

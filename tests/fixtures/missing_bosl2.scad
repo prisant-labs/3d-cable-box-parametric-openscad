@@ -62,11 +62,18 @@ Closed_Post = false;
 Post_Diameter = 15;
 
 /*[Lid]*/
+// How the lid locates on the box. Skirt wraps a short wall around the outside
+// of the box. Plug drops a ring just inside the box wall; it is notched around
+// magnet bosses, and stabilizer fins must stop below it. Both are friction
+// fits tuned with Lid_Lip_Gap.
+Lid_Style = "Skirt"; //["Skirt", "Plug"]
 // Lid wall height above the box top plane (mm).
 Lid_Height = 8.1;
-// Fit clearance between lid and box (mm). Increase if fit is tight.
-Lid_Lip_Gap = 0.1;
-// Height of the inner lip that engages the box (mm).
+// Clearance on each side between the lid's lip and the box wall it fits
+// against (mm). Increase if the fit is tight. The lid's post socket gets the
+// same clearance.
+Lid_Lip_Gap = 0.15;
+// How far the lip, skirt or plug, reaches past the rim into the box (mm).
 Lid_Lip_Gap_Height = 3;
 
 /*[Lid Relief]*/
@@ -399,12 +406,13 @@ Slice_Preview_Gap = Slice_Preview_Spacing +
 // Smallest |y| at which a seam clip sits on real material. A clip centred
 // inside the post opening has nothing to bond to and exports as a loose solid.
 // The box floor is bored to (Post_Diameter/2 - Wall_Thickness) only while the
-// post is open at the bottom; the lid is always pierced at Post_Diameter/2.
+// post is open at the bottom; the lid is always pierced at Post_Diameter/2 +
+// Lid_Lip_Gap, the post socket's radius.
 Floor_Clip_Clearance = (Enable_Post && !Closed_Post)
     ? Post_Diameter/2 - Wall_Thickness + Clip_Tab_Width/2
     : 0;
 Lid_Clip_Clearance = Enable_Post
-    ? Post_Diameter/2 + Clip_Tab_Width/2
+    ? Post_Diameter/2 + Lid_Lip_Gap + Clip_Tab_Width/2
     : 0;
 
 // Push a clip position clear of the post opening, but never outside the wall
@@ -417,16 +425,23 @@ function clear_post_opening(y, clearance, limit) =
 
 // ---- Gridfinity derived values ----
 
-// Lid footprint, needed to lay cells out on the lid top.
-Lid_Outer_Width = Box_Width + Wall_Thickness*2 + Lid_Lip_Gap;
-Lid_Outer_Depth = Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap;
+// Lid footprint: the box plus a wall and Lid_Lip_Gap on every side, which is
+// exactly a Skirt lid's outside. A Plug lid's slab keeps the same footprint.
+// Also needed to lay Gridfinity cells out on the lid top.
+Lid_Outer_Width = Box_Width + (Wall_Thickness + Lid_Lip_Gap) * 2;
+Lid_Outer_Depth = Box_Depth + (Wall_Thickness + Lid_Lip_Gap) * 2;
+
+// Outside of a Plug lid's ring: the box cavity less Lid_Lip_Gap on each side.
+Plug_Outer_Width = Inner_Width - Lid_Lip_Gap * 2;
+Plug_Outer_Depth = Inner_Depth - Lid_Lip_Gap * 2;
 
 // Which lid face ends up on top when the box is closed.
 //
 // The lid is modelled as it prints: a solid panel spanning z 0..Lid_Height,
-// then an engagement lip ring from Lid_Height to Lid_Height+Lid_Lip_Gap_Height
-// that exists only around the perimeter. That lip is what drops onto the box,
-// so in use the lid is inverted and the panel's z=0 face is the exposed top.
+// then the lip, a skirt or a plug ring, from Lid_Height to
+// Lid_Height+Lid_Lip_Gap_Height around the perimeter. That lip is what engages
+// the box, so in use the lid is inverted and the panel's z=0 face is the
+// exposed top.
 //
 // Gridfinity features therefore grow DOWNWARD from z=0, and the lid is lifted
 // by their height at render time, exactly as the box is lifted over its base.
@@ -501,6 +516,24 @@ assert(Bottom_Edge_Fillet + Top_Edge_Chamfer < Box_Height,
        "Bottom_Edge_Fillet and Top_Edge_Chamfer together must be less than Box_Height, or the two treatments meet.");
 assert(Top_Edge_Chamfer * 2 < Lid_Height,
        "Top_Edge_Chamfer must be less than half of Lid_Height; both lid faces are chamfered and they would meet.");
+
+assert(Lid_Style == "Skirt" || Lid_Style == "Plug", "Lid_Style must be Skirt or Plug");
+// A Plug ring is Wall_Thickness thick with Lid_Lip_Gap of clearance outside it,
+// so the cavity has to hold two ring walls with room left in the middle.
+assert(Lid_Style != "Plug" || min(Plug_Outer_Width, Plug_Outer_Depth) > Wall_Thickness * 2,
+       "The box is too small for a Plug lid: its interior must exceed two Wall_Thickness ring walls plus Lid_Lip_Gap on each side. Use Lid_Style Skirt, or enlarge Box_Width or Box_Depth.");
+// Fins taper to a line on the wall at their top, so they only meet a Plug ring
+// if they reach into the Lid_Lip_Gap_Height band below the rim where it sits.
+assert(Lid_Style != "Plug" || !Enable_Stabilizers ||
+       Stabilizer_Height + Wall_Thickness <= Box_Height - Lid_Lip_Gap_Height,
+       str("With Lid_Style Plug, Stabilizer_Height must be at most ",
+           Box_Height - Lid_Lip_Gap_Height - Wall_Thickness,
+           " so the fins stop below the plug. Lower it, or use Lid_Style Skirt."));
+// The post stands in the middle of the cavity, and a wide one reaches the
+// inside face of the Plug ring.
+assert(Lid_Style != "Plug" || !Enable_Post ||
+       Post_Diameter / 2 + Lid_Lip_Gap <= min(Plug_Outer_Width, Plug_Outer_Depth) / 2 - Wall_Thickness,
+       "With Lid_Style Plug, Post_Diameter is too large: the post would meet the plug ring. Reduce Post_Diameter, or use Lid_Style Skirt.");
 
 assert(Lid_Relief_Style == "None" || Lid_Relief_Style == "Scallop" || Lid_Relief_Style == "Tab",
        "Lid_Relief_Style must be None, Scallop or Tab");
@@ -595,7 +628,8 @@ for (side = OPENING_SIDES)
     if (opening_enabled(side) && opening_top(side) > Box_Height)
         echo(str(side, " opening top edge at ", opening_top(side),
                  " mm is above Box_Height ", Box_Height,
-                 " mm; it is cut open to the rim as a notch"));
+                 " mm; it is cut open to the rim as a notch, and the seated",
+                 " lid's lip covers its top ", Lid_Lip_Gap_Height, " mm"));
 
 // ============================================
 // STABILIZERS MODULE (v5)
@@ -1456,7 +1490,17 @@ module m_floor_clip_female() {
 }
 
 module m_place_floor_clips(x_pos, is_male) {
-    z_pos = Wall_Thickness / 2;
+    // The clip starts at the floor's bottom face and rises Clip_Tab_Height.
+    // Until rc.5 it was centred on the floor at Wall_Thickness/2, so a 3 mm clip
+    // in a 1.85 mm floor hung 0.575 mm below the piece. A slicer lowers a part
+    // until its lowest point touches the bed, which left the floor and walls
+    // 0.575 mm in the air on the clip footprints alone: the rc.4 tab-clip
+    // coupon's first layer was exactly the two clips' 80 mm^2. Starting at z=0
+    // keeps the full clip height, so a snap arm loses no stiffness; the extra
+    // rises inside the box, where nothing meets it. Both clip styles and both
+    // genders share this z, so the female cut still runs through the floor
+    // around its clip.
+    z_pos = Clip_Tab_Height / 2;
     usable_depth = Box_Depth - Wall_Thickness*2 - Clip_Tab_Width;
     female_depth = Clip_Tab_Depth + Clip_Tolerance*2 + SPACER;
     // Offsets intentionally overlap seam slightly to avoid tangent-only booleans.
@@ -1509,7 +1553,7 @@ module m_place_lid_clips(x_pos, is_male) {
     // Male and female clips share this offset, so the fit is unchanged, and
     // 0.04 mm is a fifth of a typical layer, so the print is too.
     z_pos = Lid_Height - Clip_Tab_Height/2 - SPACER;
-    lid_depth = Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap;
+    lid_depth = Lid_Outer_Depth;
     usable_depth = lid_depth - Clip_Tab_Width*2;
     female_depth = Clip_Tab_Depth + Clip_Tolerance*2 + SPACER;
     // Offsets intentionally overlap seam slightly to avoid tangent-only booleans.
@@ -1647,9 +1691,7 @@ module m_gridfinity_lid_top_solid() {
     // Reaches WELD into the lid panel rather than stopping flush against it,
     // for the same coplanar-face reason as the box base.
     translate([0, 0, -GF_LIDTOP_PLATE_HEIGHT])
-    cuboid([Box_Width + Wall_Thickness*2 + Lid_Lip_Gap,
-            Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap,
-            GF_LIDTOP_PLATE_HEIGHT + WELD],
+    cuboid([Lid_Outer_Width, Lid_Outer_Depth, GF_LIDTOP_PLATE_HEIGHT + WELD],
         rounding = Corner_Radius,
         except = [TOP, BOTTOM],
         anchor = BOTTOM);
@@ -1942,46 +1984,90 @@ module m_lid_relief(is_cut) {
 }
 
 
+// The lid's slab plus the lip that locates it on the box.
+//
+// From v1.0.0 to v2.0.0-rc.4 the lip was one ring, Box_Width + Lid_Lip_Gap
+// across outside and Box_Width - Wall_Thickness + Lid_Lip_Gap inside. The box
+// wall spans Box_Width - 2*Wall_Thickness to Box_Width, so that ring stood on
+// the outer half of the rim and no lid ever fitted: printed rc.4 coupons
+// stacked 19 mm where a seated lid stacks 16. Every scenario rendered one part
+// at a time, so the suite passed it; tests/assembly/lid_seated.scad now seats
+// the lid on the box.
+//
+// Skirt: a Wall_Thickness wall wraps the outside of the box. The slab already
+// overhung the box by a wall on every side, which is a cap's footprint, so the
+// skirt is that footprint carried past the rim with a pocket for the box cut
+// into it. Building slab and skirt as one shell puts the edge treatment on the
+// two edges a hand meets: the exposed face at z=0 and the skirt's free edge.
+//
+// Plug: a Wall_Thickness ring drops inside the box wall, and the slab overhangs
+// the box as before, with both of its horizontal edges treated. Magnet bosses
+// fill the box's inside corners up to the rim, so with magnets on the ring is
+// notched around each boss. Stabilizer fins and the post are kept clear of the
+// ring by validation instead.
+//
+// Both styles leave Lid_Lip_Gap of clearance on each side of the wall the lip
+// meets.
+module m_lid_body() {
+    if (Lid_Style == "Skirt") {
+        difference() {
+            m_edge_treated_shell([Lid_Outer_Width, Lid_Outer_Depth,
+                                  Lid_Height + Lid_Lip_Gap_Height],
+                Lid_Chamfer_Effective, Lid_Chamfer_Effective);
+
+            // The pocket's corners follow the box's outer corners at the gap.
+            up(Lid_Height)
+                cuboid([Box_Width + Lid_Lip_Gap * 2, Box_Depth + Lid_Lip_Gap * 2,
+                        Lid_Lip_Gap_Height + SPACER],
+                    rounding = Corner_Radius > 0 ? Corner_Radius + Lid_Lip_Gap : 0,
+                    except = [TOP, BOTTOM],
+                    anchor = BOTTOM);
+        }
+    } else {
+        m_edge_treated_shell([Lid_Outer_Width, Lid_Outer_Depth, Lid_Height],
+            Lid_Chamfer_Effective, Lid_Chamfer_Effective);
+
+        // The ring's corners follow the cavity's inner corners at the gap. The
+        // notches start at Lid_Height so they never cut into the slab.
+        difference() {
+            up(Lid_Height - WELD)
+                cuboid([Plug_Outer_Width, Plug_Outer_Depth, Lid_Lip_Gap_Height + WELD],
+                    rounding = max(0, Corner_Radius - Lid_Lip_Gap),
+                    except = [TOP, BOTTOM],
+                    anchor = BOTTOM);
+
+            up(Lid_Height)
+                cuboid([Plug_Outer_Width - Wall_Thickness * 2,
+                        Plug_Outer_Depth - Wall_Thickness * 2,
+                        Lid_Lip_Gap_Height + SPACER],
+                    rounding = max(0, Corner_Radius - Lid_Lip_Gap - Wall_Thickness),
+                    except = [TOP, BOTTOM],
+                    anchor = BOTTOM);
+
+            if (Enable_Lid_Magnets)
+                m_magnet_corner_positions()
+                    up(Lid_Height)
+                        cyl(d = Magnet_Boss_Diameter + Lid_Lip_Gap * 2,
+                            h = Lid_Lip_Gap_Height + SPACER, anchor = BOTTOM);
+        }
+    }
+}
+
 module m_lid() {
     difference() {
         union() {
+            // A sleeve around the post's top end. Its bore takes Lid_Lip_Gap
+            // of clearance like the lip, and its outside grows by the same so
+            // the sleeve wall stays Wall_Thickness/2.
             if (Enable_Post) {
                 color(COLOR_POST)
                 up(Lid_Height - WELD)
-                cyl(d = Post_Diameter + Wall_Thickness,
+                cyl(d = Post_Diameter + Lid_Lip_Gap * 2 + Wall_Thickness,
                     h = Lid_Lip_Gap_Height + WELD, anchor = BOTTOM);
             }
 
-            // Both horizontal edges of the lid slab get the chamfer, not a
-            // fillet and a chamfer like the box. The lid inverts in use, so the
-            // face at z=0 here is the exposed top of a closed box and the face
-            // at Lid_Height overhangs the box wall: both are edges a hand meets,
-            // and neither sits on the print bed the way the box bottom does.
             color(COLOR_LID)
-            m_edge_treated_shell([Box_Width + Wall_Thickness*2 + Lid_Lip_Gap,
-                                  Box_Depth + Wall_Thickness*2 + Lid_Lip_Gap,
-                                  Lid_Height],
-                Lid_Chamfer_Effective, Lid_Chamfer_Effective);
-
-            difference() {
-                color(COLOR_LID)
-                translate([0, 0, Lid_Height - WELD])
-                cuboid([Box_Width + Lid_Lip_Gap,
-                        Box_Depth + Lid_Lip_Gap,
-                        Lid_Lip_Gap_Height + WELD],
-                    rounding = Corner_Radius,
-                    except = [TOP, BOTTOM],
-                    anchor = BOTTOM);
-
-                color(COLOR_LID)
-                translate([0, 0, Lid_Height])
-                cuboid([Box_Width - Wall_Thickness + Lid_Lip_Gap,
-                        Box_Depth - Wall_Thickness + Lid_Lip_Gap,
-                        Lid_Lip_Gap_Height+SPACER],
-                    rounding = Corner_Radius,
-                    except = [TOP, BOTTOM],
-                    anchor = BOTTOM);
-            }
+            m_lid_body();
 
             if (GF_Lid_Active)
                 color(COLOR_GRIDFINITY)
@@ -2006,12 +2092,14 @@ module m_lid() {
 
         // Socket the post's top end seats into. It opens through the collar on
         // the lip side and sinks into the lid slab by a wall, the lip gap, and
-        // a 0.2 mm allowance (capped at Lid_Height for very thin lids).
+        // a 0.2 mm allowance (capped at Lid_Height for very thin lids). Until
+        // rc.5 its diameter was exactly Post_Diameter, a zero-clearance fit
+        // that went unnoticed because the lip held every lid off the rim.
         if (Enable_Post) {
             socket_depth = Wall_Thickness + Lid_Lip_Gap + min(0.2, Lid_Height);
             color(COLOR_POST)
             translate([0, 0, Lid_Height - socket_depth])
-                cyl(d = Post_Diameter,
+                cyl(d = Post_Diameter + Lid_Lip_Gap * 2,
                     h = Lid_Lip_Gap_Height + socket_depth + SPACER,
                     anchor = BOTTOM);
         }
@@ -2020,7 +2108,7 @@ module m_lid() {
 }
 
 module m_lid_slice(slice_num) {
-    lid_width = Box_Width + Wall_Thickness*2 + Lid_Lip_Gap;
+    lid_width = Lid_Outer_Width;
     slice_width = lid_width / Slice_Count;
     slice_start_x = -lid_width/2 + (slice_num - 1) * slice_width;
     slice_end_x = slice_start_x + slice_width;
@@ -2214,7 +2302,7 @@ module full_render() {
                         m_box_placed() m_box_slice(i);
                     }
                     if (Part_To_Render != "Box Only") {
-                        lid_slice_width = (Box_Width + Wall_Thickness*2 + Lid_Lip_Gap) / Slice_Count;
+                        lid_slice_width = Lid_Outer_Width / Slice_Count;
                         lid_x_offset = (i - 1) * (lid_slice_width + Slice_Preview_Gap) - (Slice_Count - 1) * (lid_slice_width + Slice_Preview_Gap) / 2;
                         translate([lid_x_offset - x_offset, Box_Depth + PART_LAYOUT_GAP, 0])
                             m_lid_placed() m_lid_slice(i);

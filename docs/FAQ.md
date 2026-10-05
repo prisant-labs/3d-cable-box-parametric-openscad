@@ -14,7 +14,7 @@ Tune `Lid_Lip_Gap` in `0.05 mm` increments and print a short calibration pair. P
 
 ## What is a good starting value for `Lid_Lip_Gap`?
 
-Start at `0.10` for PLA and increase as needed. PETG and ABS often need slightly larger values.
+The default `0.15` is a clearance on each side of the wall the lid fits against, and it is a starting point rather than a printed result: the first lid that could actually fit its box arrived in 2.0.0. Print the `lid-fit` coupon, or `lid-fit-plug` for `Lid_Style=Plug`, and adjust in `0.05 mm` steps. PETG and ABS often need slightly larger values.
 
 ## Why are my side openings not where I expect?
 
@@ -147,8 +147,8 @@ the STL; the GLB is for looking at.
 
 Three options, cheapest first.
 
-1. Increase `Lid_Lip_Gap` in `0.05 mm` steps. The default `0.1` is a
-   deliberately tight friction fit.
+1. Increase `Lid_Lip_Gap` in `0.05 mm` steps. It is a friction fit, and
+   the default `0.15` has not yet been confirmed on many printers.
 2. Set `Lid_Relief_Style` to `Scallop` or `Tab`. That adds finger purchase to
    the lid edge: a scallop is a concave groove and does not change the outer
    size, a tab is a protruding grip and is more effective. Choose walls with

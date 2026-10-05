@@ -71,6 +71,65 @@ rendered successfully and produced a collapsed model.
 
 Fix: keep `Post_Diameter` between `Wall_Thickness*2` and the smaller interior span.
 
+## Lid
+
+### Lid style must be a known value
+
+```scad
+assert(Lid_Style == "Skirt" || Lid_Style == "Plug", "Lid_Style must be Skirt or Plug");
+```
+
+Why: any other string would silently build the Plug branch.
+
+Fix: use `Skirt` or `Plug`.
+
+### A Plug lid needs room inside the walls
+
+```scad
+assert(Lid_Style != "Plug" || min(Plug_Outer_Width, Plug_Outer_Depth) > Wall_Thickness * 2,
+       "The box is too small for a Plug lid: ...");
+```
+
+Why: the plug ring is `Wall_Thickness` thick and sits `Lid_Lip_Gap` inside the
+wall on every side. In a very small box the ring's inside would invert, and
+BOSL2 aborts with a message about a negative size.
+
+Fix: use `Lid_Style=Skirt`, or enlarge `Box_Width` or `Box_Depth`.
+
+### A Plug lid needs the stabilizer fins to stop below it
+
+```scad
+assert(Lid_Style != "Plug" || !Enable_Stabilizers ||
+       Stabilizer_Height + Wall_Thickness <= Box_Height - Lid_Lip_Gap_Height,
+       "With Lid_Style Plug, Stabilizer_Height must be at most ...");
+```
+
+Why: the plug ring sits in the top `Lid_Lip_Gap_Height` of the box, against
+the walls the fins grow from. A fin reaching into that band renders cleanly and
+stops the lid from seating, so nothing but a print would show it. The box's own
+fin check allows fins right up to the rim, which a Skirt lid tolerates.
+
+Fix: lower `Stabilizer_Height` to the value in the message, or use
+`Lid_Style=Skirt`.
+
+### A Plug lid needs the post to clear the ring
+
+```scad
+assert(Lid_Style != "Plug" || !Enable_Post ||
+       Post_Diameter / 2 + Lid_Lip_Gap <= min(Plug_Outer_Width, Plug_Outer_Depth) / 2 - Wall_Thickness,
+       "With Lid_Style Plug, Post_Diameter is too large: ...");
+```
+
+Why: the post stands in the middle of the cavity. A post that fits the box can
+still reach the inside face of the plug ring in a narrow box, and the lid would
+not seat.
+
+Fix: reduce `Post_Diameter`, or use `Lid_Style=Skirt`.
+
+The plug ring is notched around the magnet bosses instead of asserting,
+because the bosses sit in the corners where a notch leaves the rest of the ring
+intact.
+
 ## Stabilizers
 
 ### Fins must fit inside the box

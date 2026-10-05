@@ -51,8 +51,10 @@ Achieve a consistent, repeatable friction fit across your printer/material profi
 
 ### Steps
 
-1. Start with default `Lid_Lip_Gap=0.1`.
-2. Print a draft pair at final layer height and wall count.
+1. Start with the default `Lid_Lip_Gap=0.15`, a clearance on each side, and
+   choose `Lid_Style` (`Skirt` or `Plug`) before you tune it.
+2. Print the matching `lid-fit` or `lid-fit-plug` coupon, or a draft pair, at
+   final layer height and wall count.
 3. Test fit after cooling to room temperature.
 4. If too tight, increase by `0.05`.
 5. If too loose, decrease by `0.05`.
@@ -65,7 +67,8 @@ Achieve a consistent, repeatable friction fit across your printer/material profi
 - PETG: `0.15` to `0.30`
 - ABS/ASA: `0.20` to `0.35`
 
-Use these as starting points only.
+Use these as starting points only. They are not measured, and since 2.0.0
+the value is per side rather than a total.
 
 ## 4) Side Opening Workflow
 
