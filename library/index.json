@@ -14,8 +14,9 @@
     "Enable_Post": true,
     "Closed_Post": false,
     "Post_Diameter": 15,
+    "Lid_Style": "Skirt",
     "Lid_Height": 8.1,
-    "Lid_Lip_Gap": 0.1,
+    "Lid_Lip_Gap": 0.15,
     "Lid_Lip_Gap_Height": 3,
     "Lid_Relief_Style": "None",
     "Lid_Relief_Width": 20,
@@ -179,42 +180,42 @@
           "slug": "lid-only",
           "label": "Lid Only",
           "size_mm": [
-            143.8,
-            83.8,
+            144.0,
+            84.0,
             11.1
           ],
           "stl": {
             "path": "desk-compact/stl/desk-compact_lid-only.stl",
-            "bytes": 146484
+            "bytes": 115086
           },
           "glb": {
             "path": "desk-compact/stl/desk-compact_lid-only.glb",
-            "bytes": 15948
+            "bytes": 12728
           },
           "image": {
             "path": "desk-compact/images/desk-compact_lid-only.png",
-            "bytes": 20421
+            "bytes": 17453
           }
         },
         {
           "slug": "box-and-lid",
           "label": "Box and Lid",
           "size_mm": [
-            301.9,
-            83.8,
+            302.0,
+            84.0,
             55.0
           ],
           "stl": {
             "path": "desk-compact/stl/desk-compact_box-and-lid.stl",
-            "bytes": 384003
+            "bytes": 352777
           },
           "glb": {
             "path": "desk-compact/stl/desk-compact_box-and-lid.glb",
-            "bytes": 41176
+            "bytes": 37968
           },
           "image": {
             "path": "desk-compact/images/desk-compact_box-and-lid.png",
-            "bytes": 16795
+            "bytes": 16392
           }
         }
       ],
@@ -284,42 +285,42 @@
           "slug": "lid-only",
           "label": "Lid Only",
           "size_mm": [
-            178.8,
-            108.8,
+            179.0,
+            109.0,
             11.1
           ],
           "stl": {
             "path": "laptop-brick/stl/laptop-brick_lid-only.stl",
-            "bytes": 146485
+            "bytes": 115371
           },
           "glb": {
             "path": "laptop-brick/stl/laptop-brick_lid-only.glb",
-            "bytes": 15948
+            "bytes": 12728
           },
           "image": {
             "path": "laptop-brick/images/laptop-brick_lid-only.png",
-            "bytes": 19120
+            "bytes": 16761
           }
         },
         {
           "slug": "box-and-lid",
           "label": "Box and Lid",
           "size_mm": [
-            371.9,
-            108.8,
+            372.0,
+            109.0,
             70.0
           ],
           "stl": {
             "path": "laptop-brick/stl/laptop-brick_box-and-lid.stl",
-            "bytes": 394958
+            "bytes": 364002
           },
           "glb": {
             "path": "laptop-brick/stl/laptop-brick_box-and-lid.glb",
-            "bytes": 42040
+            "bytes": 38832
           },
           "image": {
             "path": "laptop-brick/images/laptop-brick_box-and-lid.png",
-            "bytes": 20432
+            "bytes": 19718
           }
         }
       ],
@@ -389,42 +390,42 @@
           "slug": "lid-only",
           "label": "Lid Only",
           "size_mm": [
-            123.8,
-            78.8,
+            124.0,
+            79.0,
             11.1
           ],
           "stl": {
             "path": "usb-charger/stl/usb-charger_lid-only.stl",
-            "bytes": 146360
+            "bytes": 115232
           },
           "glb": {
             "path": "usb-charger/stl/usb-charger_lid-only.glb",
-            "bytes": 15952
+            "bytes": 12728
           },
           "image": {
             "path": "usb-charger/images/usb-charger_lid-only.png",
-            "bytes": 20820
+            "bytes": 17680
           }
         },
         {
           "slug": "box-and-lid",
           "label": "Box and Lid",
           "size_mm": [
-            261.9,
-            78.8,
+            262.0,
+            79.0,
             45.0
           ],
           "stl": {
             "path": "usb-charger/stl/usb-charger_box-and-lid.stl",
-            "bytes": 385230
+            "bytes": 354334
           },
           "glb": {
             "path": "usb-charger/stl/usb-charger_box-and-lid.glb",
-            "bytes": 41176
+            "bytes": 37968
           },
           "image": {
             "path": "usb-charger/images/usb-charger_box-and-lid.png",
-            "bytes": 15385
+            "bytes": 14678
           }
         }
       ],
@@ -494,42 +495,42 @@
           "slug": "lid-only",
           "label": "Lid Only",
           "size_mm": [
-            213.8,
-            98.8,
+            214.0,
+            99.0,
             11.1
           ],
           "stl": {
             "path": "monitor-junction/stl/monitor-junction_lid-only.stl",
-            "bytes": 146627
+            "bytes": 115317
           },
           "glb": {
             "path": "monitor-junction/stl/monitor-junction_lid-only.glb",
-            "bytes": 15952
+            "bytes": 12728
           },
           "image": {
             "path": "monitor-junction/images/monitor-junction_lid-only.png",
-            "bytes": 18857
+            "bytes": 16477
           }
         },
         {
           "slug": "box-and-lid",
           "label": "Box and Lid",
           "size_mm": [
-            441.9,
-            98.8,
+            442.0,
+            99.0,
             62.0
           ],
           "stl": {
             "path": "monitor-junction/stl/monitor-junction_box-and-lid.stl",
-            "bytes": 395177
+            "bytes": 364092
           },
           "glb": {
             "path": "monitor-junction/stl/monitor-junction_box-and-lid.glb",
-            "bytes": 42040
+            "bytes": 38832
           },
           "image": {
             "path": "monitor-junction/images/monitor-junction_box-and-lid.png",
-            "bytes": 21749
+            "bytes": 21412
           }
         }
       ],
@@ -599,42 +600,42 @@
           "slug": "lid-only",
           "label": "Lid Only",
           "size_mm": [
-            268.8,
-            103.8,
+            269.0,
+            104.0,
             11.1
           ],
           "stl": {
             "path": "surge-strip-6/stl/surge-strip-6_lid-only.stl",
-            "bytes": 146543
+            "bytes": 115265
           },
           "glb": {
             "path": "surge-strip-6/stl/surge-strip-6_lid-only.glb",
-            "bytes": 15952
+            "bytes": 12728
           },
           "image": {
             "path": "surge-strip-6/images/surge-strip-6_lid-only.png",
-            "bytes": 18284
+            "bytes": 16050
           }
         },
         {
           "slug": "box-and-lid",
           "label": "Box and Lid",
           "size_mm": [
-            551.9,
-            103.8,
+            552.0,
+            104.0,
             62.0
           ],
           "stl": {
             "path": "surge-strip-6/stl/surge-strip-6_box-and-lid.stl",
-            "bytes": 393262
+            "bytes": 362156
           },
           "glb": {
             "path": "surge-strip-6/stl/surge-strip-6_box-and-lid.glb",
-            "bytes": 41896
+            "bytes": 38688
           },
           "image": {
             "path": "surge-strip-6/images/surge-strip-6_box-and-lid.png",
-            "bytes": 24715
+            "bytes": 24059
           }
         }
       ],
@@ -659,17 +660,17 @@
       "box_size_mm": [
         270.0,
         100.0,
-        62.58
+        62.0
       ],
       "assembled_size_mm": [
         265.0,
         100.0,
-        62.58
+        62.0
       ],
       "largest_piece_mm": [
         136.46,
         100.0,
-        62.58
+        62.0
       ],
       "features": {
         "gridfinity_bottom": false,
@@ -696,61 +697,61 @@
           "size_mm": [
             270.0,
             100.0,
-            62.58
+            62.0
           ],
           "stl": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-only.stl",
-            "bytes": 277226
+            "bytes": 272871
           },
           "glb": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-only.glb",
-            "bytes": 30312
+            "bytes": 29864
           },
           "image": {
             "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_box-only.png",
-            "bytes": 26347
+            "bytes": 26678
           }
         },
         {
           "slug": "lid-only",
           "label": "Lid Only",
           "size_mm": [
-            273.8,
-            103.8,
+            274.0,
+            104.0,
             11.1
           ],
           "stl": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_lid-only.stl",
-            "bytes": 170538
+            "bytes": 136736
           },
           "glb": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_lid-only.glb",
-            "bytes": 18928
+            "bytes": 15420
           },
           "image": {
             "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_lid-only.png",
-            "bytes": 20751
+            "bytes": 18351
           }
         },
         {
           "slug": "box-and-lid",
           "label": "Box and Lid",
           "size_mm": [
-            273.8,
-            221.9,
-            62.58
+            274.0,
+            222.0,
+            62.0
           ],
           "stl": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-and-lid.stl",
-            "bytes": 447717
+            "bytes": 409560
           },
           "glb": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-and-lid.glb",
-            "bytes": 48548
+            "bytes": 44604
           },
           "image": {
             "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_box-and-lid.png",
-            "bytes": 22019
+            "bytes": 22044
           }
         }
       ],
@@ -822,42 +823,42 @@
           "slug": "lid-only",
           "label": "Lid Only",
           "size_mm": [
-            143.8,
-            103.8,
+            144.0,
+            104.0,
             15.85
           ],
           "stl": {
             "path": "gridfinity-module/stl/gridfinity-module_lid-only.stl",
-            "bytes": 185045
+            "bytes": 153111
           },
           "glb": {
             "path": "gridfinity-module/stl/gridfinity-module_lid-only.glb",
-            "bytes": 19424
+            "bytes": 16204
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_lid-only.png",
-            "bytes": 22607
+            "bytes": 19841
           }
         },
         {
           "slug": "box-and-lid",
           "label": "Box and Lid",
           "size_mm": [
-            301.9,
-            103.8,
+            302.0,
+            104.0,
             59.75
           ],
           "stl": {
             "path": "gridfinity-module/stl/gridfinity-module_box-and-lid.stl",
-            "bytes": 472631
+            "bytes": 440863
           },
           "glb": {
             "path": "gridfinity-module/stl/gridfinity-module_box-and-lid.glb",
-            "bytes": 49768
+            "bytes": 46560
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_box-and-lid.png",
-            "bytes": 18445
+            "bytes": 17870
           }
         }
       ],
@@ -866,7 +867,7 @@
           "slug": "underside",
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_underside.png",
-            "bytes": 32804
+            "bytes": 32594
           }
         }
       ]
@@ -936,42 +937,42 @@
           "slug": "lid-only",
           "label": "Lid Only",
           "size_mm": [
-            233.8,
-            133.8,
+            234.0,
+            134.0,
             11.1
           ],
           "stl": {
             "path": "router-shelf/stl/router-shelf_lid-only.stl",
-            "bytes": 146558
+            "bytes": 115146
           },
           "glb": {
             "path": "router-shelf/stl/router-shelf_lid-only.glb",
-            "bytes": 15948
+            "bytes": 12728
           },
           "image": {
             "path": "router-shelf/images/router-shelf_lid-only.png",
-            "bytes": 18261
+            "bytes": 16063
           }
         },
         {
           "slug": "box-and-lid",
           "label": "Box and Lid",
           "size_mm": [
-            481.9,
-            133.8,
+            482.0,
+            134.0,
             75.0
           ],
           "stl": {
             "path": "router-shelf/stl/router-shelf_box-and-lid.stl",
-            "bytes": 411510
+            "bytes": 380270
           },
           "glb": {
             "path": "router-shelf/stl/router-shelf_box-and-lid.glb",
-            "bytes": 43908
+            "bytes": 40704
           },
           "image": {
             "path": "router-shelf/images/router-shelf_box-and-lid.png",
-            "bytes": 24661
+            "bytes": 23858
           }
         }
       ],
@@ -1044,42 +1045,42 @@
           "slug": "lid-only",
           "label": "Lid Only",
           "size_mm": [
-            183.8,
-            88.8,
+            184.0,
+            89.0,
             11.1
           ],
           "stl": {
             "path": "under-desk-passthrough/stl/under-desk-passthrough_lid-only.stl",
-            "bytes": 90588
+            "bytes": 59679
           },
           "glb": {
             "path": "under-desk-passthrough/stl/under-desk-passthrough_lid-only.glb",
-            "bytes": 10188
+            "bytes": 6968
           },
           "image": {
             "path": "under-desk-passthrough/images/under-desk-passthrough_lid-only.png",
-            "bytes": 17438
+            "bytes": 15052
           }
         },
         {
           "slug": "box-and-lid",
           "label": "Box and Lid",
           "size_mm": [
-            381.9,
-            88.8,
+            382.0,
+            89.0,
             50.0
           ],
           "stl": {
             "path": "under-desk-passthrough/stl/under-desk-passthrough_box-and-lid.stl",
-            "bytes": 219200
+            "bytes": 188513
           },
           "glb": {
             "path": "under-desk-passthrough/stl/under-desk-passthrough_box-and-lid.glb",
-            "bytes": 23892
+            "bytes": 20684
           },
           "image": {
             "path": "under-desk-passthrough/images/under-desk-passthrough_box-and-lid.png",
-            "bytes": 18713
+            "bytes": 18107
           }
         }
       ],

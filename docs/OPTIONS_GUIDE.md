@@ -106,11 +106,17 @@ The cable-wrapping core.
 
 Fit and engagement.
 
-### Default lid
+### Default lid: Lid_Style Skirt wraps the box
 
 `Part_To_Render=Lid Only`
 
-![Default lid](images/options/lid-default.png)
+![Default lid: Lid_Style Skirt wraps the box](images/options/lid-default.png)
+
+### Lid_Style Plug: a ring inside the wall
+
+`Part_To_Render=Lid Only`, `Lid_Style=Plug`
+
+![Lid_Style Plug: a ring inside the wall](images/options/lid-plug.png)
 
 ### Lid_Height 16
 
