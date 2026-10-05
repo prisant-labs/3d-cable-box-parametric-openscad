@@ -4,9 +4,9 @@ Same as surge-strip-6, printed in two halves that clip together.
 
 **Note:** Export each half with Slice_Piece_To_Render=1 then 2. The preview STL here shows both halves laid out side by side.
 
-Assembled box: `265.0 x 100.0 x 62.6 mm`
+Assembled box: `265.0 x 100.0 x 62.0 mm`
 
-Largest printed piece: `136.5 x 100.0 x 62.6 mm` (includes protruding clips)
+Largest printed piece: `136.5 x 100.0 x 62.0 mm` (includes protruding clips)
 
 ## Parameters
 
