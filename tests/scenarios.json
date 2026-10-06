@@ -779,11 +779,11 @@
       "_why": "From v1.0.0 to rc.4 the lid's lip ring spanned 48.25 to 50.10 mm on",
       "_why2": "a 50 mm box whose wall spans 46.30 to 50.00, so it landed on the",
       "_why3": "rim and the lid could not fit. Printed coupons stacked 19 mm, not 16.",
-      "_why4": "Seated, the default Skirt lid must overlap nothing, including the",
+      "_why4": "Seated, a Skirt lid must overlap nothing, including the",
       "_why5": "post collar, whose bore once matched the post with zero clearance.",
       "_why6": "OpenSCAD exits 1 on an empty export, so rc 1 is the proof.",
       "source": "tests/assembly/lid_seated.scad",
-      "defines": ["Render_On_Include=false"],
+      "defines": ["Render_On_Include=false", "Lid_Style=\"Skirt\""],
       "expect": { "rc": 1, "output_contains": "top level object is empty" }
     },
     {
@@ -808,7 +808,8 @@
       "_why2": "so this proves the skirt hangs past the rim, outside the wall.",
       "_why3": "Skirt spans x 50.15 to 52.0 on the 100 mm default box.",
       "source": "tests/assembly/lid_seated.scad",
-      "defines": ["Render_On_Include=false", "Assembly_Check=\"seated\""],
+      "defines": ["Render_On_Include=false", "Assembly_Check=\"seated\"",
+                  "Lid_Style=\"Skirt\""],
       "expect": {
         "rc": 0,
         "probes": [
@@ -821,9 +822,10 @@
       "name": "assembly_plug_lid_engages_inside_wall",
       "_why": "The same proof for the Plug: its ring spans x 46.15 to 48.0, inside",
       "_why2": "the right wall's inner face at 48.15.",
+      "_why3": "No Lid_Style define, deliberately: this pins Plug as the default,",
+      "_why4": "which rc.5 test prints chose. A Skirt default leaves the probe empty.",
       "source": "tests/assembly/lid_seated.scad",
-      "defines": ["Render_On_Include=false", "Assembly_Check=\"seated\"",
-                  "Lid_Style=\"Plug\""],
+      "defines": ["Render_On_Include=false", "Assembly_Check=\"seated\""],
       "expect": {
         "rc": 0,
         "probes": [
@@ -872,7 +874,7 @@
       "name": "validation_plug_blocked_by_tall_stabilizers",
       "_why": "Fins reaching within Lid_Lip_Gap_Height of the rim would meet a",
       "_why2": "Plug. 1.85 + 37 = 38.85 passes the box's own check (<= 40) but not",
-      "_why3": "the plug's (<= 37). The same box with the default Skirt renders.",
+      "_why3": "the plug's (<= 37). The same box with Lid_Style Skirt renders.",
       "defines": ["Part_To_Render=\"Box Only\"", "Lid_Style=\"Plug\"",
                   "Box_Height=40", "Stabilizer_Height=37"],
       "expect": { "rc": 1, "message": "Stabilizer_Height" }

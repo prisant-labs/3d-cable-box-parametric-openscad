@@ -43,34 +43,29 @@ All four features default to a state that leaves existing geometry unchanged.
 Nine regression scenarios cover them, including that the defaults render
 identically and that magnets survive slicing.
 
-- **Calibration coupons.** `calibration/` holds ten small test prints, each
-  isolating one fit that a full box would otherwise be the first print of: the
-  lid fit and the magnet pockets with each lid style, the Gridfinity base and
-  lid socket, snap and tab seam clips, the edge treatment, and a side opening.
-  Several 2.0.0 features render cleanly but have not yet been confirmed on a
-  printer, so further print validation would be helpful; the coupons make that
-  cheap. They are OpenSCAD parameter sets in `calibration/config.json`,
-  exported and checked by `scripts/build_calibration.py` for exit code, a clean
-  log, and body count. The coupon README records the results of the first
-  print round, on rc.4, which found the two lid and clip defects fixed below.
 - **Release automation.** Pushing a `v*` tag runs `.github/workflows/release.yml`.
   It runs the version check, the geometry suite, and the standalone-bundle
   render, then drafts a GitHub release for review rather than publishing one.
   `scripts/package_release.py` builds the assets reproducibly, and
   `scripts/release_notes.py` writes the notes from this file. A final tag is
   refused while `[Unreleased]` still has entries.
-- **Every release attaches all nine presets** as `cable-box-presets.zip`, plus
-  the coupons as `cable-box-calibration.zip`. Releases up to `v2.0.0-rc.3`
-  carried only a few hand-picked sample STLs.
+- **Every release attaches all nine presets** as `cable-box-presets.zip`.
+  Releases up to `v2.0.0-rc.3` carried only a few hand-picked sample STLs.
 - **Options guide section for the finishing features**: the bottom fillet, the
   top chamfer, both lid reliefs, and the magnet bosses.
 
-- **`Lid_Style` chooses how the lid locates.** `Skirt`, the default, wraps a
-  wall around the outside of the box. `Plug` drops a ring just inside the box
-  wall and leaves the lid's overhang as a finger grip; it is notched around the
-  magnet bosses, and asserts when stabilizer fins or the post would reach it,
-  or when the box is too small to hold it. Two calibration coupons,
-  `lid-fit-plug` and `magnet-boss-plug`, test it.
+- **`Lid_Style` chooses how the lid locates.** `Plug`, the default, drops a
+  ring just inside the box wall and leaves the lid's edge overhanging as a
+  finger grip. The ring is notched around the magnet bosses, and the model
+  asserts when stabilizer fins or the post would reach it, or when the box is
+  too small to hold it. `Skirt` wraps a wall around the outside of the box and
+  has none of those limits. Both styles fitted well in the rc.5 test prints.
+
+  The Plug default is stricter about fins than a Skirt: they must stop
+  `Lid_Lip_Gap_Height` below the rim, even when only the box is rendered. At
+  the defaults that caps `Stabilizer_Height` at `Box_Height - 4.85`. The
+  defaults and all nine presets are well inside it. Set `Lid_Style=Skirt` for
+  fins that reach the rim.
 
 ### Changed
 - **`Lid_Lip_Gap` is now a clearance on each side, and defaults to `0.15`.**
@@ -78,9 +73,9 @@ identically and that magnets survive slicing.
   same value now separates the lip from the wall on every side, for both lid
   styles, and also opens up the lid's post socket. The lid's footprint is
   `Box + 2*(Wall_Thickness + Lid_Lip_Gap)`, so the default lid is 104 x 79 mm
-  instead of 103.8 x 78.8. **The `0.15` default is untested:** no lid has fitted
-  a box before, so the `lid-fit` reprints will settle it. No preset sets
-  `Lid_Lip_Gap`.
+  instead of 103.8 x 78.8. The rc.5 test prints confirmed `0.15` for both lid
+  styles, with and without magnets, on a Bambu Lab P1S printing PLA+. No preset
+  sets `Lid_Lip_Gap`.
 - **`All_Openings_Up` now defaults to `5` instead of `0`.** Side openings are
   anchored at their bottom edge, so every enabled side opening now sits 5 mm
   above the box floor instead of flush with it. Set `All_Openings_Up=0` to
@@ -92,6 +87,11 @@ identically and that magnets survive slicing.
   `All_Openings_Up`, so all nine inherit the new value and every preset STL and
   GLB shifts with it. A print made from `v2.0.0-rc.2` no longer matches what the
   model produces from the same parameters.
+- **Calibration coupons no longer ship.** `v2.0.0-rc.4` attached them as
+  `cable-box-calibration.zip`, built from a `calibration/` folder. They are now
+  maintainer tooling outside the repository. `docs/PRINTING.md` describes a fit
+  test box made from your own settings instead. Their two print rounds found
+  the lid and floor-clip defects fixed below, and confirmed both fixes.
 - **The code inherited from the 2022 original is rewritten.** Side openings
   are placed by one loop over the four walls instead of four copied blocks.
   The lid's post socket and the part layout use named values, and the override
@@ -121,7 +121,7 @@ identically and that magnets survive slicing.
   wall: on a 50 mm box it spanned 48.25 to 50.10 mm against a wall from 46.30
   to 50.00. The lid stood on the rim instead of fitting, which the rc.4
   `lid-fit` coupon confirmed by stacking 19 mm instead of 16. The lip is now a
-  skirt around the wall by default, or a plug inside it (see `Lid_Style`
+  plug inside the wall by default, or a skirt around it (see `Lid_Style`
   above). The suite never caught it because it rendered one part at a time;
   `tests/assembly/lid_seated.scad` now seats the lid on the box and asserts
   that the two do not overlap. This changes the lid for unchanged inputs, a

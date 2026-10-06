@@ -130,7 +130,7 @@ Common mistake:
 Interaction pattern:
 
 - Tightening `Lid_Lip_Gap` may require small increases in height or stronger cooling control for consistent fit.
-- A Skirt fits against the box's outside face and a Plug against its inside face, so the same `Lid_Lip_Gap` can feel different between them on one printer. Tune each with its own coupon.
+- A Skirt fits against the box's outside face and a Plug against its inside face, so the same `Lid_Lip_Gap` can feel different between them on one printer. Tune each with its own fit test box.
 - With `Lid_Style=Plug`, the ring is notched around `Enable_Lid_Magnets` bosses, and `Stabilizer_Height` and `Post_Diameter` must leave it room; the model asserts otherwise.
 - Any side opening that runs to the rim loses its top `Lid_Lip_Gap_Height` under a seated lid, with either style.
 
