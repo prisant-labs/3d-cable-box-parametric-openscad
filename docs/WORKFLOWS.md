@@ -53,7 +53,7 @@ Achieve a consistent, repeatable friction fit across your printer/material profi
 
 1. Start with the default `Lid_Lip_Gap=0.15`, a clearance on each side, and
    choose `Lid_Style` (`Skirt` or `Plug`) before you tune it.
-2. Print the matching `lid-fit` or `lid-fit-plug` coupon, or a draft pair, at
+2. Print a [fit test box](PRINTING.md#fit-test-box), or a draft pair, at
    final layer height and wall count.
 3. Test fit after cooling to room temperature.
 4. If too tight, increase by `0.05`.

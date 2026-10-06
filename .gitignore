@@ -20,12 +20,11 @@ renders/
 site/
 ci-smoke-out/
 
-# Keep curated artifacts versionable: the preset library and the calibration
-# coupons. The library GLBs are the docs site's 3D previews, generated from the
-# STLs beside them; tracking them keeps the Pages build Node-only.
+# Keep curated artifacts versionable: the preset library. Its GLBs are the
+# docs site's 3D previews, generated from the STLs beside them; tracking them
+# keeps the Pages build Node-only.
 !library/**/*.stl
 !library/**/*.glb
-!calibration/**/*.stl
 
 # Tool/editor/system files
 .vscode/

@@ -116,8 +116,6 @@ the draft:
   three STLs (box, lid, box-and-lid). Earlier releases attached two sample
   STLs by hand and the other seven presets had none; this replaces that with
   all nine, every time.
-- `cable-box-calibration.zip` - the calibration coupons: their parameter
-  sets, README, and STLs. Packaging fails if `calibration/` is missing.
 
 ### Promoting a release candidate to final
 
@@ -127,7 +125,7 @@ folded its changes into a dated section.
 
 - **Candidate notes** are stitched together: a header naming it a release
   candidate for `X.Y.Z` and saying further print validation would be helpful
-  before the final release, with a link to the calibration coupons; then
+  before the final release; then
   whatever is still in `[Unreleased]`, under "New in this candidate"; then
   the `[X.Y.Z]` section if one exists, both under one heading, "Full X.Y.Z
   changelog so far". `[Unreleased]` can span several candidates, so the

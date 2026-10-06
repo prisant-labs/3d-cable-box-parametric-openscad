@@ -14,12 +14,10 @@ one.
 - `PARAMETER_INTERACTIONS.md`: Cross-parameter behavior and tuning order.
 - `WORKFLOWS.md`: Practical setup, calibration, slicing, and troubleshooting workflows.
 - `PRINTING.md`: Printing-specific baseline settings and process guidance,
-  including Gridfinity, magnets, edge treatment, and the calibration coupons.
+  including Gridfinity, magnets, edge treatment, and the fit test box.
 - `FAQ.md`: Common questions and issue resolution.
 - `RELEASE.md`: Release checklist, from version bump through the drafted
   GitHub release that `.github/workflows/release.yml` creates from a tag.
-- `../calibration/README.md`: Small test prints that each check one fit, such
-  as the lid gap, a Gridfinity base, or a seam clip, before a full box.
 - `../library/README.md`: The nine presets, what each fits, and their sizes.
   The same catalogue with 3D previews and downloads is the
   [preset library](../library/), which resolves to the browser on the docs site

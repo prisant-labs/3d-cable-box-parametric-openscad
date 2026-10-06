@@ -29,8 +29,8 @@ ships as final, GitHub's "Latest" release is still `v1.4.1`, from before the
 2.0.0 changes, so take the newest "Pre-release" for the current geometry.
 
 Printing a feature for the first time, such as a Gridfinity base, snap clips,
-or magnets? Print its [calibration coupon](calibration/) first: a small test
-print that checks one fit before you commit to a full box.
+or magnets? Print a small [fit test box](docs/PRINTING.md#fit-test-box) with
+the same settings first, before you commit to a full box.
 
 **Want to change something?** The model needs
 [BOSL2](https://github.com/BelfrySCAD/BOSL2):
@@ -67,7 +67,7 @@ from the model, in one self-contained file you can also
 |---|---|
 | ![Stabilizer fins and floor cutouts](docs/images/feature_stabilizers.png) | **Fins and floor cutouts.** Interior ribs stiffen long walls and automatically skip positions that would block an opening. Floor cutouts arrange along either axis and split around the centre post. |
 | ![Slicing into two clipping halves](docs/images/feature_slicing.png) | **Bigger than your printer?** Slicing mode splits the box and lid into pieces joined by tab or snap clips, so a 265 mm box prints on a 180 mm bed. |
-| ![Gridfinity interfaces on the underside](docs/images/feature_gridfinity.png) | **Gridfinity, optionally.** A 42 mm base under the box, made to sit in a standard baseplate, and a baseplate socket on the lid so bins sit on the closed box. Optional magnet and screw pockets. Both are built to the published spec, and their fit is being confirmed with [calibration coupons](calibration/). |
+| ![Gridfinity interfaces on the underside](docs/images/feature_gridfinity.png) | **Gridfinity, optionally.** A 42 mm base under the box, made to sit in a standard baseplate, and a baseplate socket on the lid so bins sit on the closed box. Optional magnet and screw pockets. Experimental for now: test prints show the profile does not yet print or fit as cleanly as standard Gridfinity parts. |
 | ![Rounded edges, lid grips and corner magnet bosses](docs/images/feature_finishing.png) | **Finishing touches.** A rounded bottom edge and a chamfered rim, a scallop or tab grip so a tight lid comes off without a tool, and corner magnets that hold the lid shut. All are off by default. |
 
 Plus: per-wall opening sizes and positions, an open or closed-bottom centre
@@ -156,7 +156,7 @@ Published at
 | [Options guide (Markdown)](docs/OPTIONS_GUIDE.md) | The same, readable on GitHub. |
 | [Parameter reference](docs/PARAMETER_REFERENCE.md) | Exhaustive tables for every parameter. |
 | [Workflows](docs/WORKFLOWS.md) | Setup, calibration, slicing, troubleshooting. |
-| [Printing guide](docs/PRINTING.md) | Materials, orientation, fit calibration, calibration coupons. |
+| [Printing guide](docs/PRINTING.md) | Materials, orientation, fit test boxes, and fit tuning. |
 | [FAQ](docs/FAQ.md) | Common questions and fixes. |
 | [Validation rules](docs/VALIDATION_RULES.md) | Every assertion, what triggers it, how to resolve it. |
 | [Module reference](docs/MODULE_REFERENCE.md) | Module-by-module geometry breakdown. |
@@ -176,9 +176,10 @@ passes straight in without climbing a lip.
 
 ## Contributing
 
-The most useful contribution right now is a print report. Print a
-[calibration coupon](calibration/) and open an issue with the result, even when
-it fits, because that is what turns "renders cleanly" into "prints cleanly".
+The most useful contribution right now is a print report. Print a small
+[fit test box](docs/PRINTING.md#fit-test-box) and open an issue with the
+result, even when it fits, because that is what turns "renders cleanly" into
+"prints cleanly".
 
 Presets are the next easiest: add an entry to `PRESETS` in
 `scripts/build_library.py` and rerun it. See [`CONTRIBUTING.md`](CONTRIBUTING.md),

@@ -9,7 +9,7 @@ It is intended to be as implementation-close as possible, so parameter behavior 
 - [Parameter reference](PARAMETER_REFERENCE.md): every parameter, section by section
 - [Options guide](OPTIONS_GUIDE.md): every option rendered, with images
 - [Workflows](WORKFLOWS.md): practical setup and tuning
-- [Printing](PRINTING.md): print recommendations and the calibration coupons
+- [Printing](PRINTING.md): print recommendations and the fit test box
 - [FAQ](FAQ.md): common issues and fixes
 
 ## Deep Technical Docs
@@ -32,8 +32,7 @@ drift from it.
 - This docs set describes the primary model at the repo root.
 - Gridfinity (base and lid interfaces), snap-fit seam clips, and the preset
   library are part of the model and documented here. Features still awaiting
-  physical print validation are marked as such where they appear, and the
-  [calibration coupons](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/tree/main/calibration) are the small test prints that settle them.
+  physical print validation are marked as such where they appear.
 
 ## Local Build
 
