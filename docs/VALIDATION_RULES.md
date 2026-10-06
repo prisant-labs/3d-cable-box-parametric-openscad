@@ -107,7 +107,9 @@ assert(Lid_Style != "Plug" || !Enable_Stabilizers ||
 Why: the plug ring sits in the top `Lid_Lip_Gap_Height` of the box, against
 the walls the fins grow from. A fin reaching into that band renders cleanly and
 stops the lid from seating, so nothing but a print would show it. The box's own
-fin check allows fins right up to the rim, which a Skirt lid tolerates.
+fin check allows fins right up to the rim, which a Skirt lid tolerates. Plug
+is the default, so this check applies unless you choose Skirt, and it applies
+even when only the box is rendered.
 
 Fix: lower `Stabilizer_Height` to the value in the message, or use
 `Lid_Style=Skirt`.
@@ -129,6 +131,10 @@ Fix: reduce `Post_Diameter`, or use `Lid_Style=Skirt`.
 The plug ring is notched around the magnet bosses instead of asserting,
 because the bosses sit in the corners where a notch leaves the rest of the ring
 intact.
+
+The model runs these three Plug checks after the box's own post and stabilizer
+checks. A value that breaks both limits therefore reports the box limit first,
+because that limit holds for either lid style.
 
 ## Stabilizers
 

@@ -59,10 +59,10 @@ SECTIONS = [
          {"Closed_Post": True}),
     ]),
     ("lid", "Lid", "Fit and engagement.", [
-        ("lid-default", "Default lid: Lid_Style Skirt wraps the box", CAM_ISO,
+        ("lid-default", "Default lid: Lid_Style Plug, a ring inside the wall", CAM_ISO,
          {"Part_To_Render": "Lid Only"}),
-        ("lid-plug", "Lid_Style Plug: a ring inside the wall", CAM_ISO,
-         {"Part_To_Render": "Lid Only", "Lid_Style": "Plug"}),
+        ("lid-skirt", "Lid_Style Skirt wraps the box", CAM_ISO,
+         {"Part_To_Render": "Lid Only", "Lid_Style": "Skirt"}),
         ("lid-tall", "Lid_Height 16", CAM_ISO,
          {"Part_To_Render": "Lid Only", "Lid_Height": 16}),
         ("lid-deep-lip", "Lid_Lip_Gap_Height 8", CAM_UNDER,

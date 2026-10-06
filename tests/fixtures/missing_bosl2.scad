@@ -62,12 +62,14 @@ Closed_Post = false;
 Post_Diameter = 15;
 
 /*[Lid]*/
-// How the lid locates on the box. Skirt wraps a short wall around the outside
-// of the box. Plug drops a ring just inside the box wall; it is notched around
-// magnet bosses, and stabilizer fins must stop below it. Both are friction
-// fits tuned with Lid_Lip_Gap.
-Lid_Style = "Skirt"; //["Skirt", "Plug"]
-// Lid wall height above the box top plane (mm).
+// How the lid locates on the box. Plug drops a ring just inside the box wall
+// and leaves the lid's edge overhanging as a finger grip; it is notched around
+// magnet bosses, and stabilizer fins must stop below it. Skirt wraps a short
+// wall around the outside of the box. Both are friction fits tuned with
+// Lid_Lip_Gap.
+Lid_Style = "Plug"; //["Plug", "Skirt"]
+// Thickness of the lid's flat panel (mm). The lip stands Lid_Lip_Gap_Height
+// above it.
 Lid_Height = 8.1;
 // Clearance on each side between the lid's lip and the box wall it fits
 // against (mm). Increase if the fit is tight. The lid's post socket gets the
@@ -518,22 +520,6 @@ assert(Top_Edge_Chamfer * 2 < Lid_Height,
        "Top_Edge_Chamfer must be less than half of Lid_Height; both lid faces are chamfered and they would meet.");
 
 assert(Lid_Style == "Skirt" || Lid_Style == "Plug", "Lid_Style must be Skirt or Plug");
-// A Plug ring is Wall_Thickness thick with Lid_Lip_Gap of clearance outside it,
-// so the cavity has to hold two ring walls with room left in the middle.
-assert(Lid_Style != "Plug" || min(Plug_Outer_Width, Plug_Outer_Depth) > Wall_Thickness * 2,
-       "The box is too small for a Plug lid: its interior must exceed two Wall_Thickness ring walls plus Lid_Lip_Gap on each side. Use Lid_Style Skirt, or enlarge Box_Width or Box_Depth.");
-// Fins taper to a line on the wall at their top, so they only meet a Plug ring
-// if they reach into the Lid_Lip_Gap_Height band below the rim where it sits.
-assert(Lid_Style != "Plug" || !Enable_Stabilizers ||
-       Stabilizer_Height + Wall_Thickness <= Box_Height - Lid_Lip_Gap_Height,
-       str("With Lid_Style Plug, Stabilizer_Height must be at most ",
-           Box_Height - Lid_Lip_Gap_Height - Wall_Thickness,
-           " so the fins stop below the plug. Lower it, or use Lid_Style Skirt."));
-// The post stands in the middle of the cavity, and a wide one reaches the
-// inside face of the Plug ring.
-assert(Lid_Style != "Plug" || !Enable_Post ||
-       Post_Diameter / 2 + Lid_Lip_Gap <= min(Plug_Outer_Width, Plug_Outer_Depth) / 2 - Wall_Thickness,
-       "With Lid_Style Plug, Post_Diameter is too large: the post would meet the plug ring. Reduce Post_Diameter, or use Lid_Style Skirt.");
 
 assert(Lid_Relief_Style == "None" || Lid_Relief_Style == "Scallop" || Lid_Relief_Style == "Tab",
        "Lid_Relief_Style must be None, Scallop or Tab");
@@ -575,6 +561,24 @@ assert(!Enable_Stabilizers || Stabilizer_Height + Wall_Thickness <= Box_Height, 
 assert(!Enable_Stabilizers || Stabilizer_Depth * 2 < min(Inner_Width, Inner_Depth), "Stabilizer_Depth is too large for the box interior");
 assert(!Enable_Stabilizers || Stabilizer_Width > 0, "Stabilizer_Width must be > 0");
 assert(Stabilizers_Front_Back_Count >= 0 && Stabilizers_Left_Right_Count >= 0, "Stabilizer counts must be >= 0");
+// The Plug checks come after the box's own post and stabilizer checks, so an
+// impossible value reports the box limit before the tighter Plug limit.
+// A Plug ring is Wall_Thickness thick with Lid_Lip_Gap of clearance outside it,
+// so the cavity has to hold two ring walls with room left in the middle.
+assert(Lid_Style != "Plug" || min(Plug_Outer_Width, Plug_Outer_Depth) > Wall_Thickness * 2,
+       "The box is too small for a Plug lid: its interior must exceed two Wall_Thickness ring walls plus Lid_Lip_Gap on each side. Use Lid_Style Skirt, or enlarge Box_Width or Box_Depth.");
+// Fins taper to a line on the wall at their top, so they only meet a Plug ring
+// if they reach into the Lid_Lip_Gap_Height band below the rim where it sits.
+assert(Lid_Style != "Plug" || !Enable_Stabilizers ||
+       Stabilizer_Height + Wall_Thickness <= Box_Height - Lid_Lip_Gap_Height,
+       str("With Lid_Style Plug, Stabilizer_Height must be at most ",
+           Box_Height - Lid_Lip_Gap_Height - Wall_Thickness,
+           " so the fins stop below the plug. Lower it, or use Lid_Style Skirt."));
+// The post stands in the middle of the cavity, and a wide one reaches the
+// inside face of the Plug ring.
+assert(Lid_Style != "Plug" || !Enable_Post ||
+       Post_Diameter / 2 + Lid_Lip_Gap <= min(Plug_Outer_Width, Plug_Outer_Depth) / 2 - Wall_Thickness,
+       "With Lid_Style Plug, Post_Diameter is too large: the post would meet the plug ring. Reduce Post_Diameter, or use Lid_Style Skirt.");
 // Gated on any side opening being on, so a shallow box with every wall closed
 // is not blocked by the default 30 mm opening height it never cuts.
 assert(len([for (side = OPENING_SIDES) if (opening_enabled(side)) side]) == 0 ||

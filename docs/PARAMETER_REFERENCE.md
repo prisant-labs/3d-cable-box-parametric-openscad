@@ -88,9 +88,9 @@ and at `0` the model renders exactly as it did before these existed.
 
 | Parameter | Type | Default | Description | Tuning strategy |
 |---|---|---:|---|---|
-| `Lid_Style` | enum | `"Skirt"` | `"Skirt"` wraps a wall around the outside of the box; `"Plug"` drops a ring just inside the box wall. | Skirt touches nothing inside the box. Plug keeps the lid's overhang as a finger grip, is notched around magnet bosses, and asserts if stabilizer fins or the post would reach it. |
+| `Lid_Style` | enum | `"Plug"` | `"Plug"` drops a ring just inside the box wall; `"Skirt"` wraps a wall around the outside of the box. | Plug keeps the lid's overhang as a finger grip, is notched around magnet bosses, and asserts if stabilizer fins or the post would reach it. Skirt touches nothing inside the box. |
 | `Lid_Height` | number | `8.1` | Height of lid wall above top plane. | Increase for stronger lid walls and clip volume in sliced mode. |
-| `Lid_Lip_Gap` | number | `0.15` | Clearance on each side between the lip and the box wall it fits against. Also opens the lid's post socket by the same amount. | Tight fit: reduce by `0.05`; loose fit: increase by `0.05`. The default is a starting point that the `lid-fit` coupons will confirm. |
+| `Lid_Lip_Gap` | number | `0.15` | Clearance on each side between the lip and the box wall it fits against. Also opens the lid's post socket by the same amount. | Tight fit: reduce by `0.05`; loose fit: increase by `0.05`. The default fitted well with both lid styles on a Bambu Lab P1S printing PLA+. |
 | `Lid_Lip_Gap_Height` | number | `3` | How far the lip, skirt or plug, reaches past the rim into the box. | Taller lip improves hold; too tall may increase insertion force. With a Plug, stabilizer fins must stop this far below the rim. |
 
 The lid's footprint is `Box_Width + 2*(Wall_Thickness + Lid_Lip_Gap)` by
@@ -198,7 +198,7 @@ off the bed with no overhang and stiffen the corner.
 | `Enable_Stabilizers` | boolean | `true` | Enables interior support fins. | If `false`, all stabilizer parameters are ignored. |
 | `Stabilizer_Width` | number | `1.5` | Fin thickness along wall direction. | Increasing count and width together can reduce usable interior area. |
 | `Stabilizer_Depth` | number | `15` | Fin extension from wall into interior. | Larger values add stiffness but can obstruct cable routing. |
-| `Stabilizer_Height` | number | `35` | Fin height from floor upward. | Keep below full box height if upper interior clearance is needed. |
+| `Stabilizer_Height` | number | `35` | Fin height from floor upward. | Keep below full box height if upper interior clearance is needed. With the default Plug lid, fins must stop `Lid_Lip_Gap_Height` below the rim. |
 
 ## 11) Stabilizers - Front/Back Walls
 
