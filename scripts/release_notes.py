@@ -123,16 +123,11 @@ def main() -> int:
             )
             return 1
 
-        # A link rather than a bare path: release notes render on GitHub's
-        # releases page, where a relative path is plain text.
-        coupons = ("https://github.com/prisant-labs/3d-cable-box-parametric-openscad"
-                   "/tree/main/calibration")
         out = [
             f"This is a release candidate for {version}.",
             "",
             "Further print validation would be helpful before the final "
-            f"release. The [calibration coupons]({coupons}) are small test "
-            "prints for exactly that.",
+            "release.",
         ]
         # One heading over both sections. [Unreleased] can span several
         # candidates, so calling it "new in this candidate" would claim

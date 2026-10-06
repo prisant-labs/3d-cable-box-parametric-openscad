@@ -19,7 +19,7 @@ incomplete, **Spec** for written but not begun.
 | [E-01](E-01_gridfinity-promotion.md) | **Gridfinity promotion** | Box-underside and lid-topside Gridfinity interfaces | Shipped v1.2.0; lid reworked to a socket in 2.0.0. Unprinted | S | none |
 | [E-02](E-02_bosl2-migration.md) | **BOSL2 migration** | Build on BOSL2 rather than hand-rolled primitives | Shipped: phase 1 v1.3.0, phases 2-3 v1.4.0 | L | none |
 | [E-03](E-03_openings-array.md) | **Openings array** | Replace 4 fixed per-wall openings with an array-driven spec | Spec | M | E-02 (easier after) |
-| [E-04](E-04_quick-wins.md) | **Quick wins** | Edge treatment, lid removal relief, magnet retention | In `v2.0.0-rc.3`, final in 2.0.0. Opt-in defaults, unprinted; calibration coupons cover it | S | none |
+| [E-04](E-04_quick-wins.md) | **Quick wins** | Edge treatment, lid removal relief, magnet retention | In `v2.0.0-rc.3`, final in 2.0.0. Opt-in defaults. Edge treatment and magnets confirmed by test prints; relief unprinted | S | none |
 | [E-05](E-05_size-by-contents.md) | **Size by contents** | Size the box from what goes in it, not from outer dimensions | Spec | M | none |
 | [E-06](E-06_thermal-and-vents.md) | **Thermal and vents** | Ventilation generator plus material guidance for powered contents | Spec | M | E-03 (shares cut logic) |
 | [E-07](E-07_preset-library.md) | **Preset library** | A real catalogue of common sizes and configurations | Shipped: catalogue v1.2.0, browser 2.0.0 | M | E-09 (needs artifact automation) |
@@ -39,12 +39,14 @@ The infrastructure efforts are done: testing (E-09), versioning (E-10), the
 BOSL2 migration (E-02), the preset library (E-07), and the Gridfinity interfaces
 (E-01) have all shipped. What remains splits three ways.
 
-**Gated on a physical print, not on work.** E-01 (Gridfinity promotion) and the
-snap-clip default in [E-02-P2 (snap clips)](E-02-P2_snap-clips.md) are both
-built and both waiting on hardware. `v2.0.0-rc.4` is the citable artifact for
-that print, and the [calibration coupons](../../calibration/README.md)
-make the print small: one coupon per fit instead of a full box. Nothing else
-should be sequenced behind them.
+**Answered by test prints, now waiting on design.** The rc.4 and rc.5 test
+prints settled the lid fit. They also showed that E-01 (Gridfinity promotion)
+needs rework: the profile prints poorly and does not follow the standard's
+45 degree taper, as backlog items 15 (Gridfinity base seating) and 18
+(Gridfinity printability) record. The snap-clip default in
+[E-02-P2 (snap clips)](E-02-P2_snap-clips.md) is open again: the snaps work but
+feel weak, and neither clip style holds the halves level, as backlog item 20
+(seam alignment) records.
 
 **Feature work, in rough order of value per unit of effort.**
 

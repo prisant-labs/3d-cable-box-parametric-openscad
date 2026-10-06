@@ -7,8 +7,10 @@ and Codex read the same text.
 
 A parametric cable box in OpenSCAD: one model file,
 `cable-box-parametric.scad`, built on BOSL2. Around it are a geometry
-regression suite, a nine-preset library, calibration coupons, release
-automation, and an Astro + Starlight docs site in `web/`.
+regression suite, a nine-preset library, release automation, and an
+Astro + Starlight docs site in `web/`. Calibration coupons are maintainer
+tooling in `_local/calibration/`, which is gitignored and absent from a fresh
+clone.
 
 ## Commands
 
@@ -17,7 +19,7 @@ automation, and an Astro + Starlight docs site in `web/`.
 | Geometry suite (91 scenarios) | `python tests/run_tests.py [--filter NAME]` |
 | Version consistency | `bash scripts/check-version.sh` |
 | Standalone bundle | `python scripts/build_bundle.py` |
-| Calibration coupons | `python scripts/build_calibration.py [--only NAME ...]` |
+| Calibration coupons (local only) | `python _local/calibration/build_calibration.py [--only NAME ...]` |
 | Preset library | `python scripts/build_library.py` (`--no-stl --no-png --no-glb` for metadata only) |
 | Options guide | `python scripts/build_options_guide.py [--no-render] [--only SLUG ...]` |
 | README images | `python scripts/build_readme_images.py` |

@@ -21,44 +21,43 @@ small calibration prints that check a fit before you commit to a full box.
 - Sliced parts: print each piece as exported, so the seam faces stay vertical
   and the clips keep their designed dimensions.
 
-## Calibration Coupons
+## Fit Test Box
 
-Several 2.0.0 features render cleanly and pass the geometry suite but have not
-yet been confirmed on a printer: both lid styles, both Gridfinity interfaces,
-both clip styles, and the magnet pockets. Further print validation would be
-helpful. The
-[calibration coupons](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/tree/main/calibration)
-are small prints that each isolate one of those fits, so you can settle a
-clearance before you commit to a full box. Each release also attaches them as
-`cable-box-calibration.zip`.
+A small box made with your own settings checks a fit before you spend the
+filament on a full box. Start from your configuration and change only the
+size and the extras:
 
-| Coupon | Checks |
-|---|---|
-| `lid-fit`, `lid-fit-plug` | Lid friction fit for each `Lid_Style`, tuned with `Lid_Lip_Gap` |
-| `magnet-boss`, `magnet-boss-plug` | Magnet pockets and corner bosses, with each lid style |
-| `gridfinity-base-1x1` | Base fit in a standard Gridfinity baseplate |
-| `gridfinity-lid-socket-1x1` | A standard 1 x 1 bin seated in the lid socket |
-| `snap-clip-pair`, `tab-clip-pair` | Seam clip fit, tuned with `Clip_Tolerance` |
-| `edge-treatment` | Bottom fillet and top chamfer |
-| `side-opening` | The default side opening on its 5 mm sill |
+- `Box_Width=50`, `Box_Depth=50`, `Box_Height=12`, and `Lid_Height=4`
+- `Enable_Post=false`, `Enable_Stabilizers=false`, and every `Opening_On_*`
+  set to `false`
+- `Part_To_Render="Box and Lid"`, so both parts export together
 
-The coupon README explains how to tune each one and how to report a result,
-and it records the results printed so far.
+Keep every value that affects the fit: `Wall_Thickness`, `Box_Corner_Radius`,
+`Lid_Style`, `Lid_Lip_Gap`, and `Clip_Tolerance`.
+
+To test one feature, turn on only that feature. Use `Enable_Lid_Magnets=true`
+for the magnets. For a seam, use `Box_Width=80`, `Box_Height=15`,
+`Enable_Slicing=true`, `Slice_Count=2`, and `Slice_Piece_To_Render=0`, which
+exports both halves side by side. For Gridfinity, test a one-cell box against
+real Gridfinity parts.
 
 ## Fit Calibration Procedure
 
-1. Print the `lid-fit` coupon (`lid-fit-plug` for `Lid_Style=Plug`), or one
-   full box and lid pair, in the target material and with your usual settings.
+1. Print a [fit test box](#fit-test-box), or one full box and lid pair, in
+   the target material and with your usual settings.
 2. Test the fit after the parts cool fully.
 3. Adjust `Lid_Lip_Gap` by `0.05 mm` increments.
 4. Repeat until the fit is right, then use the same value for the real box.
+
+The default `Lid_Lip_Gap` of `0.15 mm` fitted well with both lid styles, with
+and without magnets, on a Bambu Lab P1S printing PLA+.
 
 ## Slicing Mode Print Procedure
 
 1. Enable slicing and choose `Slice_Count`.
 2. Export each piece with `Slice_Piece_To_Render=1..Slice_Count`.
-3. Print one seam pair first: the `snap-clip-pair` or `tab-clip-pair` coupon,
-   or the two pieces that share a seam.
+3. Print one seam pair first: a two-slice [fit test box](#fit-test-box), or
+   the two pieces that share a seam.
 4. Tune `Clip_Tolerance` by `0.05 mm` as needed.
 5. Print the full set only after the seam fits.
 
@@ -73,16 +72,15 @@ piece on its clips. Re-export any sliced pieces from those releases.
   as a bridge about 37 mm wide, so good bridging settings matter more here than
   anywhere else on the model.
 - The lid socket opens onto the bed when the lid prints as exported, so it
-  needs no support. Its floor, about 37 mm across, prints as a bridge. On the
-  rc.4 coupon that bridge sagged, and a sagging floor makes the socket
-  shallower, so tune bridging here too.
+  needs no support. Its floor, about 37 mm across, prints as a bridge. In test
+  prints that bridge sagged, and a sagging floor makes the socket shallower, so
+  tune bridging here too.
 - The box body is wider than the base block below it, and its underside prints
-  as an unsupported ledge about 4 mm wide on each side. On the rc.4 coupon that
+  as an unsupported ledge about 4 mm wide on each side. In test prints that
   ledge printed as loose loops. Use supports under it, or accept the rough
   underside.
 - `Gridfinity_Profile_Clearance` (0.25 mm) is a chosen number, not a measured
-  one. Print the two Gridfinity coupons against real Gridfinity parts before a
-  full box.
+  one. Test a one-cell box against real Gridfinity parts before a full box.
 
 ## Magnets
 
@@ -98,8 +96,8 @@ piece on its clips. Re-export any sliced pieces from those releases.
 ## Edge Treatment
 
 - `Bottom_Edge_Fillet` curves the box's bottom edge inward toward the bed, so
-  its lowest layers overhang the bed slightly. Look at those layers on the
-  `edge-treatment` coupon before you use a large fillet on a full box.
+  its lowest layers overhang the bed slightly. Look at those layers on a
+  small test box before you use a large fillet on a full box.
 - `Top_Edge_Chamfer` faces up and prints without support.
 
 ## Common Print Quality Notes

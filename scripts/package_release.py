@@ -14,11 +14,9 @@ Assets written:
                                    (no GLB, no PNG) -- library/index.json is
                                    the manifest, so a preset missing a file
                                    fails the build instead of shipping short
-  cable-box-calibration.zip       calibration/config.json, README.md, STLs --
-                                   only when calibration/ exists; printed as a
-                                   note (not an error) when it does not, since
-                                   that directory is built by other work that
-                                   may land after this script does
+
+The calibration coupons were attached as cable-box-calibration.zip up to
+v2.0.0-rc.4. They are maintainer tooling now and live outside the repository.
 
 Zips are built byte-for-byte reproducible: entries sorted by name, a fixed
 timestamp and permission bits, and a fixed "create system" byte, so that
@@ -79,13 +77,6 @@ def write_deterministic_zip(zip_path: Path, entries: list[tuple[str, Path | byte
             zi.external_attr = ZIP_UNIX_FILE
             zi.create_system = ZIP_CREATE_SYSTEM_UNIX
             zf.writestr(zi, data)
-
-
-def add_tree(entries: list[tuple[str, Path | bytes]], prefix: str, files: list[tuple[str, Path]]) -> None:
-    """Append (prefix/name, path) pairs to entries, as POSIX arcnames."""
-    for name, path in files:
-        arcname = (f"{prefix}/{name}" if prefix else name).replace("\\", "/")
-        entries.append((arcname, path))
 
 
 def fail(msg: str) -> "NoReturn":
@@ -198,34 +189,6 @@ def package(repo: Path, out_dir: Path) -> int:
     presets_zip = out_dir / "cable-box-presets.zip"
     write_deterministic_zip(presets_zip, preset_entries)
     record(presets_zip)
-
-    # --- 5: calibration zip (optional) ------------------------------------
-    calib_dir = repo / "calibration"
-    if calib_dir.is_dir():
-        cfg = calib_dir / "config.json"
-        readme = calib_dir / "README.md"
-        stl_dir = calib_dir / "stl"
-        stls = sorted(stl_dir.glob("*.stl")) if stl_dir.is_dir() else []
-        missing = [str(p.relative_to(repo)) for p in (cfg, readme) if not p.exists()]
-        if not stls:
-            missing.append("calibration/stl/*.stl")
-        if missing:
-            fail("calibration/ exists but is missing: " + ", ".join(missing))
-
-        calib_entries: list[tuple[str, Path | bytes]] = [
-            ("config.json", cfg),
-            ("README.md", readme),
-        ]
-        add_tree(calib_entries, "stl", [(s.name, s) for s in stls])
-
-        calib_zip = out_dir / "cable-box-calibration.zip"
-        write_deterministic_zip(calib_zip, calib_entries)
-        record(calib_zip)
-    else:
-        # The coupons are a tracked part of the repository and every release
-        # promises them, so a tree without them is a broken checkout.
-        fail("calibration/ not found at the repo root; every release attaches "
-             "cable-box-calibration.zip")
 
     # --- summary ------------------------------------------------------
     print(f"\nRelease assets in {out_dir.relative_to(repo) if out_dir.is_relative_to(repo) else out_dir}:")

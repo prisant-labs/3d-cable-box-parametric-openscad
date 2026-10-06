@@ -14,7 +14,7 @@ Tune `Lid_Lip_Gap` in `0.05 mm` increments and print a short calibration pair. P
 
 ## What is a good starting value for `Lid_Lip_Gap`?
 
-The default `0.15` is a clearance on each side of the wall the lid fits against, and it is a starting point rather than a printed result: the first lid that could actually fit its box arrived in 2.0.0. Print the `lid-fit` coupon, or `lid-fit-plug` for `Lid_Style=Plug`, and adjust in `0.05 mm` steps. PETG and ABS often need slightly larger values.
+The default `0.15` is a clearance on each side of the wall the lid fits against. It fitted well with both lid styles on a Bambu Lab P1S printing PLA+. Other printers and materials differ, so print a [fit test box](PRINTING.md#fit-test-box) and adjust in `0.05 mm` steps. PETG and ABS often need slightly larger values.
 
 ## Why are my side openings not where I expect?
 
@@ -148,7 +148,7 @@ the STL; the GLB is for looking at.
 Three options, cheapest first.
 
 1. Increase `Lid_Lip_Gap` in `0.05 mm` steps. It is a friction fit, and
-   the default `0.15` has not yet been confirmed on many printers.
+   the default `0.15` has been confirmed on one printer so far.
 2. Set `Lid_Relief_Style` to `Scallop` or `Tab`. That adds finger purchase to
    the lid edge: a scallop is a concave groove and does not change the outer
    size, a tab is a protruding grip and is more effective. Choose walls with
@@ -244,10 +244,10 @@ end up pointing at the ceiling with nothing able to rest on them. It adds
 Turn on either, both, or neither. Both together gives a box that sits in a
 baseplate and is itself a baseplate.
 
-Both interfaces are built to the published Gridfinity dimensions, but neither
-has been confirmed against real Gridfinity parts yet. The two Gridfinity
-[calibration coupons](PRINTING.md#calibration-coupons) check exactly that,
-with one cell each, before you print a full box.
+Treat both interfaces as experimental for now. They use the published 42 mm
+grid, but test prints show they do not yet print or fit as cleanly as standard
+Gridfinity parts. Test a one-cell [fit test box](PRINTING.md#fit-test-box)
+against real Gridfinity parts before you print a full box.
 
 ## Why does Gridfinity require `Closed_Post`?
 
