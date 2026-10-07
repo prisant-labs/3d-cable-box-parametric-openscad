@@ -16,7 +16,7 @@ clone.
 
 | Task | Command |
 |---|---|
-| Geometry suite (91 scenarios) | `python tests/run_tests.py [--filter NAME]` |
+| Geometry suite (104 scenarios) | `python tests/run_tests.py [--filter NAME]` |
 | Version consistency | `bash scripts/check-version.sh` |
 | Standalone bundle | `python scripts/build_bundle.py` |
 | Calibration coupons (local only) | `python _local/calibration/build_calibration.py [--only NAME ...]` |
