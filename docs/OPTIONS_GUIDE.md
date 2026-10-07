@@ -278,7 +278,7 @@ Cutouts through the box floor.
 
 ## Slicing for small beds
 
-Split the model into clipping pieces.
+Split the model into pieces that push together. Floor clips hold them in line, and 45-degree teeth in the walls hold them level.
 
 ### 2 pieces, preview layout
 
@@ -303,6 +303,12 @@ Split the model into clipping pieces.
 `Enable_Slicing=True`, `Slice_Count=2`, `Clips_Per_Edge=4`, `Part_To_Render=Box Only`
 
 ![4 clips per seam](images/options/slice-clips.png)
+
+### Flat seam, without teeth
+
+`Enable_Slicing=True`, `Slice_Count=2`, `Seam_Tooth_Depth=0`, `Part_To_Render=Box Only`
+
+![Flat seam, without teeth](images/options/slice-flat.png)
 
 ## Gridfinity
 

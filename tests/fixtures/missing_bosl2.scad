@@ -275,6 +275,8 @@ Clip_Tab_Height = 3;
 Slice_Preview_Spacing = 5;
 // Seam joint style. Snap is a real cantilever clip; Tab is the original friction fit.
 Clip_Style = "Tab"; //["Tab", "Snap"]
+// Depth of the 45-degree sawtooth cut through the walls at each seam (mm). The teeth stop the pieces sliding vertically. 0 gives a flat seam.
+Seam_Tooth_Depth = 3;
 
 /*[Slicing - Snap Clip Tuning]*/
 // Only used when Clip_Style is Snap.
@@ -598,6 +600,19 @@ assert(is_int(Slice_Piece_To_Render) && Slice_Piece_To_Render >= 0 && Slice_Piec
 assert(!Enable_Slicing || Slice_Count >= 2, "Slice count must be >= 2 when slicing is enabled");
 assert(!Enable_Slicing || Clips_Per_Edge >= 1, "Clips per edge must be >= 1");
 assert(Clip_Tolerance >= 0, "Clip tolerance must be >= 0");
+assert(!Enable_Slicing || Seam_Tooth_Depth >= 0, "Seam_Tooth_Depth must be >= 0; use 0 for a flat seam");
+// A middle piece carries notches from both of its seams, each reaching
+// Seam_Tooth_Depth plus half of Clip_Tolerance into it. The lid's pieces are
+// slightly wider than the box's, so the box's are the limit.
+assert(!Enable_Slicing || Seam_Tooth_Depth + Clip_Tolerance < Slice_Width / 2,
+       str("Seam_Tooth_Depth must be less than ", Slice_Width / 2 - Clip_Tolerance,
+           " mm so the teeth from two seams cannot meet inside one piece. Reduce it, or reduce Slice_Count."));
+// A lid seam clip spans Lid_Height - Clip_Tab_Height to Lid_Height, sunk SPACER
+// below the slab's face, so a thinner lid hangs it below the print bed. A
+// lid-top Gridfinity plate lies under the slab and catches it instead.
+assert(!Enable_Slicing || GF_Lid_Active || Lid_Height >= Clip_Tab_Height + SPACER,
+       str("With Enable_Slicing, Lid_Height must be at least ", Clip_Tab_Height + SPACER,
+           " mm so the lid's seam clips stay inside the lid. Raise Lid_Height, or lower Clip_Tab_Height."));
 assert(Clip_Tab_Width > 0 && Clip_Tab_Depth > 0 && Clip_Tab_Height > 0, "Clip tab dimensions must be > 0");
 assert(Clip_Style == "Tab" || Clip_Style == "Snap", "Clip_Style must be Tab or Snap");
 assert(Clip_Style != "Snap" || Clip_Snap > 0, "Clip_Snap must be > 0 for snap clips");
@@ -1913,6 +1928,105 @@ module m_box_with_openings() {
     }
 }
 
+// ---- Seam profile ----
+//
+// A flat seam lets sliced pieces slide vertically: the floor clip's socket runs
+// through the floor, so nothing on the seam resists. The rc.5 prints showed it
+// with both clip styles. Instead, above the floor the seam zigzags at 45
+// degrees through everything it crosses, and the teeth lock the pieces level.
+//
+// Every joint on one seam must engage in the same direction, which here is
+// pushing the pieces together along X, the way the floor clips go in. A
+// sawtooth has no undercut, so it qualifies. A jigsaw or dovetail cut would
+// lock X too, but could then only slide together along Y, and the floor
+// clips cannot.
+//
+// The cut is a profile in the XZ plane, extruded along Y across the whole
+// part. Teeth run only inside "bands" of z. Below the first band the cut stays
+// vertical, so the floor clips keep their positions and the Gridfinity base is
+// cut as before. Each band's teeth are closed off by 45-degree lines, so no
+// face anywhere on a tooth overhangs more than 45 degrees.
+//
+// The two pieces' profiles sit Clip_Tolerance apart along X inside the bands.
+// That is also the most a joined pair can move vertically.
+
+// Triangle wave, period 2c, rising from 0 to c with 45-degree flanks.
+function seam_saw(u, c) = let(p = u - 2 * c * floor(u / (2 * c))) (p <= c ? p : 2 * c - p);
+
+// The seam's offset from its flat line at height z, inside band [s, e].
+function seam_band_offset(z, s, e, c) = max(0, min(seam_saw(z - s, c), e - z));
+
+// Heights at which that offset changes slope: every tooth corner, and each
+// point where a rising flank meets the closing line e - z. Duplicates are
+// removed once the boundary is assembled.
+function seam_band_heights(s, e, c) =
+    let(corners = [for (k = [0:floor((e - s) / c)]) s + k * c],
+        closers = [for (m = [0:floor((e - s) / (2 * c))])
+                      let(z = (e + s) / 2 + m * c)
+                      if (z >= s + 2 * m * c && z <= min(e, s + (2 * m + 1) * c)) z])
+    sort(concat([s, e], corners, closers));
+
+// Interval subtraction, for taking blocked heights out of a band list.
+function seam_band_minus(bands, block) =
+    [for (b = bands)
+        each ((block[1] <= b[0] || block[0] >= b[1]) ? [b]
+              : concat(block[0] > b[0] ? [[b[0], block[0]]] : [],
+                       block[1] < b[1] ? [[block[1], b[1]]] : []))];
+function seam_bands_minus(bands, blocks, i = 0) =
+    i >= len(blocks) ? bands
+                     : seam_bands_minus(seam_band_minus(bands, blocks[i]), blocks, i + 1);
+
+// A band shorter than one tooth depth would hold only a stub, so it is dropped.
+function seam_usable_bands(bands) = [for (b = bands) if (b[1] - b[0] >= Seam_Tooth_Depth) b];
+
+// Whether a feature spanning [lo, hi] along X meets the strip a seam at x_seam
+// cuts its teeth in.
+function seam_strip_hit(x_seam, lo, hi) =
+    lo < x_seam + Seam_Tooth_Depth + Clip_Tolerance && hi > x_seam - Clip_Tolerance;
+
+// Box bands: the walls above the floor, less the heights of any front or back
+// opening that crosses the seam's strip. Teeth through an opening would cut
+// slivers against its rounded edges. One profile spans the whole depth, so an
+// opening in either wall clears both.
+function box_seam_bands(x_seam) =
+    let(blocks = [for (side = ["Front", "Back"])
+                     if (opening_enabled(side))
+                         let(ox = opening_plan_position(side)[0],
+                             w  = get_effective_opening_width(side))
+                         if (seam_strip_hit(x_seam, ox - w / 2, ox + w / 2))
+                             [get_opening_lift(side) - SPACER, opening_top(side)]])
+    seam_usable_bands(seam_bands_minus([[Wall_Thickness, Box_Height]], blocks));
+
+// Lid bands: the slab below the band its seam clips occupy. A front or back
+// relief on the seam takes the whole slab height, so it clears the band.
+function lid_seam_bands(x_seam) =
+    let(top = Lid_Height - Clip_Tab_Height - Clip_Tolerance,
+        relief_hit = [for (side = ["Front", "Back"])
+                         if (lid_relief_enabled(side) &&
+                             seam_strip_hit(x_seam, -Lid_Relief_Width / 2, Lid_Relief_Width / 2))
+                             side])
+    len(relief_hit) > 0 ? [] : seam_usable_bands([[0, top]]);
+
+// Removes everything on one side of a seam at x_seam: the right side when
+// keep_left is true, the left side otherwise. Spans z_lo..z_hi and reaches
+// reach past the seam along X and to +-reach along Y.
+module m_seam_cutter(x_seam, keep_left, bands, z_lo, z_hi, reach) {
+    c = Seam_Tooth_Depth;
+    shift = keep_left ? -Clip_Tolerance / 2 : Clip_Tolerance / 2;
+    edge = [for (b = bands)
+               each concat([[x_seam, b[0]]],
+                           [for (z = seam_band_heights(b[0], b[1], c))
+                               [x_seam + shift + seam_band_offset(z, b[0], b[1], c), z]],
+                           [[x_seam, b[1]]])];
+    far = keep_left ? x_seam + reach : x_seam - reach;
+    outline = deduplicate(concat([[far, z_lo], [x_seam, z_lo]], edge,
+                                 [[x_seam, z_hi], [far, z_hi]]));
+    // rotate() turns the outline's second coordinate into z; the extrusion
+    // then runs toward -y, so it is lifted to start at +reach.
+    translate([0, reach, 0]) rotate([90, 0, 0])
+        linear_extrude(reach * 2) polygon(outline);
+}
+
 module m_box_slice(slice_num) {
     slice_width = Box_Width / Slice_Count;
     slice_start_x = -Box_Width/2 + (slice_num - 1) * slice_width;
@@ -1934,14 +2048,23 @@ module m_box_slice(slice_num) {
         difference() {
             m_box_with_openings();
 
+            // Seam_Tooth_Depth 0 keeps the original flat cutters exactly.
             if (!is_first_slice) {
-                translate([slice_start_x - Box_Width, 0, (cutter_lo + cutter_hi)/2])
-                    cube([Box_Width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
+                if (Seam_Tooth_Depth > 0)
+                    m_seam_cutter(slice_start_x, false, box_seam_bands(slice_start_x),
+                                  cutter_lo, cutter_hi, Box_Width * 2);
+                else
+                    translate([slice_start_x - Box_Width, 0, (cutter_lo + cutter_hi)/2])
+                        cube([Box_Width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
             }
 
             if (!is_last_slice) {
-                translate([slice_end_x + Box_Width, 0, (cutter_lo + cutter_hi)/2])
-                    cube([Box_Width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
+                if (Seam_Tooth_Depth > 0)
+                    m_seam_cutter(slice_end_x, true, box_seam_bands(slice_end_x),
+                                  cutter_lo, cutter_hi, Box_Width * 2);
+                else
+                    translate([slice_end_x + Box_Width, 0, (cutter_lo + cutter_hi)/2])
+                        cube([Box_Width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
             }
 
             if (!is_first_slice) {
@@ -2136,13 +2259,21 @@ module m_lid_slice(slice_num) {
             m_lid();
 
             if (!is_first_slice) {
-                translate([slice_start_x - lid_width, 0, (cutter_lo + cutter_hi)/2])
-                    cube([lid_width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
+                if (Seam_Tooth_Depth > 0)
+                    m_seam_cutter(slice_start_x, false, lid_seam_bands(slice_start_x),
+                                  cutter_lo, cutter_hi, lid_width * 2);
+                else
+                    translate([slice_start_x - lid_width, 0, (cutter_lo + cutter_hi)/2])
+                        cube([lid_width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
             }
 
             if (!is_last_slice) {
-                translate([slice_end_x + lid_width, 0, (cutter_lo + cutter_hi)/2])
-                    cube([lid_width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
+                if (Seam_Tooth_Depth > 0)
+                    m_seam_cutter(slice_end_x, true, lid_seam_bands(slice_end_x),
+                                  cutter_lo, cutter_hi, lid_width * 2);
+                else
+                    translate([slice_end_x + lid_width, 0, (cutter_lo + cutter_hi)/2])
+                        cube([lid_width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
             }
 
             if (!is_first_slice) {

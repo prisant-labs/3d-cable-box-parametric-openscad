@@ -150,6 +150,8 @@ Enable slicing when full box/lid dimensions exceed your print bed width.
 - Tight assembly: increase `Clip_Tolerance` by `0.05`.
 - Loose assembly: decrease `Clip_Tolerance` by `0.05`.
 - Weak seam: increase `Clips_Per_Edge` or `Clip_Tab_Width`.
+- Pieces slide vertically: keep `Seam_Tooth_Depth` above `0`, so the wall
+  teeth lock them level. `Clip_Tolerance` also sets the teeth's clearance.
 
 ## 8) Printing Baseline
 

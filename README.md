@@ -86,6 +86,10 @@ Sliced boxes join with one of two clip styles:
 cannot check: a joint too tight to assemble passes every automated test. The
 default flips once a print says it should.
 
+Above the floor, each seam is cut as a 45 degree sawtooth through the walls, so
+the joined pieces cannot slide vertically and their rims meet flush. The teeth
+print without supports, and `Seam_Tooth_Depth=0` gives a flat seam instead.
+
 ### Composing with it
 
 The box and lid are BOSL2 attachables, so accessories attach to named features

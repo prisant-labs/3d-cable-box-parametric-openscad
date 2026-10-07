@@ -28,7 +28,7 @@ incomplete, **Spec** for written but not begun.
 | [E-10](E-10_versioning.md) | **Versioning** | Version scheme, pre-release flow, traceability from STL to source | Shipped v1.1.1; rc flow used for v1.2.0-rc.1 and v2.0.0-rc.1 through rc.4; releases drafted by `release.yml` | S | none |
 | [E-11](E-11_distribution.md) | **Distribution** | MakerWorld, Printables, and the licensing question that gates them | Open. Licence settled (MIT); listing drafted, nothing published | S | E-02 (MakerWorld benefits) |
 | [E-12](E-12_gridfinity-to-spec.md) | **Gridfinity to spec** | Rebuild both Gridfinity interfaces on the standard's swept profile, printable without supports | Scoped 2026-10-07; for the 2.0.0 rc series | M | none |
-| [E-13](E-13_seam-joints.md) | **Seam joints** | A 45 degree sawtooth seam through the walls, so sliced halves cannot slide vertically | Scoped 2026-10-07; for the 2.0.0 rc series | S to M | none |
+| [E-13](E-13_seam-joints.md) | **Seam joints** | A 45 degree sawtooth seam through the walls, so sliced halves cannot slide vertically | Implemented 2026-10-07, unreleased; waiting on the rc.6 print | S to M | none |
 
 Effort key: S = under a day, M = a few days, L = a week or more.
 

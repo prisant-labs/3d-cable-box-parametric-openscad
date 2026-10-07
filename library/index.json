@@ -102,6 +102,7 @@
     "Clip_Tab_Height": 3,
     "Slice_Preview_Spacing": 5,
     "Clip_Style": "Tab",
+    "Seam_Tooth_Depth": 3,
     "Clip_Snap_Length": 8,
     "Clip_Snap": 0.4,
     "Clip_Arm_Thickness": 1.0,
@@ -425,7 +426,7 @@
           },
           "image": {
             "path": "usb-charger/images/usb-charger_box-and-lid.png",
-            "bytes": 14678
+            "bytes": 15546
           }
         }
       ],
@@ -701,15 +702,15 @@
           ],
           "stl": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-only.stl",
-            "bytes": 272871
+            "bytes": 419767
           },
           "glb": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-only.glb",
-            "bytes": 29864
+            "bytes": 44340
           },
           "image": {
             "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_box-only.png",
-            "bytes": 26678
+            "bytes": 30743
           }
         },
         {
@@ -722,15 +723,15 @@
           ],
           "stl": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_lid-only.stl",
-            "bytes": 170431
+            "bytes": 178806
           },
           "glb": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_lid-only.glb",
-            "bytes": 19020
+            "bytes": 19884
           },
           "image": {
             "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_lid-only.png",
-            "bytes": 20563
+            "bytes": 20878
           }
         },
         {
@@ -743,15 +744,15 @@
           ],
           "stl": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-and-lid.stl",
-            "bytes": 443255
+            "bytes": 598526
           },
           "glb": {
             "path": "surge-strip-6-sliced/stl/surge-strip-6-sliced_box-and-lid.glb",
-            "bytes": 48204
+            "bytes": 63544
           },
           "image": {
             "path": "surge-strip-6-sliced/images/surge-strip-6-sliced_box-and-lid.png",
-            "bytes": 22044
+            "bytes": 24744
           }
         }
       ],
@@ -867,7 +868,7 @@
           "slug": "underside",
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_underside.png",
-            "bytes": 32594
+            "bytes": 32647
           }
         }
       ]

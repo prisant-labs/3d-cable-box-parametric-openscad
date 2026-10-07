@@ -331,6 +331,48 @@ Why: zero or negative clip geometry yields invalid seam bodies.
 
 Fix: set all clip dimensions above `0`.
 
+### Seam tooth depth must be non-negative
+
+```scad
+assert(!Enable_Slicing || Seam_Tooth_Depth >= 0,
+       "Seam_Tooth_Depth must be >= 0; use 0 for a flat seam");
+```
+
+Why: a negative depth has no meaning. `0` is the deliberate way to ask for the
+flat seam that releases before 2.0.0-rc.6 used.
+
+Fix: use `0` for a flat seam, or a positive depth. The default is `3`.
+
+### Seam teeth must fit inside one slice
+
+```scad
+assert(!Enable_Slicing || Seam_Tooth_Depth + Clip_Tolerance < Slice_Width / 2, ...);
+```
+
+Why: a middle piece carries notches from both of its seams. Each notch reaches
+`Seam_Tooth_Depth` plus half of `Clip_Tolerance` into the piece. Deeper teeth
+from the two seams would meet and cut the piece apart. The lid's pieces are
+slightly wider than the box's, so the box's pieces set the limit. The message
+gives the largest depth that fits.
+
+Fix: reduce `Seam_Tooth_Depth`, or reduce `Slice_Count` so each piece is wider.
+
+### A sliced lid must be thick enough for its seam clips
+
+```scad
+assert(!Enable_Slicing || GF_Lid_Active || Lid_Height >= Clip_Tab_Height + SPACER, ...);
+```
+
+Why: a lid seam clip spans from `Lid_Height - Clip_Tab_Height` to `Lid_Height`,
+sunk 0.04 mm below the slab's face. A thinner lid hangs the clip below the
+print bed, so a slicer stands the piece on its clips. The sliced box floor had
+the same fault until 2.0.0-rc.5. A lid-top Gridfinity plate lies under the slab
+and holds the clip instead, so the check is off when that interface is active.
+This closes backlog item 19 (lid seam clips below the bed).
+
+Fix: raise `Lid_Height` to at least `Clip_Tab_Height` plus 0.04 mm (3.04 mm at
+the defaults), or lower `Clip_Tab_Height`.
+
 ### Edge treatment cannot exceed the wall it cuts into
 
 ```scad

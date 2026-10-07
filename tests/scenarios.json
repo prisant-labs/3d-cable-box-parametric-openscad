@@ -897,6 +897,143 @@
                   "Box_Width=40", "Box_Depth=40", "Post_Diameter=33",
                   "Enable_Stabilizers=false"],
       "expect": { "rc": 1, "message": "Post_Diameter" }
+    },
+    {
+      "name": "assembly_box_slices_do_not_overlap",
+      "_why": "E-13 (seam joints). Two box slices joined, SPACER apart along X so",
+      "_why2": "the flat floor faces do not merely touch. A seam that fits leaves",
+      "_why3": "the overlap empty. This passes against rc.5 too: it guards the fit,",
+      "_why4": "and the lifted and dropped scenarios below prove the lock.",
+      "source": "tests/assembly/slices_joined.scad",
+      "defines": ["Render_On_Include=false", "Enable_Slicing=true"],
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "assembly_box_slices_lock_when_lifted",
+      "_why": "rc.5 prints: the halves slid vertically, because the floor clip's",
+      "_why2": "socket runs through the floor. Raised 0.5 mm, more than the 0.2 mm",
+      "_why3": "Clip_Tolerance, slice 2 must collide with slice 1. Against rc.5",
+      "_why4": "the overlap is empty and OpenSCAD exits 1.",
+      "source": "tests/assembly/slices_joined.scad",
+      "defines": ["Render_On_Include=false", "Enable_Slicing=true",
+                  "Assembly_Check=\"lifted\""],
+      "expect": { "rc": 0 }
+    },
+    {
+      "name": "assembly_box_slices_lock_when_dropped",
+      "_why": "The same proof downward: one tooth face blocks each direction.",
+      "_why2": "Both checks look above the floor clips, which a dropped slice",
+      "_why3": "only touches, flush with the wall; CGAL reports that unreliably.",
+      "source": "tests/assembly/slices_joined.scad",
+      "defines": ["Render_On_Include=false", "Enable_Slicing=true",
+                  "Assembly_Check=\"dropped\""],
+      "expect": { "rc": 0 }
+    },
+    {
+      "name": "assembly_lid_slices_do_not_overlap",
+      "_why": "The lid's seam gets the same profile below its seam clips.",
+      "source": "tests/assembly/slices_joined.scad",
+      "defines": ["Render_On_Include=false", "Enable_Slicing=true",
+                  "Assembly_Part=\"Lid\""],
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "assembly_lid_slices_lock_when_lifted",
+      "_why": "At the default 8.1 mm lid the tooth band is z 0 to 4.9, room for",
+      "_why2": "one 2.45 mm tooth, which locks both directions. The check looks",
+      "_why3": "below the lid clips, whose slab-closed sockets already block",
+      "_why4": "lifting with a flat seam, so only the tooth can make it collide.",
+      "source": "tests/assembly/slices_joined.scad",
+      "defines": ["Render_On_Include=false", "Enable_Slicing=true",
+                  "Assembly_Part=\"Lid\"", "Assembly_Check=\"lifted\""],
+      "expect": { "rc": 0 }
+    },
+    {
+      "name": "assembly_lid_slices_lock_when_dropped",
+      "_why": "The direction the lid clips never held: their sockets open upward.",
+      "source": "tests/assembly/slices_joined.scad",
+      "defines": ["Render_On_Include=false", "Enable_Slicing=true",
+                  "Assembly_Part=\"Lid\"", "Assembly_Check=\"dropped\""],
+      "expect": { "rc": 0 }
+    },
+    {
+      "name": "seam_teeth_on_box_slice_1",
+      "_why": "Piece 1's seam is at x=25 once exported. Above the default back",
+      "_why2": "opening (z 5 to 35) the teeth start at z=35 and peak 3 mm past the",
+      "_why3": "seam at z=38, less half of Clip_Tolerance: material to x=27.9.",
+      "_why4": "Against rc.5 piece 1 stops at x=25.",
+      "defines": ["Enable_Slicing=true", "Slice_Count=2",
+                  "Slice_Piece_To_Render=1", "Part_To_Render=\"Box Only\""],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [26.2, 36.0, 37.8], "size": [1, 1, 0.4], "expect": "material",
+            "why": "a tooth in the back wall, past the seam, at its peak" }
+        ]
+      }
+    },
+    {
+      "name": "seam_notches_on_box_slice_2",
+      "_why": "Piece 2's seam is at x=-25 once exported, and its wall recedes to",
+      "_why2": "x=-21.9 at z=38 to take piece 1's tooth. Against rc.5 it is solid.",
+      "defines": ["Enable_Slicing=true", "Slice_Count=2",
+                  "Slice_Piece_To_Render=2", "Part_To_Render=\"Box Only\""],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [-24.5, 36.0, 37.8], "size": [1, 1, 0.4], "expect": "empty",
+            "why": "the notch in the back wall that piece 1's tooth fills" },
+          { "translate": [-21.5, 36.0, 37.8], "size": [1, 1, 0.4], "expect": "material",
+            "why": "the back wall beyond the notch" }
+        ]
+      }
+    },
+    {
+      "name": "seam_three_slices_middle_piece_one_solid",
+      "_why": "A middle piece carries the profile on both edges. Its notches and",
+      "_why2": "teeth must not cut it apart, beside the default openings.",
+      "defines": ["Enable_Slicing=true", "Slice_Count=3",
+                  "Slice_Piece_To_Render=2", "Part_To_Render=\"Box Only\""],
+      "expect": { "rc": 0, "solids": 1 }
+    },
+    {
+      "name": "seam_flat_when_tooth_depth_zero",
+      "_why": "Seam_Tooth_Depth=0 takes the flat cutter path unchanged, so a",
+      "_why2": "plain butt seam stays available. Same bbox as the tab-clip export.",
+      "defines": ["Enable_Slicing=true", "Slice_Count=2", "Seam_Tooth_Depth=0",
+                  "Slice_Piece_To_Render=1", "Part_To_Render=\"Box Only\""],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "bbox": { "x": [-25.0, 28.96], "y": [-37.5, 37.5], "z": [0.0, 50.0] },
+        "probes": [
+          { "translate": [26.2, 36.0, 37.8], "size": [1, 1, 0.4], "expect": "empty",
+            "why": "no tooth past the seam" }
+        ]
+      }
+    },
+    {
+      "name": "validation_seam_tooth_depth_negative",
+      "defines": ["Enable_Slicing=true", "Seam_Tooth_Depth=-1"],
+      "expect": { "rc": 1, "message": "Seam_Tooth_Depth" }
+    },
+    {
+      "name": "validation_seam_tooth_depth_too_deep",
+      "_why": "A middle piece carries notches from both edges, so teeth deeper",
+      "_why2": "than half a slice, less clearance, would cut through it.",
+      "defines": ["Enable_Slicing=true", "Seam_Tooth_Depth=30"],
+      "expect": { "rc": 1, "message": "Seam_Tooth_Depth" }
+    },
+    {
+      "name": "validation_lid_too_thin_for_seam_clips",
+      "_why": "Backlog item 19 (lid seam clips below the bed). A lid seam clip",
+      "_why2": "spans Lid_Height - Clip_Tab_Height to Lid_Height, so a 2.5 mm lid",
+      "_why3": "hangs it 0.54 mm below the bed, the floor-clip fault rc.5 fixed.",
+      "defines": ["Enable_Slicing=true", "Lid_Height=2.5",
+                  "Part_To_Render=\"Lid Only\""],
+      "expect": { "rc": 1, "message": "Lid_Height" }
     }
   ]
 }

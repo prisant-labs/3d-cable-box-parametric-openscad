@@ -4,9 +4,9 @@
 through the walls, so the halves of a box larger than the bed cannot slide
 vertically and their rims meet flush.
 
-**Status:** Scoped 2026-10-07. Not started. It takes up the alignment problem
-left open in [E-02-P2 (snap clips)](E-02-P2_snap-clips.md). Both clip styles
-stay.
+**Status:** Implemented 2026-10-07, unreleased; waiting on the rc.6 print
+round. The suite passes 104 of 104. It takes up the alignment problem left
+open in [E-02-P2 (snap clips)](E-02-P2_snap-clips.md). Both clip styles stay.
 **Effort:** S to M
 **Depends on:** nothing. Ships in the 2.0.0 release-candidate series together
 with [E-12 (Gridfinity to spec)](E-12_gridfinity-to-spec.md).
@@ -108,15 +108,15 @@ requires.
 
 ## Acceptance criteria
 
-- [ ] Assembled slices overlap nothing.
-- [ ] Slices offset 0.5 mm up or 0.5 mm down collide, in both directions.
-- [ ] Every slice exports as one solid, including the default box and the
+- [x] Assembled slices overlap nothing.
+- [x] Slices offset 0.5 mm up or 0.5 mm down collide, in both directions.
+- [x] Every slice exports as one solid, including the default box and the
       middle slice of a three-slice box.
-- [ ] `Seam_Tooth_Depth = 0` reproduces today's flat cut, mesh-identical.
-- [ ] No tooth face overhangs more than 45 degrees in print orientation.
-- [ ] The lid seam passes the same checks, and the backlog item 19 guard is in
+- [x] `Seam_Tooth_Depth = 0` reproduces today's flat cut, mesh-identical.
+- [x] No tooth face overhangs more than 45 degrees in print orientation.
+- [x] The lid seam passes the same checks, and the backlog item 19 guard is in
       place.
-- [ ] `docs/PARAMETER_REFERENCE.md`, `docs/VALIDATION_RULES.md`,
+- [x] `docs/PARAMETER_REFERENCE.md`, `docs/VALIDATION_RULES.md`,
       `docs/MODULE_REFERENCE.md`, and `docs/PRINTING.md` (gluing) change in
       the same commit as the model.
 
