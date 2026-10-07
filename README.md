@@ -197,7 +197,7 @@ the change guards a failure mode that would otherwise exit `0`.
 Model changes are gated by an automated geometry suite, not just a compile check.
 
 ```bash
-python tests/run_tests.py          # 91 scenarios
+python tests/run_tests.py          # 104 scenarios
 bash scripts/scad-smoke.sh         # quick render smoke
 bash scripts/check-version.sh      # version consistency
 bash scripts/bump-bosl2.sh         # verified BOSL2 dependency upgrades

@@ -5,7 +5,7 @@ compile checks.
 
 **Status:** Shipped in v1.1.1 (2026-07-29). `tests/run_tests.py` and
 `tests/scenarios.json` assert exit code, solid count, manifoldness, warning
-cleanliness and point probes; 91 scenarios today, run in CI on every push.
+cleanliness and point probes; 104 scenarios today, run in CI on every push.
 
 **Effort:** M
 **Depends on:** nothing. Should land before
