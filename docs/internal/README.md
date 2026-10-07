@@ -16,7 +16,7 @@ incomplete, **Spec** for written but not begun.
 
 | ID | Handle | Scope | Status | Effort | Depends on |
 |---|---|---|---|---|---|
-| [E-01](E-01_gridfinity-promotion.md) | **Gridfinity promotion** | Box-underside and lid-topside Gridfinity interfaces | Shipped v1.2.0; lid reworked to a socket in 2.0.0. Unprinted | S | none |
+| [E-01](E-01_gridfinity-promotion.md) | **Gridfinity promotion** | Box-underside and lid-topside Gridfinity interfaces | Shipped v1.2.0; lid reworked to a socket in 2.0.0. Geometry replaced by E-12 after the rc.5 prints | S | none |
 | [E-02](E-02_bosl2-migration.md) | **BOSL2 migration** | Build on BOSL2 rather than hand-rolled primitives | Shipped: phase 1 v1.3.0, phases 2-3 v1.4.0 | L | none |
 | [E-03](E-03_openings-array.md) | **Openings array** | Replace 4 fixed per-wall openings with an array-driven spec | Spec | M | E-02 (easier after) |
 | [E-04](E-04_quick-wins.md) | **Quick wins** | Edge treatment, lid removal relief, magnet retention | In `v2.0.0-rc.3`, final in 2.0.0. Opt-in defaults. Edge treatment and magnets confirmed by test prints; relief unprinted | S | none |
@@ -27,6 +27,8 @@ incomplete, **Spec** for written but not begun.
 | [E-09](E-09_testing-automation.md) | **Testing automation** | Automated geometry regression testing beyond compile checks | Shipped v1.1.1; 91 scenarios today | M | none |
 | [E-10](E-10_versioning.md) | **Versioning** | Version scheme, pre-release flow, traceability from STL to source | Shipped v1.1.1; rc flow used for v1.2.0-rc.1 and v2.0.0-rc.1 through rc.4; releases drafted by `release.yml` | S | none |
 | [E-11](E-11_distribution.md) | **Distribution** | MakerWorld, Printables, and the licensing question that gates them | Open. Licence settled (MIT); listing drafted, nothing published | S | E-02 (MakerWorld benefits) |
+| [E-12](E-12_gridfinity-to-spec.md) | **Gridfinity to spec** | Rebuild both Gridfinity interfaces on the standard's swept profile, printable without supports | Scoped 2026-10-07; for the 2.0.0 rc series | M | none |
+| [E-13](E-13_seam-joints.md) | **Seam joints** | A 45 degree sawtooth seam through the walls, so sliced halves cannot slide vertically | Scoped 2026-10-07; for the 2.0.0 rc series | S to M | none |
 
 Effort key: S = under a day, M = a few days, L = a week or more.
 
@@ -39,14 +41,18 @@ The infrastructure efforts are done: testing (E-09), versioning (E-10), the
 BOSL2 migration (E-02), the preset library (E-07), and the Gridfinity interfaces
 (E-01) have all shipped. What remains splits three ways.
 
-**Answered by test prints, now waiting on design.** The rc.4 and rc.5 test
-prints settled the lid fit. They also showed that E-01 (Gridfinity promotion)
-needs rework: the profile prints poorly and does not follow the standard's
-45 degree taper, as backlog items 15 (Gridfinity base seating) and 18
-(Gridfinity printability) record. The snap-clip default in
-[E-02-P2 (snap clips)](E-02-P2_snap-clips.md) is open again: the snaps work but
-feel weak, and neither clip style holds the halves level, as backlog item 20
-(seam alignment) records.
+**Answered by test prints, now designed.** The rc.4 and rc.5 test prints
+settled the lid fit. They also showed two problems, and both were scoped on
+2026-10-07 for the 2.0.0 release-candidate series, ahead of the 2.0.0 release:
+
+- [E-12 (Gridfinity to spec)](E-12_gridfinity-to-spec.md) rebuilds the
+  Gridfinity interfaces from E-01 (Gridfinity promotion). They print poorly and
+  do not follow the standard's 45 degree profile, as backlog items 15
+  (Gridfinity base seating) and 18 (Gridfinity printability) record.
+- [E-13 (seam joints)](E-13_seam-joints.md) answers backlog item 20 (seam
+  alignment): neither clip style holds sliced halves level. The snap-clip
+  default in [E-02-P2 (snap clips)](E-02-P2_snap-clips.md) is decided by the
+  same print round.
 
 **Feature work, in rough order of value per unit of effort.**
 

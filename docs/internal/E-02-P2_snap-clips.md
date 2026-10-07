@@ -12,6 +12,11 @@ by BOSL2 `rabbit_clip`, with `Clip_Snap_Length`, `Clip_Snap`,
 correctness is the one thing here that rendering cannot establish: a joint too
 tight to assemble passes every automated scenario. The default flips once a
 print says it should, which is itself a major bump and belongs with 2.0.0.
+
+**Alignment moved to [E-13 (seam joints)](E-13_seam-joints.md)** on
+2026-10-07. The rc.5 prints showed that neither clip style holds the halves
+level. E-13 adds a sawtooth seam through the walls and keeps both clip styles,
+and its print round also decides this default.
 **Effort:** M
 **Depends on:** E-02 phase 1 (landed in v1.3.0)
 

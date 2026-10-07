@@ -5,8 +5,11 @@ interfaces on the box underside and the lid topside.
 
 **Status:** Shipped in v1.2.0 (2026-07-30). The lid interface was reworked from
 a stud to a socket in 2.0.0, which resolves the profile-direction question below.
-Both interfaces remain **unvalidated by print**; `v2.0.0-rc.4` is the artifact
-to print.
+**Geometry replaced by [E-12 (Gridfinity to spec)](E-12_gridfinity-to-spec.md).**
+The rc.5 prints and a code check on 2026-10-07 showed that the base cannot seat
+in a standard baseplate and that neither interface prints cleanly. The toggles
+and user-facing parameters stay. E-12 reverses one design note below: the base
+footprint now rounds up to whole cells instead of centring a clipped grid.
 **Effort:** S (promotion and documentation, not construction)
 **Depends on:** nothing. Benefits from [E-09 (testing automation)](E-09_testing-automation.md).
 
