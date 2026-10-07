@@ -58,10 +58,17 @@ and without magnets, on a Bambu Lab P1S printing PLA+.
 2. Export each piece with `Slice_Piece_To_Render=1..Slice_Count`.
 3. Print one seam pair first: a two-slice [fit test box](#fit-test-box), or
    the two pieces that share a seam.
-4. Tune `Clip_Tolerance` by `0.05 mm` as needed.
+4. Tune `Clip_Tolerance` by `0.05 mm` as needed. It sets the clearance of
+   both the clips and the seam teeth.
 5. Print the full set only after the seam fits.
+6. Push the pieces together along the seam. The teeth hold them level, and the
+   floor clips hold them in line. For a permanent box, put cyanoacrylate glue
+   on the tooth faces before joining; the 45 degree faces give about 1.4 times
+   the glue area of a flat seam.
 
 Every piece sits flat on its floor, so sliced pieces print without support.
+The seam teeth are at most 45 degrees from vertical, so they need no support
+either.
 Releases up to and including 2.0.0-rc.4 centred each male floor clip on the
 floor, and 0.575 mm of it hung below the piece. A slicer then stood the whole
 piece on its clips. Re-export any sliced pieces from those releases.

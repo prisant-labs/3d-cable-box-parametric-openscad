@@ -213,11 +213,38 @@ clips share the offset, so the fit is unaffected.
 
 ### `m_box_slice(slice_num)`
 
-Cuts the box into one slice and applies seam clip logic.
+Cuts the box into one slice and applies seam clip logic. With
+`Seam_Tooth_Depth > 0` each seam is cut by `m_seam_cutter` using
+`box_seam_bands`; at `0` it takes the original flat cube cutters unchanged.
 
 ### `m_lid_slice(slice_num)`
 
-Cuts the lid into one slice and applies seam clip logic.
+Cuts the lid into one slice and applies seam clip logic, using
+`lid_seam_bands` for its seam teeth.
+
+### `m_seam_cutter(x_seam, keep_left, bands, z_lo, z_hi, reach)`
+
+Removes everything on one side of a seam: the right side when `keep_left` is
+true, the left side otherwise. Its edge is a profile in the XZ plane, extruded
+along Y. Inside each `[s, e]` band of z the edge is a 45 degree sawtooth,
+closed off by 45 degree lines at both ends; outside the bands it is a straight
+vertical cut. The two pieces' edges sit `Clip_Tolerance` apart inside the
+bands.
+
+The sawtooth has no undercut, so the pieces still engage by pushing together
+along X, as the floor clips do. A jigsaw or dovetail cut would only slide
+together along Y, which the floor clips cannot.
+
+### `box_seam_bands(x_seam)` and `lid_seam_bands(x_seam)`
+
+Return the z bands that carry teeth at a seam.
+
+- Box: the walls from the floor's top face to the rim, less the height range
+  of any front or back opening that crosses the seam's tooth strip.
+- Lid: the slab below the band the lid's seam clips occupy, or no bands when a
+  front or back lid relief sits on the seam.
+
+Bands shorter than one tooth depth are dropped.
 
 ## Attachment Interface
 

@@ -318,6 +318,29 @@ off the bed with no overhang and stiffen the corner.
 | `Clip_Tab_Height` | number | `3` | Clip tab height. | Larger values increase engagement force. Floor clips start at the floor's bottom face, so anything above `Wall_Thickness` rises inside the box rather than hanging below the piece. |
 | `Slice_Preview_Spacing` | number | `5` | Gap between pieces in all-slices preview. | Visual layout only; does not affect exported single-part geometry. Snap clips add their travel on top, so pieces never touch in the preview. |
 | `Clip_Style` | enum | `"Tab"` | `"Tab"` is the original friction fit; `"Snap"` is a BOSL2 cantilever snap clip. | See the snap clip section below. |
+| `Seam_Tooth_Depth` | number | `3` | Depth of the 45 degree sawtooth cut through the walls at each seam. The teeth stop joined pieces sliding vertically. `0` gives a flat seam. | Must be `>= 0`, and less than half a slice width minus `Clip_Tolerance`. See the seam teeth section below. |
+
+### Seam teeth (`Seam_Tooth_Depth`)
+
+Above the floor, each seam zigzags at 45 degrees through the walls, the post,
+and any fin it crosses. The teeth have no undercut, so the pieces still push
+together along X, the way the floor clips go in. Once joined, the teeth stop
+the pieces sliding vertically, and the floor clips stop them sliding along the
+seam. Pulling the pieces apart is resisted only by a Snap clip or by glue.
+
+- The tooth period is twice the depth: 6 mm at the default 3 mm.
+- The two pieces' profiles sit `Clip_Tolerance` apart, measured along X. That
+  gap is also the most a joined pair can move vertically.
+- Through the floor the seam stays flat, so the floor clips keep their
+  positions. A Gridfinity base is also cut flat.
+- Where a front or back opening crosses a seam, the teeth stop at the
+  opening's height range, because teeth there would leave slivers against its
+  rounded edges. On the default box the seam crosses both openings, so the
+  teeth run 15 mm above them and about 3 mm below.
+- On the lid, teeth run through the slab below the band the lid's seam clips
+  occupy. A front or back lid relief on the seam keeps the lid's seam flat.
+- Every tooth face is at most 45 degrees from vertical, so the pieces print
+  without supports.
 
 ### Slice rendering behavior
 
@@ -455,6 +478,11 @@ Slicing and clips:
 - When slicing is enabled, `Clips_Per_Edge` must be `>= 1`.
 - `Clip_Tolerance` must be `>= 0`.
 - `Clip_Tab_Width`, `Clip_Tab_Depth`, and `Clip_Tab_Height` must be greater than `0`.
+- When slicing is enabled, `Seam_Tooth_Depth` must be `>= 0`, and
+  `Seam_Tooth_Depth + Clip_Tolerance` must be less than half a slice width.
+- When slicing is enabled and the lid-top Gridfinity interface is not active,
+  `Lid_Height` must be at least `Clip_Tab_Height` plus 0.04 mm, so the lid's
+  seam clips stay inside the lid.
 
 ## Clamped Rather Than Asserted
 

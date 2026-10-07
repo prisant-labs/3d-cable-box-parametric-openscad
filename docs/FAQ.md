@@ -86,6 +86,8 @@ The post's top is open in both modes.
 
 Use slicing when full-size parts exceed your printer bed limits or when you want smaller printable modules that snap together.
 
+The pieces push together along each seam. Floor clips keep them in line, and a 45 degree sawtooth through the walls keeps them level, so the rims meet flush. `Seam_Tooth_Depth` sets the teeth's depth, and `0` gives a flat seam. For a permanent box, glue the tooth faces.
+
 ## How do I export slices correctly?
 
 1. Set `Enable_Slicing=true`.
@@ -103,6 +105,8 @@ The model enforces:
 - `Slice_Count >= 2` when slicing is enabled
 - `Clips_Per_Edge >= 1` when slicing is enabled
 - `Clip_Tolerance >= 0`
+- `Seam_Tooth_Depth >= 0`, and less than half a slice width minus `Clip_Tolerance`, when slicing is enabled
+- `Lid_Height` at least `Clip_Tab_Height` plus 0.04 mm when slicing is enabled, so the lid's seam clips stay inside the lid
 - Clip tab width/depth/height all `> 0`
 
 ## How do I run automated OpenSCAD smoke checks?

@@ -67,6 +67,16 @@ identically and that magnets survive slicing.
   defaults and all nine presets are well inside it. Set `Lid_Style=Skirt` for
   fins that reach the rim.
 
+- **`Seam_Tooth_Depth` cuts sliced seams as a 45 degree sawtooth.** Above the
+  floor, each seam zigzags through the walls, the post, and any fin it crosses,
+  so joined pieces cannot slide vertically and their rims meet flush. The teeth
+  have no undercut, so the pieces still push together the way the floor clips
+  go in, and every tooth face prints without support. The default is `3` mm;
+  `0` restores the flat seam exactly. Where a front or back opening crosses a
+  seam, the teeth skip its height range, so they never leave slivers against
+  its rounded edges. See
+  [E-13 (seam joints)](docs/internal/E-13_seam-joints.md).
+
 ### Changed
 - **`Lid_Lip_Gap` is now a clearance on each side, and defaults to `0.15`.**
   It was added once to the lid's overall width, which made it a total. The
@@ -138,6 +148,18 @@ identically and that magnets survive slicing.
   was exactly the two clips' 80 mm². Clips now start at the floor's bottom face
   and keep their full height, rising inside the box instead. This changes
   every sliced box piece, another **major** change.
+- **Sliced pieces stay level once joined.** With either clip style, the halves
+  of a sliced box could slide vertically against each other, and their rims
+  did not meet flush in the rc.5 test prints. Each floor clip's socket runs
+  through the floor, so nothing on the seam resisted vertical movement. The
+  seam teeth from `Seam_Tooth_Depth` (see above) now lock it. This changes
+  every sliced box and lid piece for unchanged inputs, a **major** change.
+  `tests/assembly/slices_joined.scad` joins two pieces and asserts that they
+  collide when one is moved 0.5 mm up or down.
+- **A sliced lid too thin for its seam clips is rejected.** A lid seam clip
+  hung below the print bed when `Lid_Height` was less than `Clip_Tab_Height`,
+  the same fault the floor clips had. The model now asserts and names
+  `Lid_Height`, unless a lid-top Gridfinity plate lies under the clip.
 - **Lid relief over a raised opening.** The check that drops a relief above an
   opening reaching the rim counted only `All_Openings_Up`. An opening raised to
   the rim by its own `Move_Opening_*_Up` still got a tab standing over it. The
@@ -158,7 +180,10 @@ identically and that magnets survive slicing.
 Five regression scenarios cover the four fixes from the lid relief onward,
 and each fails against the previous model. The lid, post socket and floor clip
 changes, together with `Lid_Style`, add eleven scenarios and update eight, and
-all nineteen fail against rc.4.
+all nineteen fail against rc.4. The seam teeth and the thin-lid check add
+thirteen scenarios. Nine fail against rc.5. The other four guard the fit of
+joined box and lid pieces, the middle piece of a three-piece box, and the flat
+seam that `Seam_Tooth_Depth=0` keeps.
 
 - **Sliced preset sizes.** `surge-strip-6-sliced` reported 270 mm, the width
   of the preview layout with both halves side by side. It now reports the

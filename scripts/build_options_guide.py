@@ -118,7 +118,9 @@ SECTIONS = [
          {"Enable_Bottom_Openings": True, "Bottom_Openings_Count": 6,
           "Bottom_Opening_Alignment_Primary": "Distributed"}),
     ]),
-    ("slicing", "Slicing for small beds", "Split the model into clipping pieces.", [
+    ("slicing", "Slicing for small beds",
+     "Split the model into pieces that push together. Floor clips hold them in line, "
+     "and 45-degree teeth in the walls hold them level.", [
         ("slice-2", "2 pieces, preview layout", CAM_ISO,
          {"Enable_Slicing": True, "Slice_Count": 2, "Part_To_Render": "Box Only"}),
         ("slice-3", "3 pieces", CAM_ISO,
@@ -128,6 +130,9 @@ SECTIONS = [
           "Part_To_Render": "Box Only"}),
         ("slice-clips", "4 clips per seam", CAM_ISO,
          {"Enable_Slicing": True, "Slice_Count": 2, "Clips_Per_Edge": 4,
+          "Part_To_Render": "Box Only"}),
+        ("slice-flat", "Flat seam, without teeth", CAM_ISO,
+         {"Enable_Slicing": True, "Slice_Count": 2, "Seam_Tooth_Depth": 0,
           "Part_To_Render": "Box Only"}),
     ]),
     ("gridfinity", "Gridfinity", "Optional interfaces, both shown from below.", [
