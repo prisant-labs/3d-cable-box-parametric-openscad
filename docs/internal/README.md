@@ -29,6 +29,7 @@ incomplete, **Spec** for written but not begun.
 | [E-11](E-11_distribution.md) | **Distribution** | MakerWorld, Printables, and the licensing question that gates them | Open. Licence settled (MIT); listing drafted, nothing published | S | E-02 (MakerWorld benefits) |
 | [E-12](E-12_gridfinity-to-spec.md) | **Gridfinity to spec** | Rebuild both Gridfinity interfaces on the standard's swept profile, printable without supports | Phase A (box feet) done 2026-10-08; phase B (lid top) next; for the 2.0.0 rc series | M | none |
 | [E-13](E-13_seam-joints.md) | **Seam joints** | A 45 degree sawtooth seam through the walls, so sliced halves cannot slide vertically | Implemented 2026-10-07, unreleased; waiting on the rc.6 print | S to M | none |
+| [E-14](E-14_printability-options.md) | **Printability options** | Opt-in teardrop opening tops, a bottom edge that meets the bed at 45 degrees, and a layer height for the Gridfinity bridging | Spec; planned as 2.1.0, after 2.0.0 | S to M | E-12 phase A (merged) |
 
 Effort key: S = under a day, M = a few days, L = a week or more.
 
@@ -53,6 +54,11 @@ settled the lid fit. They also showed two problems, and both were scoped on
   alignment): neither clip style holds sliced halves level. The snap-clip
   default in [E-02-P2 (snap clips)](E-02-P2_snap-clips.md) is decided by the
   same print round.
+
+**Next after 2.0.0.** [E-14 (printability options)](E-14_printability-options.md)
+adds three opt-in parameters for printing without supports, scoped on
+2026-10-08. Every default keeps today's geometry, so it ships as the minor
+release 2.1.0. Its own release plan sets the order.
 
 **Feature work, in rough order of value per unit of effort.**
 
