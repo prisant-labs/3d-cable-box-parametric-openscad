@@ -32,8 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and slice seams by construction rather than by avoidance logic. The four
   positions are symmetric in both axes, so they align however the lid is flipped
   onto the box. Bosses run the full box height so they print off the bed instead
-  of hanging off the rim. Sizing follows the existing `Gridfinity_Magnet_*`
-  convention: `Lid_Magnet_Diameter` 6.2 for a nominal 6 mm magnet. Asserts when
+  of hanging off the rim. `Lid_Magnet_Diameter` defaults to 6.2 for a nominal
+  6 mm magnet. Asserts when
   the boss will not fit the cavity or would touch the post. Defaults to off.
 
   Magnets must be inserted with opposing poles facing. Symmetric geometry cannot
@@ -78,6 +78,19 @@ identically and that magnets survive slicing.
   [E-13 (seam joints)](docs/internal/E-13_seam-joints.md).
 
 ### Changed
+- **A Gridfinity base rounds the box up to whole cells, and its feet follow the
+  spec.** With `Enable_Gridfinity_Bottom` on, `Box_Width` and `Box_Depth` each
+  become the smallest `(N - 1) * 42 + 41.5` mm that holds the typed value, and
+  the model echoes the size it built. The default 100 x 75 box becomes
+  125.5 x 83.5, a 3 x 2 grid, and the lid grows with it. The
+  `gridfinity-module` preset now types its 3 x 2 footprint exactly, 125.5 x
+  83.5 instead of 140 x 100, which would have rounded up to 4 x 3. Each cell
+  gets one solid foot swept along the spec's 0.8 / 1.8 / 2.15 mm profile. Where
+  the box corner is rounder than a foot's 3.75 mm corner, the corner feet are
+  trimmed to the box's outline. `Gridfinity_Edge_Keepout` now applies only to
+  the lid top. `Gridfinity_Magnet_Diameter` defaults to `6.25`, so the pocket
+  with its clearance is the spec's 6.5 mm. See
+  [E-12 (Gridfinity to spec)](docs/internal/E-12_gridfinity-to-spec.md).
 - **`Lid_Lip_Gap` is now a clearance on each side, and defaults to `0.15`.**
   It was added once to the lid's overall width, which made it a total. The
   same value now separates the lip from the wall on every side, for both lid
@@ -141,6 +154,20 @@ identically and that magnets survive slicing.
   `Post_Diameter`, a zero-clearance fit that no lid reached while the lip held
   it off the rim. It now takes `Lid_Lip_Gap` on each side, and the sleeve
   around it grows to match.
+- **The Gridfinity base fits a standard baseplate.** Each cell was a
+  square-cornered 41.5 mm block whose corners reached 29.35 mm from the cell
+  centre, where a baseplate pocket's rounded corner reaches only 28.04, so the
+  base could not enter one. It was also hollowed from below with a 37 mm bridge
+  in every cell, and the box overhung it with a flat ledge that printed as
+  loose loops. Its magnet and screw holes cut only the hollow's 0.45 mm
+  ceiling, so they held nothing. The feet are now solid and print without
+  supports (see "A Gridfinity base rounds the box up" above). Magnet pockets are
+  cut up from each foot's bottom, 6.5 x 2.4 mm, with two stepped bridging
+  layers so the screw hole's ceiling prints. `Gridfinity_Magnet_Depth` beyond
+  4.35 mm is now rejected instead of silently capped.
+  `tests/assembly/gridfinity_seated.scad` seats the feet in a baseplate built
+  from the spec's own numbers and asserts that they do not overlap it. This
+  changes every box with the base on, a **major** change.
 - **Sliced pieces sit on their floor (F-51).** Each floor clip was centred on
   the floor, so a 3 mm clip in a 1.85 mm floor hung 0.575 mm below the piece. A
   slicer stands the part on its lowest point, which left the floor and walls in

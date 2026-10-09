@@ -167,8 +167,8 @@ at each of the four inside corners, so a magnet in each holds the lid shut.
 Corners rather than the rim, because the rim is only `Wall_Thickness` wide
 (1.85 mm by default) and a 6 mm magnet does not fit in it.
 
-`Lid_Magnet_Diameter` defaults to `6.2` for a nominal 6 mm magnet, matching the
-Gridfinity magnet convention. `Lid_Magnet_Depth` is the depth in *each* half, so
+`Lid_Magnet_Diameter` defaults to `6.2` for a nominal 6 mm magnet.
+`Lid_Magnet_Depth` is the depth in *each* half, so
 two of them stack: at the default `2.4`, a 4.8 mm magnet sits flush.
 
 **Insert the magnets with opposing poles facing.** The pockets are symmetric so
@@ -236,8 +236,9 @@ Use `community/` for user-contributed builds, remixes, and showcase assets.
 
 Yes, in two independent ways, and they are opposite halves of the same joint.
 
-`Enable_Gridfinity_Bottom` puts a 42 mm base under the box so it drops into a
-Gridfinity baseplate.
+`Enable_Gridfinity_Bottom` puts solid Gridfinity feet under the box, built to
+the spec's profile, so it drops into a 42 mm baseplate. The footprint rounds up
+to whole cells, so the default `100 x 75` box becomes `125.5 x 83.5`.
 
 `Enable_Gridfinity_Lid_Top` puts a Gridfinity **baseplate** on the lid's exposed
 face: a plate with sockets cut into it, so bins or another box sit on the closed
@@ -248,10 +249,11 @@ end up pointing at the ceiling with nothing able to rest on them. It adds
 Turn on either, both, or neither. Both together gives a box that sits in a
 baseplate and is itself a baseplate.
 
-Treat both interfaces as experimental for now. They use the published 42 mm
-grid, but test prints show they do not yet print or fit as cleanly as standard
-Gridfinity parts. Test a one-cell [fit test box](PRINTING.md#fit-test-box)
-against real Gridfinity parts before you print a full box.
+The feet follow the spec's profile, and the test suite seats them in a
+baseplate built from the spec's own numbers. The lid top is still experimental:
+test prints show its sockets do not yet print or fit as cleanly as a standard
+baseplate. Test a one-cell [fit test box](PRINTING.md#fit-test-box) against
+real Gridfinity parts before you print a full box.
 
 ## Why does Gridfinity require `Closed_Post`?
 
@@ -259,12 +261,22 @@ An open post bores through the box floor. A Gridfinity base sits directly under
 that floor and would block the bore, so the model asserts rather than producing
 a passage that goes nowhere. Set `Closed_Post=true`, or turn the post off.
 
-## I enabled Gridfinity but nothing appeared
+## Why did my box get bigger when I turned on the Gridfinity base?
 
-Your box is probably too small for a single 42 mm cell once
+The base rounds the footprint up to whole cells: each side becomes the smallest
+`(N - 1) * 42 + 41.5` mm that holds what you typed. A box wider than its feet
+would overhang them, and on a baseplate that overhang blocks the neighbouring
+cells anyway, so rounding up costs no desk space. The model echoes the size it
+built in the OpenSCAD console. To keep the box close to a size you have in
+mind, type the nearest whole-cell size: `41.5`, `83.5`, `125.5`, `167.5`, and
+so on.
+
+## I enabled the Gridfinity lid top but nothing appeared
+
+The lid is probably too small for a single 42 mm cell once
 `Gridfinity_Edge_Keepout` is taken off each side. The model says so via `echo`
-in the OpenSCAD console. At the default `4 mm` keepout you need roughly `50 mm`
-in both directions for one cell.
+in the OpenSCAD console. At the default `4 mm` keepout the lid needs roughly
+`50 mm` in both directions for one cell.
 
 ## Does enabling Gridfinity shrink the inside of my box?
 

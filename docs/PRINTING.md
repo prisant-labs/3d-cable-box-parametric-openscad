@@ -39,7 +39,8 @@ To test one feature, turn on only that feature. Use `Enable_Lid_Magnets=true`
 for the magnets. For a seam, use `Box_Width=80`, `Box_Height=15`,
 `Enable_Slicing=true`, `Slice_Count=2`, and `Slice_Piece_To_Render=0`, which
 exports both halves side by side. For Gridfinity, test a one-cell box against
-real Gridfinity parts.
+real Gridfinity parts: set `Box_Width=41.5` and `Box_Depth=41.5`, because the
+base rounds a 50 mm box up to 2 x 2 cells.
 
 ## Fit Calibration Procedure
 
@@ -75,19 +76,25 @@ piece on its clips. Re-export any sliced pieces from those releases.
 
 ## Gridfinity
 
-- The box base is hollow from below. The ceiling of each cell's hollow prints
-  as a bridge about 37 mm wide, so good bridging settings matter more here than
-  anywhere else on the model.
+- The box's feet are solid and stand on the bed. Their sides lean out at 45
+  degrees or rise straight, so they need no support. Releases through
+  2.0.0-rc.5 hollowed the base from below and left a 37 mm bridge in every
+  cell.
+- With the base on, the footprint rounds up to whole cells, so the box's walls
+  stand directly on the outer feet and no ledge overhangs them. Releases
+  through 2.0.0-rc.5 left a flat ledge of 4 mm or more around the base, which
+  printed as loose loops without supports.
+- Foot magnet pockets open onto the bed, so the magnets go in after printing.
+  Above each pocket, two 0.2 mm bridging layers carry the pocket's ceiling
+  across the screw hole. The steps assume 0.2 mm layers. At a much thicker
+  layer height the slicer may merge them, which defeats the technique.
 - The lid socket opens onto the bed when the lid prints as exported, so it
   needs no support. Its floor, about 37 mm across, prints as a bridge. In test
   prints that bridge sagged, and a sagging floor makes the socket shallower, so
-  tune bridging here too.
-- The box body is wider than the base block below it, and its underside prints
-  as an unsupported ledge about 4 mm wide on each side. In test prints that
-  ledge printed as loose loops. Use supports under it, or accept the rough
-  underside.
-- `Gridfinity_Profile_Clearance` (0.25 mm) is a chosen number, not a measured
-  one. Test a one-cell box against real Gridfinity parts before a full box.
+  tune bridging here.
+- The feet are built to the spec's numbers, and a spec foot leaves 0.25 mm all
+  round in a spec baseplate pocket. Test a one-cell box against a real
+  baseplate before a full box anyway.
 
 ## Magnets
 

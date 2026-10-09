@@ -67,7 +67,7 @@ from the model, in one self-contained file you can also
 |---|---|
 | ![Stabilizer fins and floor cutouts](docs/images/feature_stabilizers.png) | **Fins and floor cutouts.** Interior ribs stiffen long walls and automatically skip positions that would block an opening. Floor cutouts arrange along either axis and split around the centre post. |
 | ![Slicing into two clipping halves](docs/images/feature_slicing.png) | **Bigger than your printer?** Slicing mode splits the box and lid into pieces joined by tab or snap clips, so a 265 mm box prints on a 180 mm bed. |
-| ![Gridfinity interfaces on the underside](docs/images/feature_gridfinity.png) | **Gridfinity, optionally.** A 42 mm base under the box, made to sit in a standard baseplate, and a baseplate socket on the lid so bins sit on the closed box. Optional magnet and screw pockets. Experimental for now: test prints show the profile does not yet print or fit as cleanly as standard Gridfinity parts. |
+| ![Gridfinity interfaces on the underside](docs/images/feature_gridfinity.png) | **Gridfinity, optionally.** Solid feet built to the spec's profile, so the box drops into a standard 42 mm baseplate, with the footprint rounded up to whole cells. A baseplate socket on the lid lets bins sit on the closed box. Optional magnet and screw pockets. The lid top is experimental for now: test prints show its sockets do not yet print or fit as cleanly as a standard baseplate. |
 | ![Rounded edges, lid grips and corner magnet bosses](docs/images/feature_finishing.png) | **Finishing touches.** A rounded bottom edge and a chamfered rim, a scallop or tab grip so a tight lid comes off without a tool, and corner magnets that hold the lid shut. All are off by default. |
 
 Plus: per-wall opening sizes and positions, an open or closed-bottom centre
@@ -120,7 +120,7 @@ complete `config.json`, STLs, renders, and notes. They are also browsable with
 |---|---|---|
 | [`usb-charger`](library/usb-charger/) | GaN multi-port charger and cables | 120 x 75 x 45 |
 | [`desk-compact`](library/desk-compact/) | Short power strip, few cables | 140 x 80 x 55 |
-| [`gridfinity-module`](library/gridfinity-module/) | Gridfinity 3 x 2 desk module | 140 x 100 x 60 |
+| [`gridfinity-module`](library/gridfinity-module/) | Gridfinity 3 x 2 desk module | 125.5 x 83.5 x 60 |
 | [`laptop-brick`](library/laptop-brick/) | Laptop charger plus 3 cables | 175 x 105 x 70 |
 | [`under-desk-passthrough`](library/under-desk-passthrough/) | Cable junction, no post | 180 x 85 x 50 |
 | [`monitor-junction`](library/monitor-junction/) | Two monitor bricks | 210 x 95 x 62 |
@@ -197,7 +197,7 @@ the change guards a failure mode that would otherwise exit `0`.
 Model changes are gated by an automated geometry suite, not just a compile check.
 
 ```bash
-python tests/run_tests.py          # 104 scenarios
+python tests/run_tests.py          # 110 scenarios
 bash scripts/scad-smoke.sh         # quick render smoke
 bash scripts/check-version.sh      # version consistency
 bash scripts/bump-bosl2.sh         # verified BOSL2 dependency upgrades

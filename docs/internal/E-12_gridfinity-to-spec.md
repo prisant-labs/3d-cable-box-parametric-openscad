@@ -4,7 +4,8 @@
 standard's swept profile, so the box seats in a real baseplate and both parts
 print without supports.
 
-**Status:** Scoped 2026-10-07. Not started. Replaces the geometry of
+**Status:** Scoped 2026-10-07. Phase A (box feet) implemented 2026-10-08;
+phase B (lid-top baseplate) not started. Replaces the geometry of
 [E-01 (Gridfinity promotion)](E-01_gridfinity-promotion.md); E-01's two toggles
 and its user-facing parameters stay.
 **Effort:** M
@@ -76,6 +77,40 @@ kennetek's `standard.scad`.
    output for unchanged inputs, which
    [E-10 (versioning)](E-10_versioning.md) classes as major. Landing them
    before 2.0.0 lets one major version absorb them.
+
+## Decisions (2026-10-08, phase A)
+
+6. **Build each foot with `offset_sweep()`, and emit all the feet as one
+   polyhedron.** A benchmark on OpenSCAD 2021.01 with CGAL compared four ways
+   to build a foot: `offset_sweep()`, the same sweep computed once, kennetek's
+   piecewise sweep, and two convex hulls. At 3 x 2 and 6 x 4 cells they finished
+   within about 1 s of each other, so the build method does not matter. The
+   cost is CGAL's union of the rounded feet with the box, and 2021.01 unions a
+   module's children one at a time. Joining every foot into one polyhedron
+   makes it a single union, which gives the same mesh with the feet's render
+   time cut by about 45 percent. Pinned to one performance core, the finished
+   model, corner clip included, renders the default box with feet in 7.9 s
+   against rc.5's 4.3 s, and the 6 x 4 router-shelf box in 20.6 s against
+   6.6 s. The harness and results are local to the
+   maintainer's checkout, in `_local/research/e12-foot-benchmark/`.
+7. **Clip the corner feet to the box's outline (maintainer).** The default
+   `Box_Corner_Radius` of 8.1 mm is rounder than a foot's 3.75 mm corner, so
+   the four corner feet stood outside the wall. The crossing arcs also left
+   slivers that CGAL could not re-import, so every probe on the default box
+   failed. Clipping keeps the user's corner radius and makes those feet
+   smaller, which a baseplate still accepts. The clip is built the way the
+   shell is, so the arcs share vertices. Rejected: capping `Box_Corner_Radius`
+   at 3.75 mm when the base is on, which would change how every Gridfinity box
+   looks.
+8. **The bridging layers sit above the 2.4 mm pocket.** kennetek puts them
+   inside the pocket's top 0.4 mm, which leaves a full-width pocket only 2.0 mm
+   deep. This effort's acceptance criterion asks for a 6.5 x 2.4 mm pocket, so
+   the two 0.2 mm layers run from 2.4 to 2.8 mm and the screw hole starts above
+   them.
+9. **`Gridfinity_Magnet_Diameter` defaults to `6.25`.** Every pocket adds
+   `Gridfinity_Profile_Clearance`, and 6.25 plus the default 0.25 is the spec's
+   6.5 mm. Changing the default rather than the formula keeps the meaning of
+   every value a user has already set.
 
 ## Spec dimensions
 
@@ -163,20 +198,25 @@ requires.
 
 ## Acceptance criteria
 
-- [ ] The model's feet seat fully in a spec-built reference pocket with no
-      overlap.
+- [x] The model's feet seat fully in a spec-built reference pocket with no
+      overlap. Phase A: `tests/assembly/gridfinity_seated.scad`.
 - [ ] A spec-built reference foot seats fully in the lid-top pocket with no
       overlap.
 - [ ] One box's feet seat in another box's lid-top pockets.
-- [ ] The base footprint rounds up to whole cells, and the model echoes the
+- [x] The base footprint rounds up to whole cells, and the model echoes the
       size it used.
 - [ ] Neither part has a flat overhang or bridge wider than about 15 mm in its
-      print orientation.
-- [ ] The magnet pockets are 6.5 by 2.4 mm at the defaults.
-- [ ] With both toggles off, every part is mesh-identical to rc.5.
-- [ ] `docs/VALIDATION_RULES.md`, `docs/PARAMETER_REFERENCE.md`,
+      print orientation. The box meets this after phase A; the lid waits for
+      phase B.
+- [x] The magnet pockets are 6.5 by 2.4 mm at the defaults. Probes check the
+      pocket's position and depth; the 6.5 mm diameter rests on the parameter
+      arithmetic, because a probe cannot tell it from rc.5's 6.45.
+- [x] With both toggles off, every part is mesh-identical to rc.5. Checked
+      for phase A on seven configurations: box, lid, box and lid, a slice, an
+      edge-treated box, a lid-top-only lid, and the router-shelf preset.
+- [x] `docs/VALIDATION_RULES.md`, `docs/PARAMETER_REFERENCE.md`,
       `docs/PRINTING.md` (print orientation), and `docs/FAQ.md` change in the
-      same commit as the model.
+      same commit as the model. Phase B must update them again.
 
 ## Human print test (rc.6)
 
@@ -188,8 +228,13 @@ requires.
 
 ## Risks
 
-- **Render time.** `offset_sweep()` across many cells may be slow under CGAL on
-  2021.01, which CI uses. The fallback is a hand-written sweep.
+- **Render time.** Measured for phase A (Decision 6): acceptable, and a
+  hand-written sweep would not have been faster.
+- **A seam through a foot.** With an odd cell count, a slice seam runs through
+  a foot. At the defaults, the seam at x = 0 halves the middle foot. Each half
+  prints flat and the halves rejoin when the pieces are joined, and
+  `gridfinity_bottom_sliced` shows each piece is still one solid. A printed
+  sliced box on a baseplate has not been tried.
 - **The footprint touches every size reference.** One derived pair, a search
   for every `Box_Width` and `Box_Depth` use, and the full suite contain this.
 - **The flip changes the lid's frame.** Relief, magnets, seam clips, and

@@ -33,7 +33,7 @@ Seam_Test_Offset = 0.5;
 function joined_slice_centre(i, span) = -span/2 + (i - 0.5) * span / Slice_Count;
 
 module joined_slice(i) {
-    span = Assembly_Part == "Lid" ? Lid_Outer_Width : Box_Width;
+    span = Assembly_Part == "Lid" ? Lid_Outer_Width : Box_Width_Effective;
     translate([joined_slice_centre(i, span), 0, 0])
         if (Assembly_Part == "Lid") m_lid_slice(i);
         else m_box_slice(i);
@@ -53,6 +53,6 @@ intersection() {
     translate([-SPACER/2, 0, 0]) joined_slice(1);
     translate([ SPACER/2, 0, dz]) joined_slice(2);
     if (dz != 0)
-        translate([-Box_Width * 1.5, -Box_Depth * 1.5, band[0]])
-            cube([Box_Width * 3, Box_Depth * 3, band[1] - band[0]]);
+        translate([-Box_Width_Effective * 1.5, -Box_Depth_Effective * 1.5, band[0]])
+            cube([Box_Width_Effective * 3, Box_Depth_Effective * 3, band[1] - band[0]]);
 }

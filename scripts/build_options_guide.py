@@ -137,7 +137,7 @@ SECTIONS = [
     ]),
     ("gridfinity", "Gridfinity", "Optional interfaces, both shown from below.", [
         ("gf-off", "Disabled (default)", CAM_UNDER, {"Closed_Post": True}),
-        ("gf-bottom", "Base under the box", CAM_UNDER,
+        ("gf-bottom", "Feet under the box, rounded up to whole cells", CAM_UNDER,
          {"Enable_Gridfinity_Bottom": True, "Closed_Post": True}),
         ("gf-lid", "Profile on the lid", CAM_UNDER,
          {"Enable_Gridfinity_Lid_Top": True, "Part_To_Render": "Lid Only"}),

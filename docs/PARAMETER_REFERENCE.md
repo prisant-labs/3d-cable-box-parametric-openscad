@@ -126,7 +126,7 @@ counts that wall's `Move_Opening_*_Up` as well as `All_Openings_Up`.
 | Parameter | Type | Default | Description | Practical guidance |
 |---|---|---:|---|---|
 | `Enable_Lid_Magnets` | boolean | `false` | Mating magnet pockets in the box and lid. | Held in bosses at the four inside corners, because the rim is only `Wall_Thickness` wide and a 6 mm magnet does not fit in it. Corners are also free of openings, stabilizers, the post and slice seams. |
-| `Lid_Magnet_Diameter` | number | `6.2` | Pocket diameter. | Takes a nominal 6 mm magnet, the same convention as `Gridfinity_Magnet_Diameter`. Magnet diameters vary by supplier; increase if a press fit cracks the boss. |
+| `Lid_Magnet_Diameter` | number | `6.2` | Pocket diameter. | Takes a nominal 6 mm magnet. Magnet diameters vary by supplier; increase if a press fit cracks the boss. |
 | `Lid_Magnet_Depth` | number | `2.4` | Pocket depth in each half. | Two of these stack when the box is closed, so a 4.8 mm magnet sits flush. The lid keeps material above its pocket, so the magnet is captured rather than visible. |
 | `Lid_Magnet_Wall` | number | `1.2` | Material around each pocket. | Also sets the boss diameter, which is `Lid_Magnet_Diameter + 2 * Lid_Magnet_Wall`. |
 
@@ -384,24 +384,38 @@ Both default to off and change no geometry when disabled.
 
 | Parameter | Type | Default | Description | Interactions |
 |---|---|---:|---|---|
-| `Enable_Gridfinity_Bottom` | boolean | `false` | Adds a 42 mm Gridfinity base under the box so it drops into a baseplate. | Mutually exclusive with `Enable_Bottom_Openings`. Requires `Closed_Post=true` when the post is enabled. Adds `4.75 mm` to total height. |
+| `Enable_Gridfinity_Bottom` | boolean | `false` | Adds solid Gridfinity feet under the box, built to the spec's profile, so it drops into a 42 mm baseplate. | Rounds the footprint up to whole cells (see below), and the lid grows with it. Mutually exclusive with `Enable_Bottom_Openings`. Requires `Closed_Post=true` when the post is enabled. Adds `4.75 mm` to total height. |
 | `Enable_Gridfinity_Lid_Top` | boolean | `false` | Adds a Gridfinity baseplate to the lid's exposed face: a plate with sockets, so bins or another box sit on the closed box. | Adds `4.75 mm` to lid height. |
-| `Gridfinity_Profile_Clearance` | number | `0.25` | Fit clearance on mating profiles. | Increase if the base is tight in your baseplate. |
-| `Gridfinity_Edge_Keepout` | number | `4` | Margin from the model edge before the first cell. | Prevents thin, fragile cells at the perimeter. Raising it can reduce the cell count. |
-| `Enable_Gridfinity_Magnet_Screw` | boolean | `false` | Adds magnet pockets to whichever interfaces are enabled; the bottom base also gets screw holes. The lid gets pockets only, because a through screw hole would breach the closed box. Lid pockets open at each socket floor. | |
-| `Gridfinity_Magnet_Diameter` | number | `6.2` | Magnet pocket diameter. | `6 mm` magnets are the Gridfinity convention; the extra is clearance. |
-| `Gridfinity_Magnet_Depth` | number | `2.4` | Magnet pocket depth. | Capped so `0.8 mm` of material always remains above the pocket. |
-| `Gridfinity_Screw_Diameter` | number | `3.2` | Through screw hole diameter. | Sized for M3. |
+| `Gridfinity_Profile_Clearance` | number | `0.25` | Fit clearance on the lid-top sockets, and on every magnet pocket and screw hole. | The feet need none: a spec foot already leaves `0.25 mm` all round in a spec pocket. Increase if lid sockets are tight. |
+| `Gridfinity_Edge_Keepout` | number | `4` | Margin from the lid edge before the first lid-top cell. | Prevents thin, fragile cells at the lid's perimeter. The base ignores it, because its feet fill the rounded footprint. |
+| `Enable_Gridfinity_Magnet_Screw` | boolean | `false` | Adds magnet pockets to whichever interfaces are enabled; the bottom base also gets screw holes. The lid gets pockets only, because a through screw hole would breach the closed box. Lid pockets open at each socket floor. | Foot pockets open on the foot's bottom face, so magnets go in after printing. |
+| `Gridfinity_Magnet_Diameter` | number | `6.25` | Magnet diameter the pockets are cut for. | Each pocket adds `Gridfinity_Profile_Clearance`, so the default gives the spec's `6.5 mm` pocket for a `6 mm` magnet. |
+| `Gridfinity_Magnet_Depth` | number | `2.4` | Magnet pocket depth. | In a foot, two `0.2 mm` bridging layers sit above the pocket, so the depth can be at most `4.35 mm`. In the lid, capped so `0.8 mm` of material always remains above the pocket. |
+| `Gridfinity_Screw_Diameter` | number | `3.2` | Through screw hole diameter. | Sized for M3, and adds `Gridfinity_Profile_Clearance`. In a foot it runs up to the box's underside, and the floor above stays closed. |
 
-### How the grid is laid out
+### How the base is laid out
 
-Box dimensions rarely land on a 42 mm multiple. Rather than forcing your
-dimensions, the model fits as many whole cells as it can inside the footprint
-minus `Gridfinity_Edge_Keepout` on each side, then centres that array. A box too
-small for even one cell renders normally with the interface omitted and an
-`echo` explaining why.
+With `Enable_Gridfinity_Bottom` on, the footprint rounds up to whole cells.
+`Box_Width` and `Box_Depth` each become the smallest `(N - 1) * 42 + 41.5` mm
+that is at least the typed value, which is the outside of `N` spec feet. The
+model echoes the size it built when that differs from what you typed:
 
-At the default `100 x 75` footprint you get a 2 x 1 grid.
+```
+ECHO: "Gridfinity base: box footprint rounded up to 125.5 x 83.5 mm (3 x 2 cells) from Box_Width x Box_Depth = 100 x 75"
+```
+
+The default `100 x 75` footprint therefore becomes `125.5 x 83.5`, a 3 x 2
+grid. Rounding up costs no baseplate area. A box wider than its feet would
+overhang them, and on a baseplate that overhang blocks the neighbouring cells
+anyway.
+
+Every foot is solid. Where the box corner is rounder than a foot's `3.75 mm`
+corner, as at the default `Box_Corner_Radius` of `8.1`, the four corner feet are
+trimmed to the box's outline. They are then smaller than a spec foot, which a
+baseplate still accepts.
+
+The lid top keeps the older layout: as many whole cells as fit inside the lid
+less `Gridfinity_Edge_Keepout` on each side, centred.
 
 ### Height convention
 
@@ -424,7 +438,7 @@ post.
 | `Model_Version` | string | current release | Echoed at render so an exported STL can be traced back to its source. |
 | `Render_On_Include` | boolean | `true` | Set `false` to use the file as a library: modules and anchors become available without geometry appearing. See the attachment section in `MODULE_REFERENCE.md`. |
 | `$fn` | integer | `40` | Circle/arc resolution for cylinders and rounded geometry. |
-| `GF_*` | various | Gridfinity spec | Gridfinity standard dimensions (pitch, cell and cavity sizes, profile stages). Hidden because changing one produces a part that no longer mates with other Gridfinity gear, but still overridable with `-D` if you need to. |
+| `GF_*` | various | Gridfinity spec | Gridfinity standard dimensions (pitch, the foot's footprint and profile, socket sizes, hole offsets). Hidden because changing one produces a part that no longer mates with other Gridfinity gear, but still overridable with `-D` if you need to. |
 | `SPACER` | number | `0.04` | Internal modeling offset used for robust boolean operations and tiny clearances. |
 
 ## Built-In Validation
@@ -484,12 +498,23 @@ Slicing and clips:
   `Lid_Height` must be at least `Clip_Tab_Height` plus 0.04 mm, so the lid's
   seam clips stay inside the lid.
 
+Gridfinity:
+
+- `Enable_Gridfinity_Bottom` cannot be combined with `Enable_Bottom_Openings`,
+  and it requires `Closed_Post=true` when the post is on.
+- With the base and magnets on, `Gridfinity_Magnet_Depth` must be `> 0` and at
+  most `4.35 mm`, so the pocket and its two bridging layers fit inside a foot.
+
 ## Clamped Rather Than Asserted
 
 `Box_Corner_Radius` is clamped instead of rejected, because a too-large radius
 has an obvious correct interpretation (round the corners as much as the geometry
 allows). When clamping occurs the model emits an `echo` naming the requested and
 the applied value, so the difference is visible in the OpenSCAD console.
+
+The footprint under a Gridfinity base is rounded up the same way, with an
+`echo` naming the typed and the built size. See "How the base is laid out"
+above.
 
 ## Recommended Baseline Profiles
 
