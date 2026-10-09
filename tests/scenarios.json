@@ -295,33 +295,82 @@
 
     {
       "name": "gridfinity_bottom",
-      "_why": "Base is ADDED below the box and the box is lifted, so the model",
-      "_why2": "still sits on z=0. Cells land at x=+/-21 on the default footprint.",
-      "_why3": "Base occupies z 0..4.75; mating cavity is cut z 0..4.3.",
+      "_why": "E-12 (Gridfinity to spec). The default 100 x 75 box rounds up to",
+      "_why2": "125.5 x 83.5, which is 3 x 2 whole cells, and the box is lifted so",
+      "_why3": "the feet stand on z=0. Probes sit on the middle cell of the back",
+      "_why4": "row, centred at (0, 21), whose corners meet only straight box edges.",
+      "_why5": "Its +x face is at 17.8 + z up to z=0.8, 18.6 up to z=2.6, then",
+      "_why6": "18.6 + (z - 2.6) up to 20.75 at z=4.75. rc.5 built square blocks",
+      "_why7": "hollowed from below, which cannot enter a spec baseplate.",
       "defines": ["Part_To_Render=\"Box Only\"", "Enable_Gridfinity_Bottom=true",
                   "Closed_Post=true"],
       "expect": {
         "rc": 0,
         "solids": 1,
+        "output_contains": "box footprint rounded up to 125.5 x 83.5 mm",
+        "bbox": { "x": [-62.75, 62.75], "y": [-41.75, 41.75], "z": [0.0, 54.75] },
         "probes": [
-          { "translate": [-24, -3, 0.5], "size": [6, 6, 0.3], "expect": "empty",
-            "why": "mating cavity at cell centre" },
-          { "translate": [-24, -3, 3.7], "size": [6, 6, 0.3], "expect": "empty",
-            "why": "upper mating cavity at cell centre" },
-          { "translate": [-24, -3, 4.45], "size": [6, 6, 0.2], "expect": "material",
-            "why": "solid base stock above the cavity" },
-          { "translate": [-24, -3, 5.5], "size": [6, 6, 0.3], "expect": "material",
-            "why": "box floor sits on top of the base" },
-          { "translate": [-24, -3, 10], "size": [6, 6, 0.5], "expect": "empty",
+          { "translate": [-3, 18, 0.05], "size": [6, 6, 0.3], "expect": "material",
+            "why": "the foot is solid at the cell centre, not hollowed from below" },
+          { "translate": [-3, 18, 4.3], "size": [6, 6, 0.3], "expect": "material",
+            "why": "solid up to the box floor" },
+          { "translate": [17.4, 20, 0.05], "size": [0.35, 2, 0.1], "expect": "material",
+            "why": "foot bottom, inside its 35.6 mm footprint" },
+          { "translate": [18.0, 20, 0.05], "size": [0.4, 2, 0.1], "expect": "empty",
+            "why": "foot bottom, outside its 35.6 mm footprint" },
+          { "translate": [18.2, 20, 0.75], "size": [0.3, 2, 0.1], "expect": "material",
+            "why": "top of the lower 45 degree run, inside 37.2 mm" },
+          { "translate": [18.65, 20, 0.75], "size": [0.35, 2, 0.1], "expect": "empty",
+            "why": "top of the lower 45 degree run, outside 37.2 mm" },
+          { "translate": [18.65, 20, 1.5], "size": [0.35, 2, 0.4], "expect": "empty",
+            "why": "the vertical waist stays at 37.2 mm" },
+          { "translate": [18.2, 20, 2.55], "size": [0.3, 2, 0.1], "expect": "material",
+            "why": "top of the waist, inside 37.2 mm" },
+          { "translate": [18.7, 20, 2.55], "size": [0.3, 2, 0.1], "expect": "empty",
+            "why": "top of the waist, outside 37.2 mm" },
+          { "translate": [19.75, 20, 3.6], "size": [0.25, 2, 0.1], "expect": "empty",
+            "why": "the upper 45 degree run, outside 39.2 mm at z=3.6" },
+          { "translate": [20.2, 20, 4.6], "size": [0.35, 2, 0.1], "expect": "material",
+            "why": "foot top, inside its 41.5 mm footprint" },
+          { "translate": [20.8, 20, 4.6], "size": [0.4, 2, 0.1], "expect": "empty",
+            "why": "the 0.5 mm gap between neighbouring feet" },
+          { "translate": [19.0, 40.0, 4.4], "size": [0.3, 0.3, 0.2], "expect": "material",
+            "why": "the foot's rounded top corner, inside its 3.75 mm radius" },
+          { "translate": [19.9, 40.9, 4.4], "size": [0.5, 0.5, 0.2], "expect": "empty",
+            "why": "outside the rounded corner; rc.5's square corner filled it" },
+          { "translate": [-3, 18, 5.5], "size": [6, 6, 0.3], "expect": "material",
+            "why": "box floor sits on top of the feet" },
+          { "translate": [-3, 18, 10], "size": [6, 6, 0.5], "expect": "empty",
             "why": "box interior still hollow" }
         ]
       }
     },
     {
       "name": "gridfinity_bottom_magnets",
+      "_why": "E-12 (Gridfinity to spec). Magnet pockets are cut up from each",
+      "_why2": "foot's bottom, 6.5 across and 2.4 deep, 13 mm from the cell centre,",
+      "_why3": "and the screw hole carries on up through the foot. rc.5 cut them",
+      "_why4": "down from the base top into the hollow, where they held nothing.",
+      "_why5": "Probes use the hole at (13, 34) on the cell at (0, 21), and stay",
+      "_why6": "above z=2.8 for anything solid, clear of the bridging layers.",
       "defines": ["Part_To_Render=\"Box Only\"", "Enable_Gridfinity_Bottom=true",
                   "Closed_Post=true", "Enable_Gridfinity_Magnet_Screw=true"],
-      "expect": { "rc": 0, "solids": 1 }
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [15.0, 33.6, 0.3], "size": [0.8, 0.8, 1.5], "expect": "empty",
+            "why": "magnet pocket, between the screw hole and the pocket wall" },
+          { "translate": [15.0, 33.6, 2.2], "size": [0.8, 0.8, 0.15], "expect": "empty",
+            "why": "the pocket reaches 2.4 mm deep" },
+          { "translate": [15.0, 33.6, 3.0], "size": [0.8, 0.8, 0.5], "expect": "material",
+            "why": "solid foot above the pocket, outside the screw hole" },
+          { "translate": [12.6, 33.6, 3.0], "size": [0.8, 0.8, 1.5], "expect": "empty",
+            "why": "the screw hole passes up through the foot" },
+          { "translate": [12.6, 33.6, 5.2], "size": [0.8, 0.8, 0.8], "expect": "material",
+            "why": "the box floor above the screw hole stays closed" }
+        ]
+      }
     },
     {
       "name": "gridfinity_lid_top",
@@ -415,18 +464,73 @@
       "expect": { "rc": 0, "solids": 2 }
     },
     {
-      "name": "gridfinity_too_small_box_not_floating",
-      "_why": "No 42mm cell fits, so the base is omitted. The lift must be",
-      "_why2": "suppressed too, otherwise the box hangs 4.75mm above z=0.",
+      "name": "gridfinity_small_box_rounds_up_to_one_cell",
+      "_why": "E-12 (Gridfinity to spec). A box smaller than one cell rounds up to",
+      "_why2": "41.5 x 41.5 and gets one foot. rc.5 omitted the base here and had to",
+      "_why3": "suppress the lift, or the box hung 4.75 mm above z=0.",
       "defines": ["Part_To_Render=\"Box Only\"", "Box_Width=40", "Box_Depth=40",
                   "Box_Corner_Radius=5", "Enable_Gridfinity_Bottom=true",
                   "Closed_Post=true"],
       "expect": {
         "rc": 0,
         "solids": 1,
+        "bbox": { "x": [-20.75, 20.75], "y": [-20.75, 20.75], "z": [0.0, 54.75] },
         "probes": [
-          { "translate": [-1, -19.5, 0.05], "size": [2, 1.5, 0.2], "expect": "material",
-            "why": "box wall must still start at z=0, not float above it" }
+          { "translate": [-3, -3, 0.05], "size": [6, 6, 0.3], "expect": "material",
+            "why": "the one foot stands on z=0" }
+        ]
+      }
+    },
+    {
+      "name": "gridfinity_bottom_ignores_edge_keepout",
+      "_why": "E-12 (Gridfinity to spec). The base now fills the rounded footprint,",
+      "_why2": "so Gridfinity_Edge_Keepout no longer trims it. rc.5 kept 20 mm clear",
+      "_why3": "and found no cell that fit, so the box had no base at all.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Closed_Post=true", "Gridfinity_Edge_Keepout=20"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "bbox": { "x": [-62.75, 62.75], "y": [-41.75, 41.75], "z": [0.0, 54.75] },
+        "probes": [
+          { "translate": [39, 18, 0.05], "size": [6, 6, 0.3], "expect": "material",
+            "why": "the outer cell at (42, 21) still has its foot" }
+        ]
+      }
+    },
+    {
+      "name": "gridfinity_bottom_lid_follows_rounded_footprint",
+      "_why": "E-12 (Gridfinity to spec). The lid is sized from the rounded box, so",
+      "_why2": "it still fits: 125.5 x 83.5 + 2 * (Wall_Thickness + Lid_Lip_Gap).",
+      "_why3": "A lid sized from the typed 100 x 75 would be 104 x 79.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Closed_Post=true"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "bbox": { "x": [-64.75, 64.75], "y": [-43.75, 43.75] }
+      }
+    },
+    {
+      "name": "gridfinity_bottom_corner_feet_clipped",
+      "_why": "E-12 (Gridfinity to spec). The default 8.1 mm box corner is rounder",
+      "_why2": "than a foot's 3.75 mm, so the corner feet are clipped to the box's",
+      "_why3": "outline. Unclipped, they stood outside the wall, and the crossing",
+      "_why4": "arcs left slivers that made every probe here a CGAL error. A top",
+      "_why5": "chamfer builds the shell with offset_sweep() rather than cuboid(),",
+      "_why6": "so the clip must follow it. The probe sits outside the box's corner",
+      "_why7": "arc, centred (54.65, 33.65), and inside the corner foot's, (59, 38).",
+      "defines": ["Part_To_Render=\"Box Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Closed_Post=true", "Top_Edge_Chamfer=0.6"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "bbox": { "x": [-62.75, 62.75], "y": [-41.75, 41.75], "z": [0.0, 54.75] },
+        "probes": [
+          { "translate": [60.5, 39.5, 4.5], "size": [0.4, 0.4, 0.15], "expect": "empty",
+            "why": "the corner foot stops at the box's rounded corner" },
+          { "translate": [39, 18, 4.5], "size": [6, 6, 0.15], "expect": "material",
+            "why": "the same foot is whole away from the corner" }
         ]
       }
     },
@@ -434,6 +538,16 @@
       "name": "gridfinity_conflict_bottom_openings_blocked",
       "defines": ["Enable_Gridfinity_Bottom=true", "Enable_Bottom_Openings=true"],
       "expect": { "rc": 1, "message": "mutually exclusive" }
+    },
+    {
+      "name": "validation_gridfinity_magnet_depth_too_deep",
+      "_why": "E-12 (Gridfinity to spec). A pocket plus its two 0.2 mm bridging",
+      "_why2": "layers must fit inside the 4.75 mm foot. rc.5 clamped the depth",
+      "_why3": "silently instead, so this rendered and exited 0.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Closed_Post=true", "Enable_Gridfinity_Magnet_Screw=true",
+                  "Gridfinity_Magnet_Depth=4.5"],
+      "expect": { "rc": 1, "message": "Gridfinity_Magnet_Depth" }
     },
     {
       "name": "gridfinity_conflict_open_post_blocked",
@@ -613,14 +727,14 @@
     {
       "name": "e04_edge_treatment_suppressed_by_gridfinity",
       "_why": "The Gridfinity base is dimensioned by the standard, so a fillet",
-      "_why2": "on the box bottom would move a mating surface. Suppression is",
-      "_why3": "gated on GF_Bottom_Active, not the Enable_ parameter, so a box",
-      "_why4": "too small for a cell keeps its fillet.",
+      "_why2": "on the box bottom would move a mating surface. Since E-12",
+      "_why3": "(Gridfinity to spec) every box rounds up to at least one cell, so",
+      "_why4": "the base is always present, and this box is 125.5 x 83.5.",
       "defines": ["Part_To_Render=\"Box Only\"", "Enable_Gridfinity_Bottom=true",
                   "Closed_Post=true", "Bottom_Edge_Fillet=1.0"],
       "expect": {
         "rc": 0, "solids": 1,
-        "bbox": { "x": [-50.0, 50.0], "y": [-37.5, 37.5], "z": [0.0, 54.75] }
+        "bbox": { "x": [-62.75, 62.75], "y": [-41.75, 41.75], "z": [0.0, 54.75] }
       }
     },
     {
@@ -1034,6 +1148,43 @@
       "defines": ["Enable_Slicing=true", "Lid_Height=2.5",
                   "Part_To_Render=\"Lid Only\""],
       "expect": { "rc": 1, "message": "Lid_Height" }
+    },
+    {
+      "name": "assembly_gridfinity_feet_fit_spec_baseplate",
+      "_why": "E-12 (Gridfinity to spec). The box's feet, seated in a baseplate",
+      "_why2": "built from the spec's numbers, overlap nothing. rc.5's square",
+      "_why3": "cells reached 29.35 mm from centre at the corners, where the pocket",
+      "_why4": "reaches 28.04, and sat on a grid that missed the plate's.",
+      "source": "tests/assembly/gridfinity_seated.scad",
+      "defines": ["Render_On_Include=false", "Enable_Gridfinity_Bottom=true",
+                  "Closed_Post=true"],
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "assembly_gridfinity_feet_seated_in_spec_baseplate",
+      "_why": "The empty overlap above would also pass for a box with no feet.",
+      "_why2": "Here box and plate are joined, in the model's frame: box underside",
+      "_why3": "at z=0, feet down to -4.75, plate top at -SPACER, pocket profile",
+      "_why4": "bottom at -4.69. Probes on the cell at (0, 21) find the foot at the",
+      "_why5": "bottom of its pocket, and the 0.25 mm gap between foot and wall.",
+      "source": "tests/assembly/gridfinity_seated.scad",
+      "defines": ["Render_On_Include=false", "Enable_Gridfinity_Bottom=true",
+                  "Closed_Post=true", "Assembly_Check=\"seated\""],
+      "expect": {
+        "rc": 0,
+        "probes": [
+          { "translate": [-3, 18, -4.74], "size": [6, 6, 0.04], "expect": "material",
+            "why": "the foot reaches below the pocket profile's bottom" },
+          { "translate": [18.3, 20, -3.5], "size": [0.25, 2, 0.9], "expect": "material",
+            "why": "the foot's waist, inside 37.2 mm" },
+          { "translate": [18.65, 20, -3.5], "size": [0.15, 2, 0.9], "expect": "empty",
+            "why": "clearance between the waist and the pocket's 37.7 mm wall" },
+          { "translate": [18.9, 20, -3.5], "size": [0.3, 2, 0.9], "expect": "material",
+            "why": "the plate's wall beyond the pocket" },
+          { "translate": [19.8, 20, -1.1], "size": [0.1, 2, 0.1], "expect": "empty",
+            "why": "clearance along the upper 45 degree runs" }
+        ]
+      }
     }
   ]
 }

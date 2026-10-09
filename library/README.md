@@ -14,7 +14,7 @@ cannot drift from the model the way hand-made artifacts do.
 | [`monitor-junction`](monitor-junction/) | Dual-monitor cable junction | Two monitor power bricks and their signal cables. | 210 x 95 x 62 |
 | [`surge-strip-6`](surge-strip-6/) | Six-outlet surge protector | A standard 6-outlet strip up to ~250 x 60 mm, with its cord. | 265 x 100 x 62 |
 | [`surge-strip-6-sliced`](surge-strip-6-sliced/) | Six-outlet strip, split for a 180 mm bed | Same as surge-strip-6, printed in two halves that clip together. | 265 x 100 x 62 assembled; 136 x 100 x 62 largest piece |
-| [`gridfinity-module`](gridfinity-module/) | Gridfinity desk module | Sits in a Gridfinity baseplate on a 3 x 2 cell footprint. | 140 x 100 x 60 |
+| [`gridfinity-module`](gridfinity-module/) | Gridfinity desk module | Sits in a Gridfinity baseplate on a 3 x 2 cell footprint. | 126 x 84 x 60 |
 | [`router-shelf`](router-shelf/) | Router and modem shelf tidy | A small router or modem plus its PSU. Tall openings for stiff coax and ethernet. | 230 x 130 x 75 |
 | [`under-desk-passthrough`](under-desk-passthrough/) | Under-desk pass-through | A junction box where cables enter one side and leave the other. No post, so the interior is one clear channel. | 180 x 85 x 50 |
 

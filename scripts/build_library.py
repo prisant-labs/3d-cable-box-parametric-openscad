@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import shutil
@@ -97,13 +98,16 @@ PRESETS = [
         "name": "gridfinity-module",
         "title": "Gridfinity desk module",
         "fits": "Sits in a Gridfinity baseplate on a 3 x 2 cell footprint.",
-        "params": {"Box_Width": 140, "Box_Depth": 100, "Box_Height": 55,
+        # Typed as exactly 3 x 2 whole cells, (N - 1) * 42 + 41.5 mm, so the
+        # base does not round the box up to the next cell.
+        "params": {"Box_Width": 125.5, "Box_Depth": 83.5, "Box_Height": 55,
                    "Enable_Gridfinity_Bottom": True,
                    "Enable_Gridfinity_Lid_Top": True,
                    "Closed_Post": True,
                    "All_Opening_Width": 14, "All_Opening_Height": 30},
         "note": "Gridfinity bottom requires Closed_Post. Total height is "
-                "Box_Height plus 4.75 mm of base.",
+                "Box_Height plus 4.75 mm of feet. The footprint is whole "
+                "cells, so the base does not round it up.",
     },
     {
         "name": "router-shelf",
@@ -425,7 +429,8 @@ def sliced_box_sizes(name: str, eff: dict, dims) -> tuple[list[float] | None, li
 
     assembled_size_mm is the box that exists once the pieces are joined: its
     width is Box_Width, read from the effective (default-merged) parameters
-    rather than the preview STL, because slicing does not change the box's
+    and rounded up to whole cells when a Gridfinity base is on, rather than
+    from the preview STL, because slicing does not change the box's
     depth or height, dims' y and z extents are reused unchanged.
 
     largest_piece_mm is the single biggest piece from largest_piece() above,
@@ -436,6 +441,11 @@ def sliced_box_sizes(name: str, eff: dict, dims) -> tuple[list[float] | None, li
     if not eff.get("Enable_Slicing") or not dims:
         return None, None
     box_width = eff.get("Box_Width")
+    # A Gridfinity base rounds the footprint up to whole cells, so the joined
+    # box is wider than the typed value. Same rule as gf_cells_for() in the model.
+    if box_width is not None and eff.get("Enable_Gridfinity_Bottom"):
+        cells = max(1, math.ceil((float(box_width) - 41.5) / 42) + 1)
+        box_width = (cells - 1) * 42 + 41.5
     assembled = (
         [round(float(box_width), 2), round(dims[1], 2), round(dims[2], 2)]
         if box_width is not None else None

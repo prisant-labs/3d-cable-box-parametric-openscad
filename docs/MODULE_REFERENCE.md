@@ -21,6 +21,7 @@ Includes:
 - Optional center post outer/inner solids
 - Optional stabilizers
 - Optional bottom openings subtract
+- Optional Gridfinity feet, with their magnet pockets and screw holes subtracted
 
 Used by:
 
@@ -177,6 +178,24 @@ unchanged rather than merely expected to be. With a treatment it becomes a BOSL2
 horizontal fillet meets the vertical corner radius. `offset_sweep` expresses "no
 profile" by omitting the argument, so the cases are enumerated rather than
 passed a flat value.
+
+### `m_gridfinity_bottom_solid()` and `m_box_outline_prism(h)`
+
+The Gridfinity feet under the box. One foot is swept once, at load time, into
+`GF_FOOT_VNF` with BOSL2 `offset_sweep()`. `m_gridfinity_bottom_solid()` copies
+it to every cell and emits all the copies as one polyhedron, because CGAL on
+OpenSCAD 2021.01 unions separate children one at a time. It then clips the feet
+to the box's outline with `m_box_outline_prism()`. That prism is built the same
+way `m_edge_treated_shell()` builds the walls, so the corner arcs of the two
+share vertices exactly. A clip whose arcs only nearly matched the wall's would
+leave slivers that CGAL cannot read back.
+
+### `m_gridfinity_bottom_holes()`
+
+Magnet pockets cut up from each foot's bottom face, two stepped bridging layers
+above each pocket, and the screw hole from there to the box's underside. The
+first bridging layer is a slot across the pocket and the second a square, so
+each layer's material spans a supported edge.
 
 ### `m_lid_relief(is_cut)`
 

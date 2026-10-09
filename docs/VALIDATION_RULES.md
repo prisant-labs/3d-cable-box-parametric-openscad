@@ -29,13 +29,18 @@ Fix: set all three above `0`.
 
 ```scad
 assert(Wall_Thickness > 0, "Wall_Thickness must be > 0");
-assert(Wall_Thickness * 2 < min(Box_Width, Box_Depth),
+assert(Wall_Thickness * 2 < min(Box_Width_Effective, Box_Depth_Effective),
        "Wall_Thickness is too large for the box footprint; Inner_Width and Inner_Depth would be <= 0");
 ```
 
 Why: `Inner_Width` and `Inner_Depth` are derived as the outer size minus two
 walls. If the walls meet or cross, the interior inverts and every placement
 calculation downstream operates on a negative span.
+
+`Box_Width_Effective` and `Box_Depth_Effective` are the footprint the model
+builds. They equal `Box_Width` and `Box_Depth` unless a Gridfinity base rounds
+the footprint up to whole cells, as the Gridfinity section below describes.
+Every rule that tests the footprint reads them.
 
 Fix: keep `Wall_Thickness` below half the smaller footprint dimension.
 
@@ -415,7 +420,7 @@ Fix: reduce `Lid_Relief_Depth`, reduce `Lid_Relief_Width`, or reduce
 ### Magnet bosses must fit the cavity and clear the post
 
 ```scad
-assert(!Enable_Lid_Magnets || Magnet_Boss_Diameter * 2 < min(Box_Width, Box_Depth) - Wall_Thickness * 2, ...);
+assert(!Enable_Lid_Magnets || Magnet_Boss_Diameter * 2 < min(Box_Width_Effective, Box_Depth_Effective) - Wall_Thickness * 2, ...);
 assert(!Enable_Lid_Magnets || !Enable_Post || <boss and post do not overlap>, ...);
 ```
 
@@ -430,6 +435,36 @@ Two depth rules go with them: the lid must keep `GF_MIN_FLOOR` of material above
 its pocket so the magnet is captured rather than showing through the exposed
 face, and the box pocket cannot be deeper than the wall is tall.
 
+## Gridfinity
+
+### A Gridfinity base excludes bottom openings and an open post
+
+```scad
+assert(!(Enable_Gridfinity_Bottom && Enable_Bottom_Openings), "... mutually exclusive ...");
+assert(!Enable_Gridfinity_Bottom || !Enable_Post || Closed_Post, "... requires Closed_Post=true ...");
+```
+
+Why: the feet sit directly under the floor. They would cover any floor cutout,
+and they would block an open post's bore, which runs through the floor.
+
+Fix: turn off `Enable_Bottom_Openings`, and set `Closed_Post=true` or turn the
+post off.
+
+### A foot's magnet pocket must fit inside the foot
+
+```scad
+assert(!(Enable_Gridfinity_Bottom && Enable_Gridfinity_Magnet_Screw) ||
+       (Gridfinity_Magnet_Depth > 0 &&
+        Gridfinity_Magnet_Depth + 2 * GF_BRIDGE_LAYER <= GF_BASE_HEIGHT), ...);
+```
+
+Why: each pocket is cut up from the foot's bottom face. Two 0.2 mm bridging
+layers sit above it, so the screw hole's ceiling prints without supports. The
+pocket and both layers must stay inside the 4.75 mm foot, or they would cut up
+into the box floor. The message gives the deepest pocket that fits, 4.35 mm.
+
+Fix: reduce `Gridfinity_Magnet_Depth`. The default is `2.4`, the spec's depth.
+
 ## Clamped Values Rather Than Assertions
 
 Not every out-of-range input deserves a hard stop. `Box_Corner_Radius` has an
@@ -437,7 +472,7 @@ obvious correct interpretation when it is too large, so the model clamps it and
 reports what it did:
 
 ```scad
-Max_Corner_Radius = max(0, (min(Box_Width, Box_Depth) - Wall_Thickness * 2) / 2 - 1e-6);
+Max_Corner_Radius = max(0, (min(Box_Width_Effective, Box_Depth_Effective) - Wall_Thickness * 2) / 2 - 1e-6);
 Corner_Radius     = min(Box_Corner_Radius, Max_Corner_Radius);
 ```
 
@@ -465,6 +500,19 @@ ECHO: "Front opening top edge at 65 mm is above Box_Height 50 mm; it is cut open
 
 An opening sized exactly to the wall stays quiet, because the check is strictly
 above `Box_Height`.
+
+A Gridfinity base rounds the footprint up rather than rejecting it. With
+`Enable_Gridfinity_Bottom` on, the box's width and depth each become the
+smallest `(N - 1) * 42 + 41.5` mm that is at least the typed value, which is the
+outside of `N` spec feet. A box wider than its feet would overhang them, and on
+a baseplate the neighbouring pockets fill the space under that overhang. The
+model reports the size it built:
+
+```
+ECHO: "Gridfinity base: box footprint rounded up to 125.5 x 83.5 mm (3 x 2 cells) from Box_Width x Box_Depth = 100 x 75"
+```
+
+A footprint that is already a whole number of cells stays quiet.
 
 Seam clip placement is corrected the same way. A clip whose center falls inside
 the post opening has no material to bond to, so its position is pushed clear of

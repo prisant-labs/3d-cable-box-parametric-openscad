@@ -113,7 +113,7 @@
     "Gridfinity_Profile_Clearance": 0.25,
     "Gridfinity_Edge_Keepout": 4,
     "Enable_Gridfinity_Magnet_Screw": false,
-    "Gridfinity_Magnet_Diameter": 6.2,
+    "Gridfinity_Magnet_Diameter": 6.25,
     "Gridfinity_Magnet_Depth": 2.4,
     "Gridfinity_Screw_Diameter": 3.2
   },
@@ -762,10 +762,10 @@
       "name": "gridfinity-module",
       "title": "Gridfinity desk module",
       "fits": "Sits in a Gridfinity baseplate on a 3 x 2 cell footprint.",
-      "note": "Gridfinity bottom requires Closed_Post. Total height is Box_Height plus 4.75 mm of base.",
+      "note": "Gridfinity bottom requires Closed_Post. Total height is Box_Height plus 4.75 mm of feet. The footprint is whole cells, so the base does not round it up.",
       "params": {
-        "Box_Width": 140,
-        "Box_Depth": 100,
+        "Box_Width": 125.5,
+        "Box_Depth": 83.5,
         "Box_Height": 55,
         "Enable_Gridfinity_Bottom": true,
         "Enable_Gridfinity_Lid_Top": true,
@@ -774,8 +774,8 @@
         "All_Opening_Height": 30
       },
       "box_size_mm": [
-        140.0,
-        100.0,
+        125.5,
+        83.5,
         59.75
       ],
       "assembled_size_mm": null,
@@ -792,74 +792,74 @@
       },
       "config": {
         "path": "gridfinity-module/config.json",
-        "bytes": 348
+        "bytes": 351
       },
       "notes": {
         "path": "gridfinity-module/notes.md",
-        "bytes": 653
+        "bytes": 719
       },
       "parts": [
         {
           "slug": "box-only",
           "label": "Box Only",
           "size_mm": [
-            140.0,
-            100.0,
+            125.5,
+            83.5,
             59.75
           ],
           "stl": {
             "path": "gridfinity-module/stl/gridfinity-module_box-only.stl",
-            "bytes": 288434
+            "bytes": 663191
           },
           "glb": {
             "path": "gridfinity-module/stl/gridfinity-module_box-only.glb",
-            "bytes": 31052
+            "bytes": 65620
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_box-only.png",
-            "bytes": 27141
+            "bytes": 32571
           }
         },
         {
           "slug": "lid-only",
           "label": "Lid Only",
           "size_mm": [
-            144.0,
-            104.0,
+            129.5,
+            87.5,
             15.85
           ],
           "stl": {
             "path": "gridfinity-module/stl/gridfinity-module_lid-only.stl",
-            "bytes": 184606
+            "bytes": 163064
           },
           "glb": {
             "path": "gridfinity-module/stl/gridfinity-module_lid-only.glb",
-            "bytes": 19372
+            "bytes": 17072
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_lid-only.png",
-            "bytes": 22594
+            "bytes": 23850
           }
         },
         {
           "slug": "box-and-lid",
           "label": "Box and Lid",
           "size_mm": [
-            302.0,
-            104.0,
+            273.0,
+            87.5,
             59.75
           ],
           "stl": {
             "path": "gridfinity-module/stl/gridfinity-module_box-and-lid.stl",
-            "bytes": 472066
+            "bytes": 825341
           },
           "glb": {
             "path": "gridfinity-module/stl/gridfinity-module_box-and-lid.glb",
-            "bytes": 49728
+            "bytes": 81988
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_box-and-lid.png",
-            "bytes": 18627
+            "bytes": 18168
           }
         }
       ],
@@ -868,7 +868,7 @@
           "slug": "underside",
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_underside.png",
-            "bytes": 32647
+            "bytes": 28623
           }
         }
       ]

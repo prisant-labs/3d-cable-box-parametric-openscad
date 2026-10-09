@@ -102,8 +102,7 @@ Lid_Relief_On_Back = false;
 // Magnets must be inserted with opposing poles facing; the geometry is
 // symmetric and cannot enforce that for you.
 Enable_Lid_Magnets = false;
-// Magnet pocket diameter (mm). 6.2 takes a nominal 6 mm magnet, the same
-// convention Gridfinity_Magnet_Diameter uses.
+// Magnet pocket diameter (mm). 6.2 takes a nominal 6 mm magnet.
 Lid_Magnet_Diameter = 6.2;
 // Pocket depth in each half (mm). Two of these stack when the box is closed.
 Lid_Magnet_Depth = 2.4;
@@ -292,22 +291,27 @@ Clip_Compression = 0.1;
 Clip_Lock = false;
 
 /*[Gridfinity]*/
-// Add a Gridfinity base under the box so it drops into a 42mm baseplate.
+// Add Gridfinity feet under the box so it drops into a 42mm baseplate. The
+// footprint rounds up to whole cells, and the model echoes the size it used.
 Enable_Gridfinity_Bottom = false;
 // Add a Gridfinity baseplate on top of the lid, so bins or another box sit on
 // the closed box. Adds 4.75mm to the closed height.
 Enable_Gridfinity_Lid_Top = false;
 // Fit clearance on Gridfinity mating profiles (mm). Increase if the fit is tight.
 Gridfinity_Profile_Clearance = 0.25;
-// Keepout from the model edges before the first cell (mm). Avoids thin corners.
+// Keepout from the lid edges before the first lid-top cell (mm). Avoids thin
+// corners. The base ignores it: its feet fill the rounded footprint.
 Gridfinity_Edge_Keepout = 4;
 // Add magnet pockets (and screw holes, bottom base only) to Gridfinity
 // features. The lid gets pockets without screw holes: a through hole there
 // would breach the closed box.
 Enable_Gridfinity_Magnet_Screw = false;
-// Magnet pocket diameter (mm).
-Gridfinity_Magnet_Diameter = 6.2;
-// Magnet pocket depth (mm).
+// Magnet diameter the pockets are cut for (mm). Each pocket adds
+// Gridfinity_Profile_Clearance, so 6.25 gives the spec's 6.5 mm pocket for a
+// 6 mm magnet.
+Gridfinity_Magnet_Diameter = 6.25;
+// Magnet pocket depth (mm). In a foot, two 0.2 mm bridging layers sit above
+// it, so the screw hole's ceiling prints without supports.
 Gridfinity_Magnet_Depth = 2.4;
 // Through screw hole diameter (mm).
 Gridfinity_Screw_Diameter = 3.2;
@@ -322,7 +326,11 @@ Gridfinity_Screw_Diameter = 3.2;
 // Gridfinity is by Zack Freedman and is MIT licensed. See THIRD_PARTY_NOTICES.md.
 GF_PITCH               = 42;    // grid spacing
 GF_BASE_HEIGHT         = 4.75;  // height the base profile adds below the box
-GF_BASE_CELL           = 41.5;  // outer square of one base cell
+GF_BASE_CELL           = 41.5;  // top footprint of one foot, the widest part
+GF_FOOT_TOP_RADIUS     = 3.75;  // corner radius of that footprint
+// The foot's profile from its bottom face up: 0.8 at 45 degrees, 1.8
+// vertical, 2.15 at 45 degrees. Sums to GF_BASE_HEIGHT.
+GF_FOOT_PROFILE        = [0.8, 1.8, 2.15];
 GF_CAVITY_ENTRY_SIZE   = 39.4;  // lower (wider) mating cavity
 GF_CAVITY_UPPER_SIZE   = 37.2;  // upper (narrower) mating cavity
 GF_CAVITY_ENTRY_DEPTH  = 3.2;
@@ -333,9 +341,8 @@ GF_CAVITY_TOTAL_DEPTH  = 4.3;
 // Thicker than GF_CAVITY_TOTAL_DEPTH so material remains under each socket.
 GF_LIDTOP_PLATE_HEIGHT = 4.75;
 GF_HOLE_OFFSET         = 13;    // magnet/screw offset from cell centre
-GF_MIN_FLOOR           = 0.8;   // solid material kept above magnet pockets
-GF_SCREW_CBORE_DIA     = 6.5;
-GF_SCREW_CBORE_DEPTH   = 2.2;
+GF_MIN_FLOOR           = 0.8;   // solid material kept above lid magnet pockets
+GF_BRIDGE_LAYER        = 0.2;   // one print layer, for the bridging steps in a foot
 // Model version. Must match the git tag and the top CHANGELOG.md section on a
 // release build; CI enforces that. Echoed at render so an exported STL can be
 // traced back to the source that produced it, which matters for a model
@@ -378,19 +385,36 @@ COLOR_MAGNET_BOSS     = "#4FB0C6";
 COLOR_GRIDFINITY      = "#7A5CFF";
 COLOR_CLIP            = "#00FF00";
 
+// ---- Box footprint ----
+// With a Gridfinity base the footprint rounds up to whole cells: the smallest
+// (N - 1) * 42 + 41.5 mm that is at least the typed size, which is the outside
+// of N spec feet. A box wider than its feet would overhang them, and nothing
+// can fill under that overhang: on a baseplate the neighbouring pockets occupy
+// it, so the overhang wastes the same cells that rounding up uses.
+//
+// Everything that shapes the box reads the _Effective pair. Box_Width and
+// Box_Depth stay what the user typed, for messages that name them.
+function gf_cells_for(span) = max(1, ceil((span - GF_BASE_CELL) / GF_PITCH) + 1);
+function gf_cells_span(count) = (count - 1) * GF_PITCH + GF_BASE_CELL;
+
+GF_Bottom_Cells_X = Enable_Gridfinity_Bottom ? gf_cells_for(Box_Width) : 0;
+GF_Bottom_Cells_Y = Enable_Gridfinity_Bottom ? gf_cells_for(Box_Depth) : 0;
+Box_Width_Effective = Enable_Gridfinity_Bottom ? gf_cells_span(GF_Bottom_Cells_X) : Box_Width;
+Box_Depth_Effective = Enable_Gridfinity_Bottom ? gf_cells_span(GF_Bottom_Cells_Y) : Box_Depth;
+
 // Calculate inner dimensions (accounting for walls)
-Inner_Width = Box_Width - Wall_Thickness * 2;
-Inner_Depth = Box_Depth - Wall_Thickness * 2;
+Inner_Width = Box_Width_Effective - Wall_Thickness * 2;
+Inner_Depth = Box_Depth_Effective - Wall_Thickness * 2;
 
 // Calculate slice width
-Slice_Width = Box_Width / max(Slice_Count, 1);
+Slice_Width = Box_Width_Effective / max(Slice_Count, 1);
 
 // Largest corner radius the geometry can actually build.
 // This must be derived from the INNER cavity, not the outer shell. The same
 // rounding value is reused for the inner cuboid, which is Wall_Thickness*2
 // smaller on each axis, so clamping to the outer half-extent lets values
 // through that BOSL2 then rejects.
-Max_Corner_Radius = max(0, (min(Box_Width, Box_Depth) - Wall_Thickness * 2) / 2 - 1e-6);
+Max_Corner_Radius = max(0, (min(Box_Width_Effective, Box_Depth_Effective) - Wall_Thickness * 2) / 2 - 1e-6);
 Corner_Radius = min(Box_Corner_Radius, Max_Corner_Radius);
 
 // Gap to leave between pieces in the all-slices preview.
@@ -432,8 +456,8 @@ function clear_post_opening(y, clearance, limit) =
 // Lid footprint: the box plus a wall and Lid_Lip_Gap on every side, which is
 // exactly a Skirt lid's outside. A Plug lid's slab keeps the same footprint.
 // Also needed to lay Gridfinity cells out on the lid top.
-Lid_Outer_Width = Box_Width + (Wall_Thickness + Lid_Lip_Gap) * 2;
-Lid_Outer_Depth = Box_Depth + (Wall_Thickness + Lid_Lip_Gap) * 2;
+Lid_Outer_Width = Box_Width_Effective + (Wall_Thickness + Lid_Lip_Gap) * 2;
+Lid_Outer_Depth = Box_Depth_Effective + (Wall_Thickness + Lid_Lip_Gap) * 2;
 
 // Outside of a Plug lid's ring: the box cavity less Lid_Lip_Gap on each side.
 Plug_Outer_Width = Inner_Width - Lid_Lip_Gap * 2;
@@ -453,14 +477,12 @@ Plug_Outer_Depth = Inner_Depth - Lid_Lip_Gap * 2;
 // the closed box, on the mating face.
 GF_LID_TOTAL_HEIGHT = GF_LIDTOP_PLATE_HEIGHT;
 
-// How many whole 42 mm cells fit across a span once the edge keepout is taken
-// off both sides. Arbitrary box sizes rarely land on a grid multiple, so the
-// array is clipped and centred rather than forcing the user's dimensions.
+// How many whole 42 mm cells fit across a lid span once the edge keepout is
+// taken off both sides. The base no longer uses this: its footprint rounds up
+// to whole cells instead (see Box_Width_Effective).
 function gf_cell_count(span) = max(0, floor((span - 2 * Gridfinity_Edge_Keepout) / GF_PITCH));
 function gf_cell_start(count) = -(count - 1) * GF_PITCH / 2;
 
-GF_Bottom_Cells_X = Enable_Gridfinity_Bottom ? gf_cell_count(Box_Width) : 0;
-GF_Bottom_Cells_Y = Enable_Gridfinity_Bottom ? gf_cell_count(Box_Depth) : 0;
 GF_Lid_Cells_X    = Enable_Gridfinity_Lid_Top ? gf_cell_count(Lid_Outer_Width) : 0;
 GF_Lid_Cells_Y    = Enable_Gridfinity_Lid_Top ? gf_cell_count(Lid_Outer_Depth) : 0;
 
@@ -477,8 +499,8 @@ GF_Lid_Active    = GF_Lid_Cells_X > 0 && GF_Lid_Cells_Y > 0;
 // object still sits on z=0 and "opening flush with the box bottom" keeps
 // meaning what it says.
 //
-// Gated on GF_Bottom_Active: with no cells there is nothing under the box, and
-// lifting it anyway would leave it floating.
+// Gated on GF_Bottom_Active, which since rounding up always matches
+// Enable_Gridfinity_Bottom: every box now gets at least one cell.
 Gridfinity_Base_Offset = GF_Bottom_Active ? GF_BASE_HEIGHT : 0;
 Gridfinity_Lid_Offset  = GF_Lid_Active ? GF_LID_TOTAL_HEIGHT : 0;
 
@@ -486,17 +508,19 @@ Gridfinity_Lid_Offset  = GF_Lid_Active ? GF_LID_TOTAL_HEIGHT : 0;
 // The base profile below the box and the baseplate on the lid are dimensioned
 // by the Gridfinity standard, so softening their perimeter would move a mating
 // surface. Gated on the *Active* flags rather than the Enable_* parameters,
-// because a box too small for one cell renders no interface and should keep
-// its fillet.
+// because a lid too small for one cell renders no interface and should keep
+// its chamfer.
 Bottom_Fillet_Effective = GF_Bottom_Active ? 0 : max(0, Bottom_Edge_Fillet);
 Lid_Chamfer_Effective   = GF_Lid_Active    ? 0 : max(0, Top_Edge_Chamfer);
 Top_Chamfer_Effective   = max(0, Top_Edge_Chamfer);
 
-// A box too small for even one cell is a silent no-op otherwise.
-if (Enable_Gridfinity_Bottom && !GF_Bottom_Active)
-    echo(str("Gridfinity bottom enabled but no 42mm cell fits in ",
-             Box_Width, " x ", Box_Depth,
-             " with a ", Gridfinity_Edge_Keepout, "mm keepout; base omitted"));
+// Rounding up changes the box the user asked for, so say so.
+if (Enable_Gridfinity_Bottom &&
+    (Box_Width_Effective != Box_Width || Box_Depth_Effective != Box_Depth))
+    echo(str("Gridfinity base: box footprint rounded up to ",
+             Box_Width_Effective, " x ", Box_Depth_Effective, " mm (",
+             GF_Bottom_Cells_X, " x ", GF_Bottom_Cells_Y,
+             " cells) from Box_Width x Box_Depth = ", Box_Width, " x ", Box_Depth));
 if (Enable_Gridfinity_Lid_Top && !GF_Lid_Active)
     echo(str("Gridfinity lid top enabled but no 42mm cell fits in ",
              Lid_Outer_Width, " x ", Lid_Outer_Depth,
@@ -505,7 +529,7 @@ if (Enable_Gridfinity_Lid_Top && !GF_Lid_Active)
 // Validation
 assert(Box_Width > 0 && Box_Depth > 0 && Box_Height > 0, "Box_Width, Box_Depth, and Box_Height must be > 0");
 assert(Wall_Thickness > 0, "Wall_Thickness must be > 0");
-assert(Wall_Thickness * 2 < min(Box_Width, Box_Depth), "Wall_Thickness is too large for the box footprint; Inner_Width and Inner_Depth would be <= 0");
+assert(Wall_Thickness * 2 < min(Box_Width_Effective, Box_Depth_Effective), "Wall_Thickness is too large for the box footprint; Inner_Width and Inner_Depth would be <= 0");
 assert(Box_Corner_Radius >= 0, "Box_Corner_Radius must be >= 0");
 assert(Bottom_Edge_Fillet >= 0, "Bottom_Edge_Fillet must be >= 0");
 assert(Top_Edge_Chamfer >= 0, "Top_Edge_Chamfer must be >= 0");
@@ -550,12 +574,12 @@ assert(!Enable_Lid_Magnets || Lid_Magnet_Depth < Box_Height - Wall_Thickness,
 // A boss has to fit inside the cavity without meeting its opposite number or
 // swallowing the post.
 assert(!Enable_Lid_Magnets ||
-       Magnet_Boss_Diameter * 2 < min(Box_Width, Box_Depth) - Wall_Thickness * 2,
+       Magnet_Boss_Diameter * 2 < min(Box_Width_Effective, Box_Depth_Effective) - Wall_Thickness * 2,
        "Magnet bosses do not fit: Lid_Magnet_Diameter plus Lid_Magnet_Wall is too large for this box. Reduce them or enlarge the box.");
 assert(!Enable_Lid_Magnets || !Enable_Post ||
        Magnet_Boss_Diameter / 2 + Post_Diameter / 2 <
-           norm([Box_Width/2 - Wall_Thickness - Magnet_Boss_Diameter/2,
-                 Box_Depth/2 - Wall_Thickness - Magnet_Boss_Diameter/2]),
+           norm([Box_Width_Effective/2 - Wall_Thickness - Magnet_Boss_Diameter/2,
+                 Box_Depth_Effective/2 - Wall_Thickness - Magnet_Boss_Diameter/2]),
        "Magnet bosses would touch the centre post. Reduce Post_Diameter or the magnet dimensions.");
 assert(!Enable_Post || Post_Diameter > Wall_Thickness * 2, "Post_Diameter must exceed Wall_Thickness*2 so the post has a wall");
 assert(!Enable_Post || Post_Diameter < min(Inner_Width, Inner_Depth), "Post_Diameter must fit inside the box interior");
@@ -631,6 +655,14 @@ assert(Gridfinity_Edge_Keepout >= 0, "Gridfinity_Edge_Keepout must be >= 0");
 assert(!Enable_Gridfinity_Lid_Top || Lid_Height + Lid_Lip_Gap_Height > 0, "Lid is too thin for the lid-top Gridfinity interface");
 assert(!Enable_Gridfinity_Magnet_Screw || GF_HOLE_OFFSET < GF_PITCH/2, "Gridfinity hole offset must fit inside one cell");
 assert(!Enable_Gridfinity_Magnet_Screw || Gridfinity_Magnet_Diameter > 0, "Gridfinity_Magnet_Diameter must be > 0");
+// A foot's pocket is cut up from its bottom face with two bridging layers above
+// it, and all of that must stay inside the foot rather than reach the floor.
+assert(!(Enable_Gridfinity_Bottom && Enable_Gridfinity_Magnet_Screw) ||
+       (Gridfinity_Magnet_Depth > 0 &&
+        Gridfinity_Magnet_Depth + 2 * GF_BRIDGE_LAYER <= GF_BASE_HEIGHT),
+       str("Gridfinity_Magnet_Depth must be > 0 and at most ",
+           GF_BASE_HEIGHT - 2 * GF_BRIDGE_LAYER, " mm with Enable_Gridfinity_Bottom: the pocket and its two ",
+           GF_BRIDGE_LAYER, " mm bridging layers must fit inside a ", GF_BASE_HEIGHT, " mm foot"));
 
 // Report a corner radius the geometry had to reduce, so the difference between
 // the requested and the built shape is visible rather than silent.
@@ -695,7 +727,7 @@ function opening_reaches_rim(side) =
 
 // Length of a wall in plan. Front and Back run along X; Left and Right along Y.
 function wall_length(side) =
-    (side == "Front" || side == "Back") ? Box_Width : Box_Depth;
+    (side == "Front" || side == "Back") ? Box_Width_Effective : Box_Depth_Effective;
 
 function opening_enabled(side) =
     (side == "Front") ? Opening_On_Front :
@@ -763,8 +795,8 @@ function get_opening_lift(side) =
 // along X; Left and Right run along Y.
 function opening_plan_position(side) =
     let(along  = get_opening_center_offset(side),
-        y_wall = Box_Depth/2 - Wall_Thickness/2,
-        x_wall = Box_Width/2 - Wall_Thickness/2)
+        y_wall = Box_Depth_Effective/2 - Wall_Thickness/2,
+        x_wall = Box_Width_Effective/2 - Wall_Thickness/2)
     (side == "Back")  ? [along,  y_wall] :
     (side == "Front") ? [along, -y_wall] :
     (side == "Right") ? [ x_wall, along] :
@@ -1520,7 +1552,7 @@ module m_place_floor_clips(x_pos, is_male) {
     // genders share this z, so the female cut still runs through the floor
     // around its clip.
     z_pos = Clip_Tab_Height / 2;
-    usable_depth = Box_Depth - Wall_Thickness*2 - Clip_Tab_Width;
+    usable_depth = Box_Depth_Effective - Wall_Thickness*2 - Clip_Tab_Width;
     female_depth = Clip_Tab_Depth + Clip_Tolerance*2 + SPACER;
     // Offsets intentionally overlap seam slightly to avoid tangent-only booleans.
     //
@@ -1620,8 +1652,9 @@ module m_place_lid_clips(x_pos, is_male) {
 //
 // Two independent interfaces, both optional:
 //
-//   Bottom   a Gridfinity base profile ADDED below the box floor, so the box
-//            drops into a standard 42 mm baseplate.
+//   Bottom   solid Gridfinity feet ADDED below the box floor, one per cell of
+//            the rounded footprint, so the box drops into a standard 42 mm
+//            baseplate.
 //   Lid top  a Gridfinity baseplate profile on the closed lid, so other
 //            Gridfinity bins stack on top of the box. This is the one that
 //            turns the lid into usable desk area.
@@ -1640,59 +1673,100 @@ module m_gridfinity_cells(count_x, count_y) {
                     children();
 }
 
-// Solid stock for the base, sitting directly under the box floor.
+// One foot as a VNF with its bottom face at z=0, solid and swept along the
+// spec profile. os_profile() reads from the top of the foot downward, with
+// positive values stepping inward.
 //
-// It reaches WELD *into* the floor rather than stopping flush against it.
-// Two solids that meet on a shared plane with zero overlap are a coplanar-face
-// degeneracy: whether they fuse into one body depends on the CSG kernel, and
-// when they do not you get a detached part that looks fine on screen and fails
-// in a slicer. Overlapping slightly makes the union unambiguous.
-module m_gridfinity_bottom_solid() {
-    cell = min(GF_BASE_CELL, GF_PITCH - Gridfinity_Profile_Clearance);
-    h = GF_BASE_HEIGHT + WELD;
-    m_gridfinity_cells(GF_Bottom_Cells_X, GF_Bottom_Cells_Y)
-        translate([0, 0, -GF_BASE_HEIGHT + h/2])
-            cube([cell, cell, h], center = true);
+// It runs WELD past the 4.75 mm top, into the floor, rather than stopping
+// flush against it. Two solids that meet on a shared plane with zero overlap
+// are a coplanar-face degeneracy: whether they fuse into one body depends on
+// the CSG kernel, and when they do not you get a detached part that looks fine
+// on screen and fails in a slicer. Overlapping slightly makes the union
+// unambiguous.
+GF_FOOT_VNF = GF_Bottom_Active
+    ? offset_sweep(rect([GF_BASE_CELL, GF_BASE_CELL], rounding = GF_FOOT_TOP_RADIUS),
+                   height = GF_BASE_HEIGHT + WELD,
+                   bottom = os_profile(points = [
+                       [0, 0],
+                       [GF_FOOT_PROFILE[2], GF_FOOT_PROFILE[2]],
+                       [GF_FOOT_PROFILE[2], GF_FOOT_PROFILE[2] + GF_FOOT_PROFILE[1]],
+                       [GF_FOOT_PROFILE[2] + GF_FOOT_PROFILE[0], GF_BASE_HEIGHT]]))
+    : undef;
+
+// The box's outline as a prism h tall, built the way m_edge_treated_shell()
+// builds the walls, so the two share their corner arcs' vertices exactly.
+module m_box_outline_prism(h) {
+    if (Bottom_Fillet_Effective <= 0 && Top_Chamfer_Effective <= 0)
+        cuboid([Box_Width_Effective, Box_Depth_Effective, h], rounding = Corner_Radius,
+               except = [TOP, BOTTOM], anchor = BOTTOM);
+    else
+        offset_sweep(rect([Box_Width_Effective, Box_Depth_Effective], rounding = Corner_Radius),
+                     height = h);
 }
 
-// The two-stage mating cavity cut up into each base cell from below.
-module m_gridfinity_bottom_cavities() {
-    entry_depth = min(GF_CAVITY_ENTRY_DEPTH, GF_CAVITY_TOTAL_DEPTH - 0.01);
-    upper_depth = GF_CAVITY_TOTAL_DEPTH - entry_depth;
-    entry_size = GF_CAVITY_ENTRY_SIZE + Gridfinity_Profile_Clearance;
-    upper_size = GF_CAVITY_UPPER_SIZE + Gridfinity_Profile_Clearance;
-
-    m_gridfinity_cells(GF_Bottom_Cells_X, GF_Bottom_Cells_Y) {
-        translate([0, 0, -GF_BASE_HEIGHT + entry_depth/2])
-            cube([entry_size, entry_size, entry_depth + SPACER*2], center = true);
-
-        if (upper_depth > 0.01)
-            translate([0, 0, -GF_BASE_HEIGHT + entry_depth + upper_depth/2])
-                cube([upper_size, upper_size, upper_depth + SPACER*2], center = true);
+// Every foot, as one polyhedron, clipped to the box's outline.
+//
+// One polyhedron because OpenSCAD 2021.01 unions a module's children one at a
+// time, so separate feet each cost CGAL a union against a growing mesh. One
+// polyhedron of disjoint shells is a single union: the same mesh, with the
+// feet's render time down by about 45 percent in the E-12 benchmark.
+//
+// Clipped because a box corner rounder than the foot's 3.75 mm leaves each
+// corner foot standing outside the wall, and the two arcs crossing so close
+// leave slivers that CGAL cannot read back. Clipping keeps the box's corner
+// radius and only makes those feet smaller, which a baseplate still accepts.
+module m_gridfinity_bottom_solid() {
+    intersection() {
+        down(GF_BASE_HEIGHT)
+            vnf_polyhedron(vnf_join([
+                for (ix = [0:GF_Bottom_Cells_X-1], iy = [0:GF_Bottom_Cells_Y-1])
+                    move([gf_cell_start(GF_Bottom_Cells_X) + ix * GF_PITCH,
+                          gf_cell_start(GF_Bottom_Cells_Y) + iy * GF_PITCH, 0],
+                         p = GF_FOOT_VNF)]));
+        down(GF_BASE_HEIGHT + 1)
+            m_box_outline_prism(GF_BASE_HEIGHT + WELD + 2);
     }
 }
 
-// Magnet pockets and screw holes, cut downward from the base's top face so
-// GF_MIN_FLOOR of material always remains between the pocket and the box floor.
+// Magnet pockets cut up from each foot's bottom face, 13 mm from the cell
+// centre, and the screw hole carrying on up through the foot to the box's
+// underside. The box floor above stays closed.
+//
+// A pocket's ceiling with the screw hole in it is a bridge with nothing to
+// anchor its middle, which does not print. Two GF_BRIDGE_LAYER steps above the
+// pocket fix that, using kennetek's technique (MIT). The first is cut as a slot
+// the screw hole's width across the pocket, so the material either side
+// bridges the pocket along the slot. The second is a square of the screw
+// hole's width, so its material bridges the slot the other way. The round
+// screw hole starts above them. Each cutter reaches SPACER down into the one
+// below, which is wider, so no two cutters merely touch.
+//
+// The slot is a plain rectangle whose corners stop SPACER inside the pocket's
+// circle, not the circle intersected with a bar. Subtracting an intersection
+// doubles the terms OpenSCAD's preview expands, and across 24 holes that passed
+// its 100000-element limit, so a box with magnets previewed as an empty scene.
 module m_gridfinity_bottom_holes() {
-    usable = max(0, GF_BASE_HEIGHT - GF_MIN_FLOOR);
-    magnet_depth = min(Gridfinity_Magnet_Depth, usable);
-    cbore_depth = min(GF_SCREW_CBORE_DEPTH, usable);
+    pocket_d = Gridfinity_Magnet_Diameter + Gridfinity_Profile_Clearance;
+    screw_d = Gridfinity_Screw_Diameter + Gridfinity_Profile_Clearance;
+    bridge_z = -GF_BASE_HEIGHT + Gridfinity_Magnet_Depth;
+    screw_z = bridge_z + 2 * GF_BRIDGE_LAYER;
+    slot_len = 2 * sqrt(max(0, pow(pocket_d/2, 2) - pow(screw_d/2, 2))) - 2 * SPACER;
 
-    if (usable > 0.2)
-        m_gridfinity_cells(GF_Bottom_Cells_X, GF_Bottom_Cells_Y)
-            for (sx = [-1, 1], sy = [-1, 1])
-                translate([sx * GF_HOLE_OFFSET, sy * GF_HOLE_OFFSET, SPACER])
-                rotate([180, 0, 0]) {
-                    cylinder(d = Gridfinity_Screw_Diameter + Gridfinity_Profile_Clearance,
-                             h = usable + SPACER*3);
-                    if (cbore_depth > 0.05)
-                        cylinder(d = GF_SCREW_CBORE_DIA + Gridfinity_Profile_Clearance,
-                                 h = cbore_depth + SPACER*3);
-                    if (magnet_depth > 0.05)
-                        cylinder(d = Gridfinity_Magnet_Diameter + Gridfinity_Profile_Clearance,
-                                 h = magnet_depth + SPACER*3);
-                }
+    m_gridfinity_cells(GF_Bottom_Cells_X, GF_Bottom_Cells_Y)
+        for (sx = [-1, 1], sy = [-1, 1])
+            translate([sx * GF_HOLE_OFFSET, sy * GF_HOLE_OFFSET, 0]) {
+                down(GF_BASE_HEIGHT + SPACER)
+                    cylinder(d = pocket_d, h = Gridfinity_Magnet_Depth + SPACER);
+                if (slot_len > screw_d)
+                    up(bridge_z - SPACER)
+                        translate([-slot_len/2, -screw_d/2, 0])
+                            cube([slot_len, screw_d, GF_BRIDGE_LAYER + SPACER]);
+                up(bridge_z + GF_BRIDGE_LAYER - SPACER)
+                    translate([-screw_d/2, -screw_d/2, 0])
+                        cube([screw_d, screw_d, GF_BRIDGE_LAYER + SPACER]);
+                up(screw_z - SPACER)
+                    cylinder(d = screw_d, h = -screw_z + SPACER);
+            }
 }
 
 // Baseplate slab on the lid's exposed face, grown downward from z=0 (see
@@ -1793,8 +1867,8 @@ module m_magnet_corner_positions() {
     // tangent to a wall is a tangent-only union, and whether that fuses into one
     // body is kernel-dependent; when it does not, the export gains a loose solid.
     for (sx = [-1, 1], sy = [-1, 1])
-        translate([sx * (Box_Width/2 - Wall_Thickness - rb + WELD),
-                   sy * (Box_Depth/2 - Wall_Thickness - rb + WELD), 0])
+        translate([sx * (Box_Width_Effective/2 - Wall_Thickness - rb + WELD),
+                   sy * (Box_Depth_Effective/2 - Wall_Thickness - rb + WELD), 0])
             children();
 }
 
@@ -1860,12 +1934,12 @@ module m_box_base() {
             union() {
                 difference() {
                     color(COLOR_BOX_SHELL)
-                    m_edge_treated_shell([Box_Width, Box_Depth, Box_Height],
+                    m_edge_treated_shell([Box_Width_Effective, Box_Depth_Effective, Box_Height],
                         Bottom_Fillet_Effective, Top_Chamfer_Effective);
 
                     color(COLOR_BOX_INTERIOR)
                     up(Wall_Thickness)
-                    cuboid([Box_Width-Wall_Thickness*2, Box_Depth-Wall_Thickness*2, Box_Height+SPACER],
+                    cuboid([Box_Width_Effective-Wall_Thickness*2, Box_Depth_Effective-Wall_Thickness*2, Box_Height+SPACER],
                         rounding = Corner_Radius,
                         except = [TOP, BOTTOM],
                         anchor = BOTTOM);
@@ -1890,9 +1964,6 @@ module m_box_base() {
 
         if (Enable_Lid_Magnets)
             m_box_magnet_pockets();
-
-        if (GF_Bottom_Active)
-            m_gridfinity_bottom_cavities();
 
         if (GF_Bottom_Active && Enable_Gridfinity_Magnet_Screw)
             m_gridfinity_bottom_holes();
@@ -2028,8 +2099,8 @@ module m_seam_cutter(x_seam, keep_left, bands, z_lo, z_hi, reach) {
 }
 
 module m_box_slice(slice_num) {
-    slice_width = Box_Width / Slice_Count;
-    slice_start_x = -Box_Width/2 + (slice_num - 1) * slice_width;
+    slice_width = Box_Width_Effective / Slice_Count;
+    slice_start_x = -Box_Width_Effective/2 + (slice_num - 1) * slice_width;
     slice_end_x = slice_start_x + slice_width;
     slice_center_x = (slice_start_x + slice_end_x) / 2;
 
@@ -2052,19 +2123,19 @@ module m_box_slice(slice_num) {
             if (!is_first_slice) {
                 if (Seam_Tooth_Depth > 0)
                     m_seam_cutter(slice_start_x, false, box_seam_bands(slice_start_x),
-                                  cutter_lo, cutter_hi, Box_Width * 2);
+                                  cutter_lo, cutter_hi, Box_Width_Effective * 2);
                 else
-                    translate([slice_start_x - Box_Width, 0, (cutter_lo + cutter_hi)/2])
-                        cube([Box_Width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
+                    translate([slice_start_x - Box_Width_Effective, 0, (cutter_lo + cutter_hi)/2])
+                        cube([Box_Width_Effective*2, Box_Depth_Effective*2, cutter_hi - cutter_lo], center=true);
             }
 
             if (!is_last_slice) {
                 if (Seam_Tooth_Depth > 0)
                     m_seam_cutter(slice_end_x, true, box_seam_bands(slice_end_x),
-                                  cutter_lo, cutter_hi, Box_Width * 2);
+                                  cutter_lo, cutter_hi, Box_Width_Effective * 2);
                 else
-                    translate([slice_end_x + Box_Width, 0, (cutter_lo + cutter_hi)/2])
-                        cube([Box_Width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
+                    translate([slice_end_x + Box_Width_Effective, 0, (cutter_lo + cutter_hi)/2])
+                        cube([Box_Width_Effective*2, Box_Depth_Effective*2, cutter_hi - cutter_lo], center=true);
             }
 
             if (!is_first_slice) {
@@ -2144,7 +2215,7 @@ module m_lid_body() {
 
             // The pocket's corners follow the box's outer corners at the gap.
             up(Lid_Height)
-                cuboid([Box_Width + Lid_Lip_Gap * 2, Box_Depth + Lid_Lip_Gap * 2,
+                cuboid([Box_Width_Effective + Lid_Lip_Gap * 2, Box_Depth_Effective + Lid_Lip_Gap * 2,
                         Lid_Lip_Gap_Height + SPACER],
                     rounding = Corner_Radius > 0 ? Corner_Radius + Lid_Lip_Gap : 0,
                     except = [TOP, BOTTOM],
@@ -2264,7 +2335,7 @@ module m_lid_slice(slice_num) {
                                   cutter_lo, cutter_hi, lid_width * 2);
                 else
                     translate([slice_start_x - lid_width, 0, (cutter_lo + cutter_hi)/2])
-                        cube([lid_width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
+                        cube([lid_width*2, Box_Depth_Effective*2, cutter_hi - cutter_lo], center=true);
             }
 
             if (!is_last_slice) {
@@ -2273,7 +2344,7 @@ module m_lid_slice(slice_num) {
                                   cutter_lo, cutter_hi, lid_width * 2);
                 else
                     translate([slice_end_x + lid_width, 0, (cutter_lo + cutter_hi)/2])
-                        cube([lid_width*2, Box_Depth*2, cutter_hi - cutter_lo], center=true);
+                        cube([lid_width*2, Box_Depth_Effective*2, cutter_hi - cutter_lo], center=true);
             }
 
             if (!is_first_slice) {
@@ -2385,8 +2456,8 @@ module m_box(anchor = BOTTOM, spin = 0, orient = UP) {
     // so world z maps to z - Box_Total_Height/2.
     floor_z = Gridfinity_Base_Offset + Wall_Thickness - Box_Total_Height/2;
     rim_z   = Box_Total_Height/2;
-    inner_y = Box_Depth/2 - Wall_Thickness;
-    inner_x = Box_Width/2 - Wall_Thickness;
+    inner_y = Box_Depth_Effective/2 - Wall_Thickness;
+    inner_x = Box_Width_Effective/2 - Wall_Thickness;
 
     anchors = [
         named_anchor("floor",      [0, 0, floor_z], UP, 0),
@@ -2399,7 +2470,7 @@ module m_box(anchor = BOTTOM, spin = 0, orient = UP) {
     ];
 
     attachable(anchor, spin, orient,
-               size = [Box_Width, Box_Depth, Box_Total_Height],
+               size = [Box_Width_Effective, Box_Depth_Effective, Box_Total_Height],
                anchors = anchors) {
         // attachable() expects its child centred on the origin; the geometry is
         // built sitting on z=0, so drop it by half the envelope.
@@ -2439,7 +2510,7 @@ module full_render() {
                     if (Part_To_Render != "Box Only") {
                         lid_slice_width = Lid_Outer_Width / Slice_Count;
                         lid_x_offset = (i - 1) * (lid_slice_width + Slice_Preview_Gap) - (Slice_Count - 1) * (lid_slice_width + Slice_Preview_Gap) / 2;
-                        translate([lid_x_offset - x_offset, Box_Depth + PART_LAYOUT_GAP, 0])
+                        translate([lid_x_offset - x_offset, Box_Depth_Effective + PART_LAYOUT_GAP, 0])
                             m_lid_placed() m_lid_slice(i);
                     }
                 }
@@ -2449,7 +2520,7 @@ module full_render() {
                 m_box_placed() m_box_slice(Slice_Piece_To_Render);
             }
             if (Part_To_Render != "Box Only") {
-                translate([0, Box_Depth + PART_LAYOUT_GAP, 0])
+                translate([0, Box_Depth_Effective + PART_LAYOUT_GAP, 0])
                     m_lid_placed() m_lid_slice(Slice_Piece_To_Render);
             }
         }
@@ -2460,7 +2531,7 @@ module full_render() {
             m_box();
         // Beside the box when both are shown, at the origin when alone.
         if (show_lid)
-            translate([show_box ? Box_Width + PART_LAYOUT_GAP : 0, 0, 0])
+            translate([show_box ? Box_Width_Effective + PART_LAYOUT_GAP : 0, 0, 0])
                 m_lid_part();
     }
 }

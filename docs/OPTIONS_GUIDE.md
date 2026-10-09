@@ -320,11 +320,11 @@ Optional interfaces, both shown from below.
 
 ![Disabled (default)](images/options/gf-off.png)
 
-### Base under the box
+### Feet under the box, rounded up to whole cells
 
 `Enable_Gridfinity_Bottom=True`, `Closed_Post=True`
 
-![Base under the box](images/options/gf-bottom.png)
+![Feet under the box, rounded up to whole cells](images/options/gf-bottom.png)
 
 ### Profile on the lid
 
