@@ -64,6 +64,12 @@ Openings = [
 Retain the current global defaults so simple use stays simple, and let `undef`
 in a slot mean "use the global".
 
+**Top style.** [E-14 (printability options)](E-14_printability-options.md)
+plans a global `All_Opening_Top_Style` for 2.1.0, with `"Round"` and
+`"Teardrop"`. The row needs a top-style slot that falls back to that global.
+Because E-03 is a major release anyway, it is also where the default should
+change to `"Teardrop"`.
+
 ## The Customizer problem, and why it is the crux
 
 OpenSCAD's Customizer does not edit lists of tuples usefully. It handles
