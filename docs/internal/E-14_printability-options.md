@@ -30,9 +30,10 @@ slicer setting.
   `docs/PRINTING.md` already warns that its lowest layers overhang the bed.
 - **Gridfinity bridging.** Above each foot's magnet pocket, two stepped layers
   carry the pocket's ceiling. Their height is the hidden constant
-  `GF_BRIDGE_LAYER = 0.2`. A slicer samples each layer at its middle height, so
+  `GF_BRIDGE_LAYER = 0.2`. Slicers sample each layer near its middle height, so
   a 0.2 mm step can fall between the samples of a 0.28 mm layer. The slicer
-  then drops that step, and the bridging no longer works.
+  then drops that step, and the bridging no longer works. The Risks section
+  says how the rc.1 print confirms this.
 
 ## Considered and dropped: a stabilizer slope guard
 
@@ -236,9 +237,12 @@ a thicker step. A smaller value can lose a step.
 - [ ] A preview PNG of a box with four `Teardrop` openings and magnets on
       shows the box. No scenario renders a preview, so this is a manual check.
 - [ ] The same change updates `docs/VALIDATION_RULES.md`,
-      `docs/PARAMETER_REFERENCE.md`, `docs/PRINTING.md`, and `CHANGELOG.md`.
-      `docs/PRINTING.md` replaces its bottom-fillet warning with the new
-      styles, and it adds the opening tops and the layer-height rule.
+      `docs/PARAMETER_REFERENCE.md`, `docs/PRINTING.md`, `docs/FAQ.md`,
+      `docs/MODULE_REFERENCE.md`, and `CHANGELOG.md`. `docs/PRINTING.md`
+      replaces its bottom-fillet warning with the new styles, and it adds the
+      opening tops and the layer-height rule. `docs/MODULE_REFERENCE.md`
+      covers the new bottom-profile helper.
+- [ ] `README.md`'s feature table names the three new options.
 - [ ] `scripts/build_options_guide.py` gains entries and images for
       `Teardrop` openings and for the `Teardrop` and `Chamfer` bottom edges.
 - [ ] `tests/fixtures/missing_bosl2.scad` is regenerated, and the library
