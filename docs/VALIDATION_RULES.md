@@ -237,6 +237,19 @@ meaning.
 
 Fix: use `-1` for fully rounded, `0` for square, or a positive radius.
 
+### Opening top style must be a known value
+
+```scad
+assert(len([for (side = OPENING_SIDES) if (opening_enabled(side)) side]) == 0 ||
+       All_Opening_Top_Style == "Round" || All_Opening_Top_Style == "Teardrop",
+       "All_Opening_Top_Style must be Round or Teardrop");
+```
+
+Why: any other value would silently render round tops, which is the overhang
+the option exists to remove. Checked only while a side opening is on.
+
+Fix: use `Round`, the default, or `Teardrop`.
+
 ## Bottom Openings
 
 ### Count must be at least one when enabled
@@ -395,6 +408,20 @@ There are two companions: `Bottom_Edge_Fillet + Top_Edge_Chamfer < Box_Height`
 so the two treatments cannot meet in the middle of a short box, and
 `Top_Edge_Chamfer * 2 < Lid_Height` because both lid faces are chamfered.
 
+### Bottom edge style must be a known value
+
+```scad
+assert(Bottom_Fillet_Effective <= 0 || Bottom_Edge_Style == "Fillet" ||
+       Bottom_Edge_Style == "Teardrop" || Bottom_Edge_Style == "Chamfer", ...);
+```
+
+Why: the style shapes the bottom edge, so an unknown value would leave the
+shape undefined. Checked only when there is an edge to shape: a
+`Bottom_Edge_Fillet` above `0` and no Gridfinity base. Every style is at most
+`Bottom_Edge_Fillet` deep and tall, so the size limits above cover all three.
+
+Fix: use `Fillet`, the default, `Teardrop`, or `Chamfer`.
+
 ### Lid relief must fit the lid
 
 ```scad
@@ -450,18 +477,34 @@ and they would block an open post's bore, which runs through the floor.
 Fix: turn off `Enable_Bottom_Openings`, and set `Closed_Post=true` or turn the
 post off.
 
+### The bridging layer height must be printable
+
+```scad
+assert(!(Enable_Gridfinity_Bottom && Enable_Gridfinity_Magnet_Screw) ||
+       (Print_Layer_Height > 0 && Print_Layer_Height <= 0.6), ...);
+```
+
+Why: each of the two bridging steps above a foot's magnet pocket is one
+`Print_Layer_Height` tall. Zero leaves the pocket's ceiling unbridged. The
+0.6 mm ceiling is 75 percent of a 0.8 mm nozzle, the largest in common use.
+Nothing else reads the value yet, so it is checked only with the feet's
+magnets on.
+
+Fix: set it to the layer height you slice at.
+
 ### A foot's magnet pocket must fit inside the foot
 
 ```scad
 assert(!(Enable_Gridfinity_Bottom && Enable_Gridfinity_Magnet_Screw) ||
        (Gridfinity_Magnet_Depth > 0 &&
-        Gridfinity_Magnet_Depth + 2 * GF_BRIDGE_LAYER <= GF_BASE_HEIGHT), ...);
+        Gridfinity_Magnet_Depth + 2 * Print_Layer_Height <= GF_BASE_HEIGHT), ...);
 ```
 
-Why: each pocket is cut up from the foot's bottom face. Two 0.2 mm bridging
-layers sit above it, so the screw hole's ceiling prints without supports. The
-pocket and both layers must stay inside the 4.75 mm foot, or they would cut up
-into the box floor. The message gives the deepest pocket that fits, 4.35 mm.
+Why: each pocket is cut up from the foot's bottom face. Two bridging layers,
+each `Print_Layer_Height` tall, sit above it, so the screw hole's ceiling
+prints without supports. The pocket and both layers must stay inside the
+4.75 mm foot, or they would cut up into the box floor. The message gives the
+deepest pocket that fits: 4.35 mm at the default 0.2 mm layer.
 
 Fix: reduce `Gridfinity_Magnet_Depth`. The default is `2.4`, the spec's depth.
 

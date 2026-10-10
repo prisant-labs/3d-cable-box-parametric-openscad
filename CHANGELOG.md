@@ -76,6 +76,27 @@ identically and that magnets survive slicing.
   seam, the teeth skip its height range, so they never leave slivers against
   its rounded edges. See
   [E-13 (seam joints)](docs/internal/E-13_seam-joints.md).
+- **`All_Opening_Top_Style` gives side openings a top that prints without
+  support.** `Round`, the default, keeps today's arcs, which flatten near the
+  top and print there as an overhang. `Teardrop` turns each rounded top corner
+  into a 45 degree flank with a short flat cap. The cap sits where the round
+  top was, so every opening keeps its typed width and height, and the rim,
+  lid-relief and seam-teeth checks that read an opening's top are unaffected.
+  Square openings are unchanged. One setting covers all four walls. See
+  [E-14 (printability options)](docs/internal/E-14_printability-options.md).
+- **`Bottom_Edge_Style` shapes the bottom edge treatment.** `Fillet`, the
+  default, is the quarter round that `Bottom_Edge_Fillet` has always made, and
+  its lowest layers overhang the bed. `Teardrop` keeps the rounded look but
+  finishes in a 45 degree chamfer at the bed. `Chamfer` is a plain 45 degree
+  bevel. `Bottom_Edge_Fillet` sets the size for every style, and the setting
+  shapes only the box's bottom edge, never the lid's.
+- **`Print_Layer_Height` sizes the Gridfinity bridging layers.** The two
+  stepped layers above each foot's magnet pocket were fixed at 0.2 mm. A
+  slicer samples each layer near its middle height, so at a thicker layer a
+  0.2 mm step can be skipped and the pocket's ceiling sags. Set it to the
+  layer height you slice at. The default `0.2` reproduces the earlier steps
+  exactly, and `Gridfinity_Magnet_Depth` may now reach
+  `4.75 - 2 * Print_Layer_Height`.
 
 ### Changed
 - **A Gridfinity base rounds the box up to whole cells, and its feet follow the
@@ -232,7 +253,12 @@ seam that `Seam_Tooth_Depth=0` keeps.
   limit. The options guide and the bundle header printed the model version as
   "unknown", because they searched only the top of the file. Generated files
   are written with LF line endings on Windows, and the maintenance scripts run
-  on macOS.
+  on macOS. `scripts/package_release.py` now imports the `NoReturn` it
+  annotates with.
+- **Lid magnet wording (F-54).** The FAQ and the parameter reference said "a
+  4.8 mm magnet sits flush", which read as one magnet spanning both halves.
+  They now say what the pockets take: one magnet per pocket, up to 2.4 mm
+  thick.
 
 ## [2.0.0] - 2026-08-07
 

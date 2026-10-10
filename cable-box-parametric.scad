@@ -41,11 +41,15 @@ Box_Corner_Radius = 8.1;
 Wall_Thickness = 1.85;
 
 /*[Edge Treatment]*/
-// Fillet on the box's outer bottom edge (mm). 0 keeps the hard 90 degree edge.
-// Softens the profile and visually absorbs elephant foot. A large value prints
-// as an overhang on the first layers, so keep it modest or use a chamfer.
+// Size of the treatment on the box's outer bottom edge (mm), in the shape
+// Bottom_Edge_Style picks. 0 keeps the hard 90 degree edge. Softens the profile
+// and visually absorbs elephant foot.
 // Ignored when Enable_Gridfinity_Bottom is on, because the base owns that edge.
 Bottom_Edge_Fillet = 0;
+// Shape of that bottom edge. Fillet is a quarter round, whose lowest layers
+// overhang the bed, so keep it modest. Teardrop keeps the round look but meets
+// the bed at 45 degrees. Chamfer is a plain 45 degree bevel.
+Bottom_Edge_Style = "Fillet"; //["Fillet", "Teardrop", "Chamfer"]
 // Chamfer on the box's top rim and on both exposed lid edges (mm). 0 keeps the
 // hard edge. The rim is what you handle every time the lid comes off.
 Top_Edge_Chamfer = 0;
@@ -113,6 +117,11 @@ All_Opening_Width=10;
 All_Opening_Height=30;
 // Default corner radius for all side openings (mm). Use -1 for fully rounded ends.
 All_Opening_Corner_Radius=-1;
+// Shape of each side opening's top. Round arcs near the top print as an
+// overhang. Teardrop turns each rounded top corner into a 45 degree flank with a
+// short flat cap, so it prints without support; the opening keeps its typed
+// width and height. A square opening (corner radius 0) is unchanged.
+All_Opening_Top_Style="Round"; //["Round", "Teardrop"]
 // Global side-opening offset along each wall's local left/right direction (mm).
 All_Openings_Right=0;
 // Height of each side opening's bottom edge above the box floor (mm). 0 sits it flush with the box bottom.
@@ -307,11 +316,19 @@ Enable_Gridfinity_Magnet_Screw = false;
 // Gridfinity_Profile_Clearance, so 6.25 gives the spec's 6.5 mm pocket for a
 // 6 mm magnet.
 Gridfinity_Magnet_Diameter = 6.25;
-// Magnet pocket depth (mm). In a foot, two 0.2 mm bridging layers sit above
-// it, so the screw hole's ceiling prints without supports.
+// Magnet pocket depth (mm). In a foot, two bridging layers, each
+// Print_Layer_Height tall, sit above it, so the screw hole's ceiling prints
+// without supports.
 Gridfinity_Magnet_Depth = 2.4;
 // Through screw hole diameter (mm).
 Gridfinity_Screw_Diameter = 3.2;
+
+/*[Printing]*/
+// The layer height you slice at (mm). Today only the two bridging steps above
+// each Gridfinity foot's magnet pocket read it. Each step is one layer, and a
+// step shorter than your real layers can be skipped by the slicer, so set this
+// to your layer height.
+Print_Layer_Height = 0.2;
 
 /* [Hidden] */
 
@@ -339,7 +356,6 @@ GF_CAVITY_TOTAL_DEPTH  = 4.3;
 GF_LIDTOP_PLATE_HEIGHT = 4.75;
 GF_HOLE_OFFSET         = 13;    // magnet/screw offset from cell centre
 GF_MIN_FLOOR           = 0.8;   // solid material kept above lid magnet pockets
-GF_BRIDGE_LAYER        = 0.2;   // one print layer, for the bridging steps in a foot
 // Model version. Must match the git tag and the top CHANGELOG.md section on a
 // release build; CI enforces that. Echoed at render so an exported STL can be
 // traced back to the source that produced it, which matters for a model
@@ -541,6 +557,11 @@ assert(Bottom_Edge_Fillet + Top_Edge_Chamfer < Box_Height,
        "Bottom_Edge_Fillet and Top_Edge_Chamfer together must be less than Box_Height, or the two treatments meet.");
 assert(Top_Edge_Chamfer * 2 < Lid_Height,
        "Top_Edge_Chamfer must be less than half of Lid_Height; both lid faces are chamfered and they would meet.");
+// The style only shapes an edge that exists, so it is checked only then. Every
+// style is at most Bottom_Edge_Fillet deep and tall, so the limits above hold.
+assert(Bottom_Fillet_Effective <= 0 || Bottom_Edge_Style == "Fillet" ||
+       Bottom_Edge_Style == "Teardrop" || Bottom_Edge_Style == "Chamfer",
+       "Bottom_Edge_Style must be Fillet, Teardrop or Chamfer");
 
 assert(Lid_Style == "Skirt" || Lid_Style == "Plug", "Lid_Style must be Skirt or Plug");
 
@@ -606,6 +627,9 @@ assert(Lid_Style != "Plug" || !Enable_Post ||
 // is not blocked by the default 30 mm opening height it never cuts.
 assert(len([for (side = OPENING_SIDES) if (opening_enabled(side)) side]) == 0 ||
        All_Opening_Height <= Box_Height, "All_Opening_Height must not exceed Box_Height");
+assert(len([for (side = OPENING_SIDES) if (opening_enabled(side)) side]) == 0 ||
+       All_Opening_Top_Style == "Round" || All_Opening_Top_Style == "Teardrop",
+       "All_Opening_Top_Style must be Round or Teardrop");
 assert(!Enable_Bottom_Openings || Bottom_Openings_Count >= 1, "Bottom_Openings_Count must be >= 1 when bottom openings are enabled");
 assert(!Enable_Bottom_Openings || (Bottom_Opening_Width > 0 && Bottom_Opening_Depth > 0), "Bottom opening width and depth must be > 0");
 // 0 is the sentinel for "use the global size", so only negatives are invalid.
@@ -652,14 +676,21 @@ assert(Gridfinity_Edge_Keepout >= 0, "Gridfinity_Edge_Keepout must be >= 0");
 assert(!Enable_Gridfinity_Lid_Top || Lid_Height + Lid_Lip_Gap_Height > 0, "Lid is too thin for the lid-top Gridfinity interface");
 assert(!Enable_Gridfinity_Magnet_Screw || GF_HOLE_OFFSET < GF_PITCH/2, "Gridfinity hole offset must fit inside one cell");
 assert(!Enable_Gridfinity_Magnet_Screw || Gridfinity_Magnet_Diameter > 0, "Gridfinity_Magnet_Diameter must be > 0");
+// Each bridging step is one Print_Layer_Height tall. Zero leaves the pocket's
+// ceiling unbridged, and 0.6 mm is 75 percent of a 0.8 mm nozzle, the largest
+// in common use. Only the feet read it, so it is checked only with them on.
+assert(!(Enable_Gridfinity_Bottom && Enable_Gridfinity_Magnet_Screw) ||
+       (Print_Layer_Height > 0 && Print_Layer_Height <= 0.6),
+       str("Print_Layer_Height must be greater than 0 and at most 0.6 mm with Enable_Gridfinity_Bottom and Enable_Gridfinity_Magnet_Screw on; got ",
+           Print_Layer_Height));
 // A foot's pocket is cut up from its bottom face with two bridging layers above
 // it, and all of that must stay inside the foot rather than reach the floor.
 assert(!(Enable_Gridfinity_Bottom && Enable_Gridfinity_Magnet_Screw) ||
        (Gridfinity_Magnet_Depth > 0 &&
-        Gridfinity_Magnet_Depth + 2 * GF_BRIDGE_LAYER <= GF_BASE_HEIGHT),
+        Gridfinity_Magnet_Depth + 2 * Print_Layer_Height <= GF_BASE_HEIGHT),
        str("Gridfinity_Magnet_Depth must be > 0 and at most ",
-           GF_BASE_HEIGHT - 2 * GF_BRIDGE_LAYER, " mm with Enable_Gridfinity_Bottom: the pocket and its two ",
-           GF_BRIDGE_LAYER, " mm bridging layers must fit inside a ", GF_BASE_HEIGHT, " mm foot"));
+           GF_BASE_HEIGHT - 2 * Print_Layer_Height, " mm with Enable_Gridfinity_Bottom: the pocket and its two ",
+           Print_Layer_Height, " mm bridging layers (Print_Layer_Height) must fit inside a ", GF_BASE_HEIGHT, " mm foot"));
 
 // Report a corner radius the geometry had to reduce, so the difference between
 // the requested and the built shape is visible rather than silent.
@@ -1730,10 +1761,12 @@ module m_gridfinity_bottom_solid() {
 // underside. The box floor above stays closed.
 //
 // A pocket's ceiling with the screw hole in it is a bridge with nothing to
-// anchor its middle, which does not print. Two GF_BRIDGE_LAYER steps above the
-// pocket fix that, using kennetek's technique (MIT). The first is cut as a slot
-// the screw hole's width across the pocket, so the material either side
-// bridges the pocket along the slot. The second is a square of the screw
+// anchor its middle, which does not print. Two steps above the pocket, each one
+// Print_Layer_Height tall, fix that, using kennetek's technique (MIT). A step
+// shorter than a real layer can fall between the slicer's samples and vanish, so
+// the user sets the height. The first is cut as a slot the screw hole's width
+// across the pocket, so the material either side bridges the pocket along the
+// slot. The second is a square of the screw
 // hole's width, so its material bridges the slot the other way. The round
 // screw hole starts above them. Each cutter reaches SPACER down into the one
 // below, which is wider, so no two cutters merely touch.
@@ -1746,7 +1779,7 @@ module m_gridfinity_bottom_holes() {
     pocket_d = Gridfinity_Magnet_Diameter + Gridfinity_Profile_Clearance;
     screw_d = Gridfinity_Screw_Diameter + Gridfinity_Profile_Clearance;
     bridge_z = -GF_BASE_HEIGHT + Gridfinity_Magnet_Depth;
-    screw_z = bridge_z + 2 * GF_BRIDGE_LAYER;
+    screw_z = bridge_z + 2 * Print_Layer_Height;
     slot_len = 2 * sqrt(max(0, pow(pocket_d/2, 2) - pow(screw_d/2, 2))) - 2 * SPACER;
 
     m_gridfinity_cells(GF_Bottom_Cells_X, GF_Bottom_Cells_Y)
@@ -1757,10 +1790,10 @@ module m_gridfinity_bottom_holes() {
                 if (slot_len > screw_d)
                     up(bridge_z - SPACER)
                         translate([-slot_len/2, -screw_d/2, 0])
-                            cube([slot_len, screw_d, GF_BRIDGE_LAYER + SPACER]);
-                up(bridge_z + GF_BRIDGE_LAYER - SPACER)
+                            cube([slot_len, screw_d, Print_Layer_Height + SPACER]);
+                up(bridge_z + Print_Layer_Height - SPACER)
                     translate([-screw_d/2, -screw_d/2, 0])
-                        cube([screw_d, screw_d, GF_BRIDGE_LAYER + SPACER]);
+                        cube([screw_d, screw_d, Print_Layer_Height + SPACER]);
                 up(screw_z - SPACER)
                     cylinder(d = screw_d, h = -screw_z + SPACER);
             }
@@ -1908,21 +1941,35 @@ module m_lid_magnet_pockets() {
 // radius. That interaction is the fiddly part of this feature and BOSL2 already
 // solves it. offset_sweep expresses "no profile" by omitting the argument
 // rather than by any flat value, which is why the cases are enumerated.
-module m_edge_treated_shell(size, fillet, chamfer) {
+//
+// bottom_style shapes the bottom edge. Only the box passes Bottom_Edge_Style;
+// the lid keeps the default, so that setting never reaches the lid.
+module m_edge_treated_shell(size, fillet, chamfer, bottom_style = "Fillet") {
     w = size[0]; d = size[1]; h = size[2];
     if (fillet <= 0 && chamfer <= 0)
         cuboid([w, d, h], rounding = Corner_Radius, except = [TOP, BOTTOM],
                anchor = BOTTOM);
     else if (fillet > 0 && chamfer > 0)
         offset_sweep(rect([w, d], rounding = Corner_Radius), height = h,
-                     bottom = os_circle(r = fillet), top = os_chamfer(width = chamfer));
+                     bottom = bottom_edge_profile(bottom_style, fillet),
+                     top = os_chamfer(width = chamfer));
     else if (fillet > 0)
         offset_sweep(rect([w, d], rounding = Corner_Radius), height = h,
-                     bottom = os_circle(r = fillet));
+                     bottom = bottom_edge_profile(bottom_style, fillet));
     else
         offset_sweep(rect([w, d], rounding = Corner_Radius), height = h,
                      top = os_chamfer(width = chamfer));
 }
+
+// The bottom profile for a Bottom_Edge_Style. Fillet is a quarter round, so its
+// lowest layers overhang the bed. Teardrop is BOSL2's one-eighth arc that ends
+// in a 45 degree chamfer, inset 0.59 r at the bed instead of r, so it keeps the
+// round look without the overhang. Chamfer is a plain 45 degree bevel. Each is
+// at most r deep and r tall, so the size limits on Bottom_Edge_Fillet hold.
+function bottom_edge_profile(style, r) =
+    style == "Teardrop" ? os_teardrop(r = r) :
+    style == "Chamfer"  ? os_chamfer(width = r) :
+                          os_circle(r = r);
 
 
 module m_box_base() {
@@ -1932,7 +1979,7 @@ module m_box_base() {
                 difference() {
                     color(COLOR_BOX_SHELL)
                     m_edge_treated_shell([Box_Width_Effective, Box_Depth_Effective, Box_Height],
-                        Bottom_Fillet_Effective, Top_Chamfer_Effective);
+                        Bottom_Fillet_Effective, Top_Chamfer_Effective, Bottom_Edge_Style);
 
                     color(COLOR_BOX_INTERIOR)
                     up(Wall_Thickness)
@@ -2384,15 +2431,26 @@ module m_opening(side, width, height, corner_radius) {
         // Rounded-rectangle opening
         x_offset = width/2 - effective_corner_radius;
         z_offset = height/2 - effective_corner_radius;
+        // A Teardrop top swaps each top corner circle for a capped teardrop: the
+        // circle, two 45 degree flanks, and a flat cap at the circle's top, so
+        // the opening keeps its typed height and opening_top() stays true.
+        // BOSL2's teardrop() extrudes along Y with its point at +Z, which suits
+        // the front and back walls; the side walls spin it onto X.
+        teardrop_top = All_Opening_Top_Style == "Teardrop";
 
         hull() {
             for (x_sign = [-1, 1], z_sign = [-1, 1]) {
-                if (side_wall)
-                    translate([0, x_sign * x_offset, z_sign * z_offset])
+                pos = side_wall ? [0, x_sign * x_offset, z_sign * z_offset]
+                                : [x_sign * x_offset, 0, z_sign * z_offset];
+                translate(pos) {
+                    if (teardrop_top && z_sign > 0)
+                        teardrop(h = new_thickness, r = effective_corner_radius, ang = 45,
+                                 cap_h = effective_corner_radius, spin = side_wall ? 90 : 0);
+                    else if (side_wall)
                         cyl(d = effective_corner_radius * 2, h = new_thickness, anchor = [0, 0, 0], orient = RIGHT);
-                else
-                    translate([x_sign * x_offset, 0, z_sign * z_offset])
+                    else
                         cyl(d = effective_corner_radius * 2, h = new_thickness, anchor = [0, 0, 0], orient = BACK);
+                }
             }
         }
     }

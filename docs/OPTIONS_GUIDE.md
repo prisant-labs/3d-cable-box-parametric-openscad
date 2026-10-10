@@ -140,6 +140,18 @@ Optional finishing features. All are off by default.
 
 ![Bottom_Edge_Fillet 1.5](images/options/edge-fillet.png)
 
+### Bottom_Edge_Style Teardrop: meets the bed at 45 degrees
+
+`Bottom_Edge_Fillet=1.5`, `Bottom_Edge_Style=Teardrop`
+
+![Bottom_Edge_Style Teardrop: meets the bed at 45 degrees](images/options/edge-bottom-teardrop.png)
+
+### Bottom_Edge_Style Chamfer
+
+`Bottom_Edge_Fillet=1.5`, `Bottom_Edge_Style=Chamfer`
+
+![Bottom_Edge_Style Chamfer](images/options/edge-bottom-chamfer.png)
+
 ### Top_Edge_Chamfer 0.8
 
 `Top_Edge_Chamfer=0.8`
@@ -205,6 +217,12 @@ Where cables enter and leave.
 ### Corner radius -1: fully rounded (default)
 
 ![Corner radius -1: fully rounded (default)](images/options/open-round.png)
+
+### All_Opening_Top_Style Teardrop: tops print without support
+
+`All_Opening_Width=20`, `All_Opening_Top_Style=Teardrop`
+
+![All_Opening_Top_Style Teardrop: tops print without support](images/options/open-teardrop.png)
 
 ### Front and back only
 

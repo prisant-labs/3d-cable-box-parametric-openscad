@@ -38,6 +38,7 @@ import shutil
 import sys
 import zipfile
 from pathlib import Path
+from typing import NoReturn
 
 REPO = Path(__file__).resolve().parent.parent
 DIST = REPO / "dist"
@@ -79,7 +80,7 @@ def write_deterministic_zip(zip_path: Path, entries: list[tuple[str, Path | byte
             zf.writestr(zi, data)
 
 
-def fail(msg: str) -> "NoReturn":
+def fail(msg: str) -> NoReturn:
     print(f"error: {msg}", file=sys.stderr)
     sys.exit(1)
 

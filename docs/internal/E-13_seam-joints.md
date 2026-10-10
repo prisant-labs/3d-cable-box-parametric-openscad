@@ -4,8 +4,8 @@
 through the walls, so the halves of a box larger than the bed cannot slide
 vertically and their rims meet flush.
 
-**Status:** Implemented 2026-10-07, unreleased; waiting on the rc.6 print
-round. The suite passes 104 of 104. It takes up the alignment problem left
+**Status:** Implemented 2026-10-07 and shipped in `v2.0.0-rc.6`; waiting on
+the rc.6 print round. The suite passed 104 of 104 when it merged. It takes up the alignment problem left
 open in [E-02-P2 (snap clips)](E-02-P2_snap-clips.md). Both clip styles stay.
 **Effort:** S to M
 **Depends on:** nothing. Ships in the 2.0.0 release-candidate series together

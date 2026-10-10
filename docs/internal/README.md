@@ -24,12 +24,12 @@ incomplete, **Spec** for written but not begun.
 | [E-06](E-06_thermal-and-vents.md) | **Thermal and vents** | Ventilation generator plus material guidance for powered contents | Spec | M | E-03 (shares cut logic) |
 | [E-07](E-07_preset-library.md) | **Preset library** | A real catalogue of common sizes and configurations | Shipped: catalogue v1.2.0, browser 2.0.0 | M | E-09 (needs artifact automation) |
 | [E-08](E-08_web-customizer.md) | **Web customizer** | Browser-based customizer on GitHub Pages | Open. Site shell and preset browser shipped; the WASM playground is not built | M | E-02 (library availability) |
-| [E-09](E-09_testing-automation.md) | **Testing automation** | Automated geometry regression testing beyond compile checks | Shipped v1.1.1; 110 scenarios today | M | none |
+| [E-09](E-09_testing-automation.md) | **Testing automation** | Automated geometry regression testing beyond compile checks | Shipped v1.1.1; 118 scenarios today | M | none |
 | [E-10](E-10_versioning.md) | **Versioning** | Version scheme, pre-release flow, traceability from STL to source | Shipped v1.1.1; rc flow used for v1.2.0-rc.1 and v2.0.0-rc.1 through rc.4; releases drafted by `release.yml` | S | none |
 | [E-11](E-11_distribution.md) | **Distribution** | MakerWorld, Printables, and the licensing question that gates them | Open. Licence settled (MIT); listing drafted, nothing published | S | E-02 (MakerWorld benefits) |
-| [E-12](E-12_gridfinity-to-spec.md) | **Gridfinity to spec** | Rebuild both Gridfinity interfaces on the standard's swept profile, printable without supports | Phase A (box feet) done 2026-10-08; phase B (lid top) next; for the 2.0.0 rc series | M | none |
-| [E-13](E-13_seam-joints.md) | **Seam joints** | A 45 degree sawtooth seam through the walls, so sliced halves cannot slide vertically | Implemented 2026-10-07, unreleased; waiting on the rc.6 print | S to M | none |
-| [E-14](E-14_printability-options.md) | **Printability options** | Opt-in teardrop opening tops, a bottom edge that meets the bed at 45 degrees, and a layer height for the Gridfinity bridging | Spec; planned as 2.1.0, after 2.0.0 | S to M | E-12 phase A (merged) |
+| [E-12](E-12_gridfinity-to-spec.md) | **Gridfinity to spec** | Rebuild both Gridfinity interfaces on the standard's swept profile, printable without supports | Phase A (box feet) in `v2.0.0-rc.6`, waiting on its print; phase B (lid top) next, for rc.7 | M | none |
+| [E-13](E-13_seam-joints.md) | **Seam joints** | A 45 degree sawtooth seam through the walls, so sliced halves cannot slide vertically | In `v2.0.0-rc.6`; waiting on the rc.6 print | S to M | none |
+| [E-14](E-14_printability-options.md) | **Printability options** | Opt-in teardrop opening tops, a bottom edge that meets the bed at 45 degrees, and a layer height for the Gridfinity bridging | In `v2.0.0-rc.6`, with every default unchanged; waiting on the rc.6 print | S to M | E-12 phase A (merged) |
 
 Effort key: S = under a day, M = a few days, L = a week or more.
 
@@ -55,10 +55,10 @@ settled the lid fit. They also showed two problems, and both were scoped on
   default in [E-02-P2 (snap clips)](E-02-P2_snap-clips.md) is decided by the
   same print round.
 
-**Next after 2.0.0.** [E-14 (printability options)](E-14_printability-options.md)
-adds three opt-in parameters for printing without supports, scoped on
-2026-10-08. Every default keeps today's geometry, so it ships as the minor
-release 2.1.0. Its own release plan sets the order.
+**Printing without supports.** [E-14 (printability options)](E-14_printability-options.md)
+adds three opt-in parameters for printing without supports. It was scoped on
+2026-10-08 for 2.1.0, and on 2026-10-09 the maintainer moved it into
+`v2.0.0-rc.6`. Every default keeps today's geometry, so no preset changes.
 
 **Feature work, in rough order of value per unit of effort.**
 

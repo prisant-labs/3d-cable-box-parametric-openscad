@@ -1185,6 +1185,126 @@
             "why": "clearance along the upper 45 degree runs" }
         ]
       }
+    },
+    {
+      "name": "opening_top_teardrop_cuts_shoulders",
+      "_why": "E-14 (printability options) 14a. A Teardrop top replaces each top",
+      "_why2": "corner circle with 45 degree flanks and a flat cap at the circle's",
+      "_why3": "top. Default front opening: r=5, circle centre z=29.96, cap z=34.96",
+      "_why4": "(m_opening sinks every cut 0.04). At z 34.8-34.9 the arc stays under x=1.26 and the flank over x=2.13,",
+      "_why5": "so x 1.6-1.8 is wall under Round and open under Teardrop. The left",
+      "_why6": "wall probe checks the spin that turns the teardrop through a side wall.",
+      "defines": ["Part_To_Render=\"Box Only\"", "All_Opening_Top_Style=\"Teardrop\""],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [1.6, -37.2, 34.8], "size": [0.2, 1.2, 0.1], "expect": "empty",
+            "why": "front opening shoulder, between the arc and the 45 degree flank" },
+          { "translate": [-49.8, 1.6, 34.8], "size": [1.2, 0.2, 0.1], "expect": "empty",
+            "why": "left opening shoulder, through the side wall" },
+          { "translate": [-0.5, -37.2, 35.1], "size": [1.0, 1.2, 0.2], "expect": "material",
+            "why": "wall just above the cap: the opening keeps its typed height" }
+        ]
+      }
+    },
+    {
+      "name": "opening_top_teardrop_partial_radius",
+      "_why": "E-14 14a with a partial corner radius: a 20 mm opening at r=3 has",
+      "_why2": "top corner centres at x=+-7, z=31.96, and a cap at z=34.96. At z",
+      "_why3": "34.8-34.9 the arc stays under x=7.97 and the flank over x=8.30, so x 8.05-8.15",
+      "_why4": "is wall under Round and open under Teardrop.",
+      "defines": ["Part_To_Render=\"Box Only\"", "All_Opening_Top_Style=\"Teardrop\"",
+                  "All_Opening_Width=20", "All_Opening_Corner_Radius=3"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [8.05, -37.2, 34.8], "size": [0.1, 1.2, 0.1], "expect": "empty",
+            "why": "top-right corner shoulder of the front opening" },
+          { "translate": [-0.5, -37.2, 35.1], "size": [1.0, 1.2, 0.2], "expect": "material",
+            "why": "wall just above the straight bridge stays at the typed height" }
+        ]
+      }
+    },
+    {
+      "name": "validation_opening_top_style_unknown",
+      "_why": "E-14 14a. An unknown style names the parameter instead of silently",
+      "_why2": "rendering round tops.",
+      "defines": ["Part_To_Render=\"Box Only\"", "All_Opening_Top_Style=\"Pointed\""],
+      "expect": { "rc": 1, "message": "All_Opening_Top_Style" }
+    },
+    {
+      "name": "bottom_edge_teardrop_meets_bed_at_45",
+      "_why": "E-14 14b. Teardrop is a 1/8 arc then a 45 degree chamfer, inset",
+      "_why2": "0.586 r at the bed against r for the fillet. Wall and fillet are 3,",
+      "_why3": "because the default 1.85 mm cap leaves differences of tenths. At z",
+      "_why4": "0.05-0.1 the fillet's surface is 2.23-2.45 mm in from the front face",
+      "_why5": "and the teardrop's 1.66-1.71, so 1.9-2.0 mm in is open under Fillet",
+      "_why6": "and solid under Teardrop.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Wall_Thickness=3",
+                  "Bottom_Edge_Fillet=3", "Bottom_Edge_Style=\"Teardrop\""],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [-1, -35.6, 0.05], "size": [2, 0.1, 0.05], "expect": "material",
+            "why": "first layers, 1.9-2.0 mm in: inside the teardrop's 45 degree foot" }
+        ]
+      }
+    },
+    {
+      "name": "bottom_edge_chamfer",
+      "_why": "E-14 14b. A 3 mm chamfer is inset 1.0 mm at z=2, where the fillet",
+      "_why2": "(and the teardrop's arc) is inset 0.17-0.19 mm, so 0.3-0.5 mm in is",
+      "_why3": "solid under Fillet and open under Chamfer.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Wall_Thickness=3",
+                  "Bottom_Edge_Fillet=3", "Bottom_Edge_Style=\"Chamfer\""],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [-1, -37.2, 1.95], "size": [2, 0.2, 0.1], "expect": "empty",
+            "why": "0.3-0.5 mm in from the front face at z=2: outside the chamfer" }
+        ]
+      }
+    },
+    {
+      "name": "validation_bottom_edge_style_unknown",
+      "_why": "E-14 14b. Checked only when a fillet size is set, because the style",
+      "_why2": "means nothing without one.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Bottom_Edge_Fillet=1",
+                  "Bottom_Edge_Style=\"Round\""],
+      "expect": { "rc": 1, "message": "Bottom_Edge_Style" }
+    },
+    {
+      "name": "gridfinity_bridge_steps_follow_layer_height",
+      "_why": "E-14 14c. The two bridging steps above each foot's magnet pocket",
+      "_why2": "are Print_Layer_Height tall. At 0.28 the slot spans z 2.36-2.68 and",
+      "_why3": "the square 2.64-2.96; at the old fixed 0.2 the slot ends at 2.60.",
+      "_why4": "Probes sit in the slot's footprint but outside the square's, 2.1-2.3",
+      "_why5": "mm along the slot from the hole at (13, 34).",
+      "defines": ["Part_To_Render=\"Box Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Closed_Post=true", "Enable_Gridfinity_Magnet_Screw=true",
+                  "Print_Layer_Height=0.28"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "probes": [
+          { "translate": [15.1, 33.9, 2.62], "size": [0.2, 0.2, 0.04], "expect": "empty",
+            "why": "inside the 0.28 mm slot step" },
+          { "translate": [15.1, 33.9, 2.72], "size": [0.2, 0.2, 0.04], "expect": "material",
+            "why": "above the slot and outside the square step" }
+        ]
+      }
+    },
+    {
+      "name": "validation_print_layer_height_zero",
+      "_why": "E-14 14c. A zero step would leave the pocket ceiling unbridged.",
+      "defines": ["Part_To_Render=\"Box Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Closed_Post=true", "Enable_Gridfinity_Magnet_Screw=true",
+                  "Print_Layer_Height=0"],
+      "expect": { "rc": 1, "message": "Print_Layer_Height" }
     }
   ]
 }
