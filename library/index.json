@@ -10,6 +10,7 @@
     "Box_Corner_Radius": 8.1,
     "Wall_Thickness": 1.85,
     "Bottom_Edge_Fillet": 0,
+    "Bottom_Edge_Style": "Fillet",
     "Top_Edge_Chamfer": 0,
     "Enable_Post": true,
     "Closed_Post": false,
@@ -32,6 +33,7 @@
     "All_Opening_Width": 10,
     "All_Opening_Height": 30,
     "All_Opening_Corner_Radius": -1,
+    "All_Opening_Top_Style": "Round",
     "All_Openings_Right": 0,
     "All_Openings_Up": 5,
     "Opening_On_Right": true,
@@ -115,7 +117,8 @@
     "Enable_Gridfinity_Magnet_Screw": false,
     "Gridfinity_Magnet_Diameter": 6.25,
     "Gridfinity_Magnet_Depth": 2.4,
-    "Gridfinity_Screw_Diameter": 3.2
+    "Gridfinity_Screw_Diameter": 3.2,
+    "Print_Layer_Height": 0.2
   },
   "presets": [
     {

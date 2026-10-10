@@ -40,7 +40,8 @@ If this document and the SCAD file ever disagree, treat the SCAD file as the fun
 15. Bottom Openings - Custom Margins
 16. Slicing - For Smaller Print Beds
 17. Gridfinity
-18. Hidden
+18. Printing
+19. Hidden
 
 ## 1) Overall
 
@@ -68,12 +69,13 @@ If this document and the SCAD file ever disagree, treat the SCAD file as the fun
 
 ## 2a) Edge Treatment
 
-Horizontal edges are square by default. These soften them. Both default to `0`,
-and at `0` the model renders exactly as it did before these existed.
+Horizontal edges are square by default. These soften them. Both sizes default
+to `0`, and at `0` the model renders exactly as it did before these existed.
 
 | Parameter | Type | Default | Description | Practical guidance |
 |---|---|---:|---|---|
-| `Bottom_Edge_Fillet` | number | `0` | Fillet on the box's outer bottom edge. | Around `1.0` softens the profile and visually absorbs elephant foot. A large fillet becomes a first-layer overhang, so keep it modest or prefer a chamfer. Capped at `Wall_Thickness`, and ignored entirely when a Gridfinity base is active, because that profile is dimensioned by the standard. |
+| `Bottom_Edge_Fillet` | number | `0` | Size of the treatment on the box's outer bottom edge, in the shape `Bottom_Edge_Style` picks. | Around `1.0` softens the profile and visually absorbs elephant foot. Capped at `Wall_Thickness`, and ignored entirely when a Gridfinity base is active, because that profile is dimensioned by the standard. |
+| `Bottom_Edge_Style` | enum | `"Fillet"` | Shape of that bottom edge: `"Fillet"`, `"Teardrop"`, or `"Chamfer"`. | `Fillet` is a quarter round, and its lowest layers overhang the bed, so keep it modest. `Teardrop` is a one-eighth round that ends in a 45 degree chamfer, so it keeps the rounded look and prints without an overhang. `Chamfer` is a plain 45 degree bevel. All three are `Bottom_Edge_Fillet` deep and tall, and only the box's bottom edge uses this setting. |
 | `Top_Edge_Chamfer` | number | `0` | Chamfer on the box's top rim and on both exposed lid edges. | Around `0.6` takes the sharp edge off the rim you handle every time the lid comes off. Capped at `Wall_Thickness`, since the rim is only that wide. Ignored on the lid when a Gridfinity lid top is active. |
 
 ## 3) Post
@@ -127,7 +129,7 @@ counts that wall's `Move_Opening_*_Up` as well as `All_Openings_Up`.
 |---|---|---:|---|---|
 | `Enable_Lid_Magnets` | boolean | `false` | Mating magnet pockets in the box and lid. | Held in bosses at the four inside corners, because the rim is only `Wall_Thickness` wide and a 6 mm magnet does not fit in it. Corners are also free of openings, stabilizers, the post and slice seams. |
 | `Lid_Magnet_Diameter` | number | `6.2` | Pocket diameter. | Takes a nominal 6 mm magnet. Magnet diameters vary by supplier; increase if a press fit cracks the boss. |
-| `Lid_Magnet_Depth` | number | `2.4` | Pocket depth in each half. | Two of these stack when the box is closed, so a 4.8 mm magnet sits flush. The lid keeps material above its pocket, so the magnet is captured rather than visible. |
+| `Lid_Magnet_Depth` | number | `2.4` | Pocket depth in each half. | Each pocket takes its own magnet: one magnet per pocket, up to 2.4 mm thick at the default. The lid keeps material above its pocket, so the magnet is captured rather than visible. |
 | `Lid_Magnet_Wall` | number | `1.2` | Material around each pocket. | Also sets the boss diameter, which is `Lid_Magnet_Diameter + 2 * Lid_Magnet_Wall`. |
 
 **Insert the magnets with opposing poles facing.** The geometry is symmetric in
@@ -144,6 +146,7 @@ off the bed with no overhang and stiffen the corner.
 | `All_Opening_Width` | number | `10` | Default opening width on enabled side walls. | Used unless side-specific width override is greater than `0`. |
 | `All_Opening_Height` | number | `30` | Default opening height on enabled side walls. | Must be `> 0`, and `<= Box_Height` while any side opening is on. This is the true opening height; the cut is anchored at its bottom edge, not centered on the box floor. |
 | `All_Opening_Corner_Radius` | number | `-1` | Default corner radius for side openings. | `-1` keeps fully rounded ends; `0` is square; positive values are clamped to valid half-extents. |
+| `All_Opening_Top_Style` | enum | `"Round"` | Shape of each side opening's top: `"Round"` or `"Teardrop"`. | `Round` arcs flatten near the top, and that part prints as an overhang. `Teardrop` turns each rounded top corner into a 45 degree flank with a short flat cap, so the top prints without support. The opening keeps its typed width and height. The cap is about `0.41` times the width for fully rounded ends. A square opening is unchanged. Applies to all four walls. |
 | `All_Openings_Right` | number | `0` | Global side-opening offset along each wall's local left/right direction. | Combines with each side-local `Move_Opening_*_to_Right` parameter. |
 | `All_Openings_Up` | number | `5` | Height of each side opening's bottom edge above the box floor. | `0` sits the opening flush with the box bottom, so a cable resting on the desk passes straight in. Raise it to lift openings off the surface. Combines with side-specific vertical offsets. An opening lifted past the rim is cut open as a notch, and the model reports it with an `echo`. |
 | `Opening_On_Right` | boolean | `true` | Enables right wall opening. | Uses global size unless right override is set. |
@@ -390,7 +393,7 @@ Both default to off and change no geometry when disabled.
 | `Gridfinity_Edge_Keepout` | number | `4` | Margin from the lid edge before the first lid-top cell. | Prevents thin, fragile cells at the lid's perimeter. The base ignores it, because its feet fill the rounded footprint. |
 | `Enable_Gridfinity_Magnet_Screw` | boolean | `false` | Adds magnet pockets to whichever interfaces are enabled; the bottom base also gets screw holes. The lid gets pockets only, because a through screw hole would breach the closed box. Lid pockets open at each socket floor. | Foot pockets open on the foot's bottom face, so magnets go in after printing. |
 | `Gridfinity_Magnet_Diameter` | number | `6.25` | Magnet diameter the pockets are cut for. | Each pocket adds `Gridfinity_Profile_Clearance`, so the default gives the spec's `6.5 mm` pocket for a `6 mm` magnet. |
-| `Gridfinity_Magnet_Depth` | number | `2.4` | Magnet pocket depth. | In a foot, two `0.2 mm` bridging layers sit above the pocket, so the depth can be at most `4.35 mm`. In the lid, capped so `0.8 mm` of material always remains above the pocket. |
+| `Gridfinity_Magnet_Depth` | number | `2.4` | Magnet pocket depth. | In a foot, two bridging layers, each `Print_Layer_Height` tall, sit above the pocket, so the depth can be at most `4.75 - 2 * Print_Layer_Height`: `4.35 mm` at the default. In the lid, capped so `0.8 mm` of material always remains above the pocket. |
 | `Gridfinity_Screw_Diameter` | number | `3.2` | Through screw hole diameter. | Sized for M3, and adds `Gridfinity_Profile_Clearance`. In a foot it runs up to the box's underside, and the floor above stays closed. |
 
 ### How the base is laid out
@@ -431,7 +434,13 @@ that floor would block it, leaving a bore that goes nowhere. Rather than
 silently produce that, the model asserts. Set `Closed_Post=true`, or disable the
 post.
 
-## 18) Hidden
+## 18) Printing
+
+| Parameter | Type | Default | Description | Interactions |
+|---|---|---:|---|---|
+| `Print_Layer_Height` | number | `0.2` | The layer height you slice at. | Today only the two bridging steps above each Gridfinity foot's magnet pocket read it. Each step is one layer tall. A slicer samples each layer near its middle height, so a step shorter than your real layers can fall between samples and vanish, and the pocket's ceiling then sags. Set it to your layer height. Checked only when `Enable_Gridfinity_Bottom` and `Enable_Gridfinity_Magnet_Screw` are both on: it must be above `0` and at most `0.6 mm`. |
+
+## 19) Hidden
 
 | Parameter | Type | Default | Description |
 |---|---|---:|---|
@@ -451,6 +460,8 @@ Box and wall:
 - `Box_Width`, `Box_Depth`, and `Box_Height` must be `> 0`.
 - `Wall_Thickness` must be `> 0` and `Wall_Thickness*2` must be less than `min(Box_Width, Box_Depth)`.
 - `Box_Corner_Radius` must be `>= 0`.
+- With `Bottom_Edge_Fillet` above `0`, `Bottom_Edge_Style` must be `Fillet`,
+  `Teardrop`, or `Chamfer`.
 
 Post:
 
@@ -478,6 +489,8 @@ Openings:
 - `All_Opening_Height` must not exceed `Box_Height`.
 - Side opening width/height overrides must be `>= 0`.
 - Opening corner radius defaults/overrides must be `>= -1`.
+- While any side opening is on, `All_Opening_Top_Style` must be `Round` or
+  `Teardrop`.
 
 Bottom openings:
 
@@ -502,8 +515,11 @@ Gridfinity:
 
 - `Enable_Gridfinity_Bottom` cannot be combined with `Enable_Bottom_Openings`,
   and it requires `Closed_Post=true` when the post is on.
+- With the base and magnets on, `Print_Layer_Height` must be above `0` and at
+  most `0.6 mm`.
 - With the base and magnets on, `Gridfinity_Magnet_Depth` must be `> 0` and at
-  most `4.35 mm`, so the pocket and its two bridging layers fit inside a foot.
+  most `4.75 - 2 * Print_Layer_Height` (`4.35 mm` at the default), so the
+  pocket and its two bridging layers fit inside a foot.
 
 ## Clamped Rather Than Asserted
 

@@ -85,6 +85,11 @@ Behavior:
 - `corner_radius = 0` produces a square-corner opening
 - `corner_radius > 0` produces a rounded rectangle (clamped to valid half-extents)
 - Works with vertical, horizontal, and square dimensions
+- With `All_Opening_Top_Style="Teardrop"`, the two top corner circles of the
+  hull become BOSL2 `teardrop()` shapes capped at the circle's top
+  (`cap_h = r`), so the top prints without support and the opening keeps its
+  height. `teardrop()` extrudes along Y with its point at +Z, so the side walls
+  spin it onto X. Square openings are unchanged
 
 ## Stabilizers
 
@@ -169,7 +174,7 @@ Creates one female clip pocket using `Clip_Tolerance` and `SPACER` clearances.
 
 Places floor seam clips across depth based on `Clips_Per_Edge`.
 
-### `m_edge_treated_shell(size, fillet, chamfer)`
+### `m_edge_treated_shell(size, fillet, chamfer, bottom_style = "Fillet")`
 
 The outer shell of the box or the lid slab. With both treatments at `0` it is
 the `cuboid()` it has always been, which is how an untreated model is guaranteed
@@ -178,6 +183,18 @@ unchanged rather than merely expected to be. With a treatment it becomes a BOSL2
 horizontal fillet meets the vertical corner radius. `offset_sweep` expresses "no
 profile" by omitting the argument, so the cases are enumerated rather than
 passed a flat value.
+
+`bottom_style` picks the bottom profile through `bottom_edge_profile()`. Only
+the box passes `Bottom_Edge_Style`. The lid keeps the default, so that setting
+never reaches the lid.
+
+### `bottom_edge_profile(style, r)`
+
+A function that returns the `offset_sweep()` bottom profile for a
+`Bottom_Edge_Style`: `os_circle(r)` for `Fillet`, `os_teardrop(r)` for
+`Teardrop`, and `os_chamfer(width = r)` for `Chamfer`. The teardrop is a
+one-eighth arc that ends in a 45 degree chamfer, inset `0.59 * r` at the bed
+instead of `r`. Every profile is at most `r` deep and `r` tall.
 
 ### `m_gridfinity_bottom_solid()` and `m_box_outline_prism(h)`
 
@@ -195,7 +212,8 @@ leave slivers that CGAL cannot read back.
 Magnet pockets cut up from each foot's bottom face, two stepped bridging layers
 above each pocket, and the screw hole from there to the box's underside. The
 first bridging layer is a slot across the pocket and the second a square, so
-each layer's material spans a supported edge.
+each layer's material spans a supported edge. Each layer is
+`Print_Layer_Height` tall, so it matches one sliced layer.
 
 ### `m_lid_relief(is_cut)`
 

@@ -68,6 +68,18 @@ python tests/run_tests.py          # full geometry suite
 
 - [ ] Version consistency check passes.
 - [ ] Test suite passes.
+- [ ] Preview still draws. The suite renders only through CGAL, so it cannot
+      see the F5 preview. Export a preview PNG of a feature-heavy box, with
+      magnets, Gridfinity feet, and teardrop openings on, and confirm that it
+      shows the box. An `intersection()` inside a repeated cutter once pushed
+      preview past OpenSCAD's 100,000-element limit and drew an empty scene:
+
+      ```bash
+      openscad -o /tmp/preview.png cable-box-parametric.scad \
+        -D 'Enable_Gridfinity_Bottom=true' -D 'Closed_Post=true' \
+        -D 'Enable_Gridfinity_Magnet_Screw=true' -D 'Enable_Lid_Magnets=true' \
+        -D 'All_Opening_Top_Style="Teardrop"'
+      ```
 - [ ] Docs reflect any parameter or behaviour change
       (`PARAMETER_REFERENCE.md`, `FAQ.md`, `README.md`).
 - [ ] Licence and third-party notices current (`THIRD_PARTY_NOTICES.md`).

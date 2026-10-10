@@ -74,6 +74,19 @@ Releases up to and including 2.0.0-rc.4 centred each male floor clip on the
 floor, and 0.575 mm of it hung below the piece. A slicer then stood the whole
 piece on its clips. Re-export any sliced pieces from those releases.
 
+## Side Openings
+
+- Round tops, the default, flatten near the top of each arc, and that part
+  prints as an overhang anchored on one side. It spans about 1.5 mm of height
+  at the default 10 mm width, and about 3.5 mm at 24 mm.
+- `All_Opening_Top_Style=Teardrop` turns each rounded top corner into a 45
+  degree flank with a short flat cap, so the top prints without support. The
+  opening keeps its typed width and height. The cap is a bridge about 0.41
+  times the opening's width, 4 mm at the default, and slicers print a bridge
+  anchored at both ends well.
+- A square opening, `All_Opening_Corner_Radius=0`, already has a straight
+  bridge for a top, so `Teardrop` leaves it unchanged.
+
 ## Gridfinity
 
 - The box's feet are solid and stand on the bed. Their sides lean out at 45
@@ -85,9 +98,11 @@ piece on its clips. Re-export any sliced pieces from those releases.
   through 2.0.0-rc.5 left a flat ledge of 4 mm or more around the base, which
   printed as loose loops without supports.
 - Foot magnet pockets open onto the bed, so the magnets go in after printing.
-  Above each pocket, two 0.2 mm bridging layers carry the pocket's ceiling
-  across the screw hole. The steps assume 0.2 mm layers. At a much thicker
-  layer height the slicer may merge them, which defeats the technique.
+  Above each pocket, two bridging layers carry the pocket's ceiling across the
+  screw hole. Each is `Print_Layer_Height` tall, 0.2 mm by default. Set it to
+  the layer height you slice at. A slicer samples each layer near its middle
+  height, so a step shorter than your real layers can be skipped, which
+  defeats the technique.
 - The lid socket opens onto the bed when the lid prints as exported, so it
   needs no support. Its floor, about 37 mm across, prints as a bridge. In test
   prints that bridge sagged, and a sagging floor makes the socket shallower, so
@@ -109,9 +124,14 @@ piece on its clips. Re-export any sliced pieces from those releases.
 
 ## Edge Treatment
 
-- `Bottom_Edge_Fillet` curves the box's bottom edge inward toward the bed, so
-  its lowest layers overhang the bed slightly. Look at those layers on a
-  small test box before you use a large fillet on a full box.
+- With the default `Bottom_Edge_Style=Fillet`, `Bottom_Edge_Fillet` curves the
+  box's bottom edge inward toward the bed, so its lowest layers overhang the
+  bed slightly. Look at those layers on a small test box before you use a
+  large fillet on a full box.
+- `Bottom_Edge_Style=Teardrop` keeps the rounded look but finishes in a 45
+  degree chamfer at the bed, so the first layers do not overhang.
+  `Bottom_Edge_Style=Chamfer` is a plain 45 degree bevel, which also hides
+  elephant's foot.
 - `Top_Edge_Chamfer` faces up and prints without support.
 
 ## Common Print Quality Notes
@@ -119,7 +139,9 @@ piece on its clips. Re-export any sliced pieces from those releases.
 - If walls feel weak, increase `Wall_Thickness` or perimeter count.
 - If clips fracture, increase `Clip_Tab_Width` or use tougher material.
 - If top corners warp (ABS/ASA), use enclosure and bed adhesion aids.
-- If openings bridge poorly, reduce bridge speed and increase cooling.
+- If the tops of rounded openings droop, set `All_Opening_Top_Style=Teardrop`.
+  If a square opening's top bridge sags, reduce bridge speed and increase
+  cooling.
 
 ## Post-Processing
 

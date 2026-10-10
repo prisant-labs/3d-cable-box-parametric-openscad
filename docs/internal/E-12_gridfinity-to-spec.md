@@ -4,8 +4,9 @@
 standard's swept profile, so the box seats in a real baseplate and both parts
 print without supports.
 
-**Status:** Scoped 2026-10-07. Phase A (box feet) implemented 2026-10-08;
-phase B (lid-top baseplate) not started. Replaces the geometry of
+**Status:** Scoped 2026-10-07. Phase A (box feet) implemented 2026-10-08
+and shipped in `v2.0.0-rc.6`; phase B (lid-top baseplate) not started, for
+rc.7. Replaces the geometry of
 [E-01 (Gridfinity promotion)](E-01_gridfinity-promotion.md); E-01's two toggles
 and its user-facing parameters stay.
 **Effort:** M
@@ -218,13 +219,17 @@ requires.
       `docs/PRINTING.md` (print orientation), and `docs/FAQ.md` change in the
       same commit as the model. Phase B must update them again.
 
-## Human print test (rc.6)
+## Human print test
 
-- [ ] A box with Gridfinity feet seats in a real baseplate, either bought or
-      printed from kennetek's generator.
-- [ ] A standard Gridfinity bin seats in the lid-top pockets.
-- [ ] Both parts print without supports on the maintainer's P1S.
-- [ ] The solid-plug lid still fits its box at the default 0.15 mm gap.
+Phase A prints from `v2.0.0-rc.6`. Phase B prints from rc.7.
+
+- [ ] rc.6: a box with Gridfinity feet seats in a real baseplate, either
+      bought or printed from kennetek's generator.
+- [ ] rc.6: the box prints without supports on the maintainer's P1S.
+- [ ] rc.7: a standard Gridfinity bin seats in the lid-top pockets.
+- [ ] rc.7: the lid prints without supports on the maintainer's P1S.
+- [ ] rc.7: the solid-plug lid still fits its box at the default 0.15 mm
+      gap.
 
 ## Risks
 

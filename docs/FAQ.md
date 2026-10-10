@@ -168,8 +168,8 @@ Corners rather than the rim, because the rim is only `Wall_Thickness` wide
 (1.85 mm by default) and a 6 mm magnet does not fit in it.
 
 `Lid_Magnet_Diameter` defaults to `6.2` for a nominal 6 mm magnet.
-`Lid_Magnet_Depth` is the depth in *each* half, so
-two of them stack: at the default `2.4`, a 4.8 mm magnet sits flush.
+`Lid_Magnet_Depth` is the depth in *each* half, and each pocket takes its own
+magnet: at the default `2.4`, one magnet per pocket, up to 2.4 mm thick.
 
 **Insert the magnets with opposing poles facing.** The pockets are symmetric so
 they align however the lid goes on, which also means the model cannot enforce
@@ -184,9 +184,29 @@ changes until you ask.
 
 Keep the bottom fillet modest. It is the first thing printed, and a large one
 becomes an overhang on the opening layers; around `1.0` is a good starting
-point, and a chamfer prints more reliably than a fillet if you have trouble.
-Both are ignored where a Gridfinity interface owns the face, because those
-profiles have to match the standard.
+point. If those layers curl, set `Bottom_Edge_Style` to `Teardrop`, which keeps
+the rounded look but meets the bed at 45 degrees, or to `Chamfer`, a plain 45
+degree bevel. `Bottom_Edge_Fillet` sets the size for all three styles. Both
+treatments are ignored where a Gridfinity interface owns the face, because
+those profiles have to match the standard.
+
+## Can I print the box without supports?
+
+Yes, at the defaults. Every feature either stands on the bed or rises at 45
+degrees or steeper, except for a few short arcs and bridges. Three options
+remove those:
+
+- `All_Opening_Top_Style=Teardrop` replaces the flat top of each rounded side
+  opening with 45 degree flanks and a short flat cap. The opening keeps its
+  typed width and height.
+- `Bottom_Edge_Style=Teardrop` or `Chamfer` makes a bottom edge treatment meet
+  the bed at 45 degrees instead of curling under.
+- `Print_Layer_Height` should match the layer height you slice at when the
+  Gridfinity base has magnets, so the two bridging steps above each pocket
+  print as separate layers.
+
+All three keep today's shapes by default, so a saved preset renders exactly as
+before. `docs/PRINTING.md` has the details.
 
 ## How do I load one of the presets?
 

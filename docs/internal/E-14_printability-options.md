@@ -4,11 +4,13 @@
 overhangs a support-free print still has: the tops of the wall openings, the
 bottom edge fillet, and the bridging layers in each Gridfinity foot.
 
-**Status:** Spec, written 2026-10-08. Not started.
+**Status:** Implemented 2026-10-09 and shipped in `v2.0.0-rc.6`; waiting on
+the rc.6 print round. Scoped 2026-10-08, and the maintainer accepted all five
+decisions on 2026-10-09.
 **Effort:** S to M, as three independent S parts.
 **Depends on:** [E-12 (Gridfinity to spec)](E-12_gridfinity-to-spec.md)
-phase A for part 14c; phase A is merged. Ships after 2.0.0, as 2.1.0. See the
-release plan below.
+phase A for part 14c. Ships inside 2.0.0 rather than as 2.1.0; the release
+plan below says why.
 
 ## Why
 
@@ -45,14 +47,15 @@ narrows to a line on the wall at the top. Each layer sits inside the layer
 below it, so the sloped face points upward like a ramp. A shallow fin shows
 visible steps on that face, but it never overhangs. No change is needed.
 
-## Proposed decisions (2026-10-08)
+## Decisions (proposed 2026-10-08, accepted 2026-10-09)
 
-These need the maintainer's agreement before implementation starts.
+The maintainer accepted all five as written.
 
 1. **Every new parameter defaults to today's geometry.** The defaults are
    `"Round"`, `"Fillet"`, and `0.2`. Under
    [E-10 (versioning)](E-10_versioning.md), a parameter whose default preserves
-   output is a minor bump, so E-14 ships as 2.1.0.
+   output is additive, a minor bump on its own. Inside 2.0.0 it therefore
+   changes no existing preset.
 2. **A teardrop opening keeps its typed height.** The flat cap sits exactly
    where the round top is today. Part 14a explains why.
 3. **One global opening style, with no per-wall overrides.**
@@ -65,7 +68,8 @@ These need the maintainer's agreement before implementation starts.
 5. **Default changes wait for E-03.** Making `Teardrop` the default changes
    output for unchanged inputs, which is a major bump. E-03 is already the
    planned major that breaks the opening interface, so the default changes
-   there at no extra cost.
+   there at no extra cost. The bottom edge default, if it changes, rides the
+   same major release.
 
 ## 14a. Teardrop tops for side openings
 
@@ -133,6 +137,12 @@ line 545.
 - `opening_top_teardrop_partial_radius`: `All_Opening_Corner_Radius=3` on a
   20 mm opening. One shoulder probe at a top corner, worked out the same way.
 - Both scenarios expect one solid.
+- `validation_opening_top_style_unknown`: an unknown style fails and names
+  the parameter.
+
+As built, `m_opening` sinks every cut 0.04 mm (`SPACER`), so the scenarios
+use a circle centre of 29.96 and a cap of 34.96, and probes with margins of
+at least 0.06 mm.
 
 ## 14b. Bottom edge style
 
@@ -155,8 +165,13 @@ chamfer to the bed. Above `0.29 * r` it matches the fillet, so it keeps the
 rounded look. `Chamfer` also serves as elephant's-foot relief. Both functions
 exist at the pinned `BOSL2_REF` (`afe82db`).
 
-**Scope.** This changes only the box's bottom edge. The lid's edges use
-`Top_Edge_Chamfer`, which is already 45 degrees. With the Gridfinity base on,
+**Scope.** This changes only the box's bottom edge. The lid's slab is built
+by the same `m_edge_treated_shell`, so the style is passed in as an argument
+from the box's call only, and the lid keeps the default. A mesh comparison
+with `Bottom_Edge_Style` set on a chamfered lid confirms that. As built, the
+lid's exposed edge is a round of radius `Top_Edge_Chamfer`, not a chamfer;
+[backlog item 21 (lid edge is round)](BACKLOG.md) records it. With the
+Gridfinity base on,
 `Bottom_Fillet_Effective` is 0, so every style is suppressed, as the fillet is
 today. The existing asserts still bound every style, because each style's
 inset and height are at most `r`: `Bottom_Edge_Fillet <= Wall_Thickness`, and
@@ -178,8 +193,10 @@ are measured in from the outer face, along a straight side.
 - `bottom_edge_chamfer`: `Bottom_Edge_Style="Chamfer"`. At z = 2.0, the
   fillet's surface is 0.17 mm in and the chamfer's is 1.0 mm in. A probe 0.3 to
   0.5 mm in expects empty, and it fails against `main`.
-- Both scenarios expect one solid. One sliced variant also expects one solid
-  per piece.
+- Both scenarios expect one solid. A sliced `Teardrop` piece was checked by
+  hand for one solid.
+- `validation_bottom_edge_style_unknown`: an unknown style with a fillet set
+  fails and names the parameter.
 
 ## 14c. Print layer height for the Gridfinity bridging
 
@@ -226,32 +243,35 @@ a thicker step. A smaller value can lose a step.
 
 ## Acceptance criteria
 
-- [ ] Each new scenario fails against `main` before its part lands, as
-      `AGENTS.md` requires.
-- [ ] With every new parameter at its default, every part is mesh-identical
-      to `main` under the canonical comparison. Check the seven configurations
-      E-12 phase A used: box, lid, box and lid, a slice, an edge-treated box, a
-      lid-top-only lid, and the router-shelf preset. The nine library presets
-      must also regenerate unchanged.
-- [ ] Every non-default style exports as one solid, sliced and unsliced.
-- [ ] A preview PNG of a box with four `Teardrop` openings and magnets on
-      shows the box. No scenario renders a preview, so this is a manual check.
-- [ ] The same change updates `docs/VALIDATION_RULES.md`,
+- [x] Each new scenario fails against `main` before its part lands, as
+      `AGENTS.md` requires. All eight failed first, for the predicted reason.
+- [x] With every new parameter at its default, every part is mesh-identical
+      to `main` under the canonical comparison. Eleven configurations were
+      checked: the seven E-12 phase A used, the Gridfinity feet with magnets,
+      a chamfered lid with and without `Bottom_Edge_Style` set, and square
+      openings under `Teardrop`. The full library build wrote 0 renders and
+      left 28 alone, and its 27 rewritten STLs were canonically identical.
+- [x] Every non-default style exports as one solid, sliced and unsliced.
+- [x] A preview PNG of a box with four `Teardrop` openings, Gridfinity feet,
+      and both kinds of magnets shows the box, with a normalized tree of 127
+      elements. `docs/RELEASE.md` step 4 now carries this check.
+- [x] The same change updates `docs/VALIDATION_RULES.md`,
       `docs/PARAMETER_REFERENCE.md`, `docs/PRINTING.md`, `docs/FAQ.md`,
       `docs/MODULE_REFERENCE.md`, and `CHANGELOG.md`. `docs/PRINTING.md`
       replaces its bottom-fillet warning with the new styles, and it adds the
       opening tops and the layer-height rule. `docs/MODULE_REFERENCE.md`
       covers the new bottom-profile helper.
-- [ ] `README.md`'s feature table names the three new options.
-- [ ] `scripts/build_options_guide.py` gains entries and images for
+- [x] `README.md`'s feature table names the three new options.
+- [x] `scripts/build_options_guide.py` gains entries and images for
       `Teardrop` openings and for the `Teardrop` and `Chamfer` bottom edges.
-- [ ] `tests/fixtures/missing_bosl2.scad` is regenerated, and the library
-      metadata build is re-run.
-- [ ] The scenario count is updated wherever it appears: `AGENTS.md`,
-      `README.md`, [E-09 (testing automation)](E-09_testing-automation.md), and
+- [x] `tests/fixtures/missing_bosl2.scad` is regenerated, and the library
+      metadata build is re-run. `library/index.json` gains the three defaults.
+- [x] The scenario count, now 118, is updated wherever it appears:
+      `AGENTS.md`, `README.md`,
+      [E-09 (testing automation)](E-09_testing-automation.md), and
       `docs/internal/README.md`.
 
-## Human print test (v2.1.0-rc.1)
+## Human print test (v2.0.0-rc.6)
 
 The coupons are built with the maintainer's calibration tooling in
 `_local/calibration/`, which is not in the repository.
@@ -269,42 +289,32 @@ The coupons are built with the maintainer's calibration tooling in
 
 ## Release plan
 
-**Target: 2.1.0.** Under E-10 (versioning), a parameter added with a default
-that preserves output is a minor bump. All three defaults preserve output, and
-the mesh-identity criterion above proves it rather than assuming it.
+**Changed on 2026-10-09: E-14 ships in `v2.0.0-rc.6`, not as 2.1.0.** The
+maintainer asked for a tagged release carrying E-14. 2.0.0 was not final, so a
+2.1.0 tag could not come first, and the maintainer chose the 2.0.0 series. The
+plan written on 2026-10-08 kept E-14 out of 2.0.0 to avoid adding scope there.
+That concern now applies only to the defaults: every E-14 default keeps
+today's geometry, so the 2.0.0 major gains three options and changes no preset.
 
-1. **Merge this spec.** Implementation waits for the maintainer to agree to
-   the proposed decisions.
-2. **Finish 2.0.0 first.** That means E-12 phase B, the rc.6 print round for
-   E-12 and [E-13 (seam joints)](E-13_seam-joints.md), and then the final
-   v2.0.0. E-14's pull requests merge to `main` only after v2.0.0 is tagged.
-   Merged earlier, they would sit in `[Unreleased]` and ship inside 2.0.0.
-   The work itself can start on branches before then.
-3. **One pull request per part, in the order 14a, 14b, 14c.** The parts share
-   no model code, so any order works; this order puts the most visible change
-   first. Each pull request writes its scenarios first and shows them failing
-   against `main`. It runs the full suite on OpenSCAD 2021.01 with CGAL, meets
-   the mesh-identity criterion, and updates the docs in the same change.
-   Changelog entries go under `[Unreleased]`, in Added.
-4. **Cut v2.1.0-rc.1 as a prerelease**, with the maintainer's word. Follow
-   `docs/RELEASE.md`: bump `Model_Version` and the changelog section, then tag
-   the prerelease. Pushing the tag makes `release.yml` draft the prerelease
-   with its assets.
-5. **Print the coupons** in the human print test above. If a print fails, fix
-   the part and cut rc.2.
-6. **Promote to v2.1.0**, with the maintainer's word, following "Promoting a
-   release candidate to final" in `docs/RELEASE.md`.
+1. **Done 2026-10-09.** One pull request carries all three parts. Its eight
+   scenarios failed against `main` first, then passed. The full suite ran on
+   OpenSCAD 2021.01 with CGAL, the mesh-identity criterion held, and the docs
+   changed in the same pull request.
+2. **Tag `v2.0.0-rc.6`** with E-12 phase A, E-13 (seam joints), and E-14.
+   `Model_Version` stays `2.0.0`. The draft gets a hand-written "What's new
+   since rc.5" and a "Known issues" section before it is published as a
+   prerelease.
+3. **Print the coupons** in the human print test above, in the same round as
+   E-12's and E-13's rc.6 prints. If a print fails, fix the part in a later
+   candidate.
+4. **E-12 phase B ships in rc.7.** E-14 does not wait for it.
+5. **2.0.0 final** follows `docs/RELEASE.md`, "Promoting a release candidate
+   to final", once the print rounds pass.
 
 **Later: the default changes.** Making `Teardrop` the default opening top, or
 the default bottom edge style, is a major bump under E-10. E-03 (openings
-array) is already the planned major that replaces the opening block, so the
-opening default changes there, and E-03's opening row gains a top-style field.
-
-**Alternative considered: fold E-14 into the 2.0.0 release-candidate series.**
-The defaults could then change inside a major release that is already
-happening. This was not chosen, for two reasons. The 2.0.0 series already
-waits on E-12 phase B and on two print acceptances. And no print yet shows
-that round tops droop at the preset widths.
+array) is already the planned major that replaces the opening block, so both
+defaults change there, and E-03's opening row gains a top-style field.
 
 ## Candidate fourth part (proposal, not in scope)
 
@@ -319,7 +329,7 @@ the flip, which ships in 2.0.0.
 The gain is small. At the default depth, the part of the arc flatter than 45
 degrees spans about 0.7 mm of height, and
 [E-04 (quick wins)](E-04_quick-wins.md) records the relief as never printed.
-Add 14d to 2.1.0 only if the maintainer wants it.
+It stays out of scope until the maintainer chooses it.
 
 ## Risks
 
