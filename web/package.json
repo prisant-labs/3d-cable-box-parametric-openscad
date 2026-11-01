@@ -13,9 +13,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.42.4",
-    "@google/model-viewer": "^4.3.1",
-    "astro": "^7.1.6",
+    "@astrojs/starlight": "^0.42.7",
+    "@google/model-viewer": "^4.4.0",
+    "astro": "^7.4.4",
     "sharp": "^0.35.3",
     "three": "^0.183.2"
   }
