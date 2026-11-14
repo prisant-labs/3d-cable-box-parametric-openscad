@@ -38,7 +38,10 @@ SCENES = [
       "Bottom_Opening_Axis": "Along X"}),
     ("feature_slicing", (900, 600), CAM_ISO, "surge-strip-6-sliced",
      {"Part_To_Render": "Box Only"}),
-    ("feature_gridfinity", (900, 600), CAM_UNDER, None,
+    # Shot from above rather than below since E-12 phase B. The lid now exports
+    # turned over, with its baseplate pockets on top, so an underside view
+    # shows the box's feet and nothing of the lid but its filled plug.
+    ("feature_gridfinity", (900, 600), CAM_ISO, None,
      {"Part_To_Render": "Box and Lid",
       "Enable_Gridfinity_Bottom": True,
       "Enable_Gridfinity_Lid_Top": True,

@@ -112,6 +112,38 @@ identically and that magnets survive slicing.
   the lid top. `Gridfinity_Magnet_Diameter` defaults to `6.25`, so the pocket
   with its clearance is the spec's 6.5 mm. See
   [E-12 (Gridfinity to spec)](docs/internal/E-12_gridfinity-to-spec.md).
+- **A Gridfinity lid top is a spec baseplate, and the lid prints turned over.**
+  With `Enable_Gridfinity_Lid_Top` on, each cell carries a pocket swept along
+  the spec's 0.7 / 1.8 / 2.15 mm profile instead of the two stacked squares it
+  had before. Those were 0.45 mm too shallow for a 4.75 mm foot and met its
+  rounded corners with a square mouth, so nothing standard seated properly.
+  The plate is 5.0 mm rather than 4.75, which is what the pocket needs, and
+  each pocket floor is the lid panel's own face. That last point puts two
+  coplanar faces together, which a render dissolves but a preview cannot
+  order, so the cutter is lifted 0.01 mm in preview only and the exported
+  mesh is unchanged.
+
+  The lid is exported rotated 180 degrees about X, so the pockets face up and
+  print with nothing bridging across them; until now each floor was a 37.45 mm
+  bridge. The face that lands on the bed is the lip's, so a Plug lid's ring is
+  filled solid and a Skirt lid's pocket keeps only a groove for the box wall,
+  with magnet-boss notches a Skirt lid has never needed before. The `lid-face`
+  anchor and the sliced lid's seam clips both follow the flip; the clips now
+  start on the build plate.
+
+  With the base also on, the lid holds exactly the base's cells, so a second
+  box stacks on the first. The default 100 x 75 box's lid goes from 2 x 1 cells
+  to 3 x 2. `Gridfinity_Edge_Keepout` now applies only when the base is off.
+  `Gridfinity_Profile_Clearance` is measured against the 0.25 mm the standard
+  already builds in, so the default reproduces the standard and a larger value
+  loosens the lid's pockets.
+
+  Because the lid then leaves only 1.75 mm beside its outermost pockets, a
+  `Box_Corner_Radius` above about 10 lets each corner pocket open through the
+  side of the lid. The model reports that and carries on: the lid is still one
+  solid and every cell still takes a bin, and trimming the pocket would stop
+  that cell accepting a standard foot. See
+  [E-12 (Gridfinity to spec)](docs/internal/E-12_gridfinity-to-spec.md).
 - **`Lid_Lip_Gap` is now a clearance on each side, and defaults to `0.15`.**
   It was added once to the lid's overall width, which made it a total. The
   same value now separates the lip from the wall on every side, for both lid

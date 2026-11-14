@@ -2,7 +2,7 @@
 
 Sits in a Gridfinity baseplate on a 3 x 2 cell footprint.
 
-**Note:** Gridfinity bottom requires Closed_Post. Total height is Box_Height plus 4.75 mm of feet. The footprint is whole cells, so the base does not round it up.
+**Note:** Gridfinity bottom requires Closed_Post. Total height is Box_Height plus 4.75 mm of feet. The footprint is whole cells, so the base does not round it up. The lid carries the same 3 x 2 cells and prints turned over, pockets facing up.
 
 Printed box envelope: `125.5 x 83.5 x 59.8 mm`
 

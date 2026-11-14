@@ -141,11 +141,16 @@ SECTIONS = [
          {"Enable_Slicing": True, "Slice_Count": 2, "Seam_Tooth_Depth": 0,
           "Part_To_Render": "Box Only"}),
     ]),
-    ("gridfinity", "Gridfinity", "Optional interfaces, both shown from below.", [
+    # The box's feet are underneath, so those views look up at it. A Gridfinity
+    # lid exports turned over, with its pockets on top, so those views look
+    # down instead; from below they would show nothing but the filled plug.
+    ("gridfinity", "Gridfinity",
+     "Optional interfaces. The box is shown from below, where its feet are, "
+     "and the lid from above, where its pockets are.", [
         ("gf-off", "Disabled (default)", CAM_UNDER, {"Closed_Post": True}),
         ("gf-bottom", "Feet under the box, rounded up to whole cells", CAM_UNDER,
          {"Enable_Gridfinity_Bottom": True, "Closed_Post": True}),
-        ("gf-lid", "Profile on the lid", CAM_UNDER,
+        ("gf-lid", "Baseplate pockets on the lid", CAM_ISO,
          {"Enable_Gridfinity_Lid_Top": True, "Part_To_Render": "Lid Only"}),
         ("gf-both", "Both, with magnet and screw holes", CAM_UNDER,
          {"Enable_Gridfinity_Bottom": True, "Enable_Gridfinity_Lid_Top": True,

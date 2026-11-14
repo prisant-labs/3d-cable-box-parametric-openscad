@@ -107,7 +107,8 @@ PRESETS = [
                    "All_Opening_Width": 14, "All_Opening_Height": 30},
         "note": "Gridfinity bottom requires Closed_Post. Total height is "
                 "Box_Height plus 4.75 mm of feet. The footprint is whole "
-                "cells, so the base does not round it up.",
+                "cells, so the base does not round it up. The lid carries the "
+                "same 3 x 2 cells and prints turned over, pockets facing up.",
     },
     {
         "name": "router-shelf",
@@ -641,8 +642,10 @@ def main() -> int:
                "parameterSets": {name: {k: as_param(v) for k, v in preset["params"].items()}}}
         write_text(base / "config.json", json.dumps(cfg, indent=2) + "\n")
 
-        # Gridfinity features live on the underside of both parts, so a
-        # top-down render shows none of them. Add a view from below.
+        # The box's feet are on its underside, which a top-down render never
+        # shows. Add a view from below for them. Since E-12 phase B the lid is
+        # the other way up, so its pockets already show in the top-down views
+        # and the two angles together cover both interfaces.
         views = list(VIEWS)
         if preset["params"].get("Enable_Gridfinity_Bottom") or \
            preset["params"].get("Enable_Gridfinity_Lid_Top"):

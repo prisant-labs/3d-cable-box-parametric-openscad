@@ -222,6 +222,13 @@ def run_scenario(scad_bin: str, sc: dict, workdir: Path, verbose: bool) -> list[
         if expect["output_contains"] not in out:
             failures.append(f"output does not contain {expect['output_contains']!r}")
 
+    # The other half of an echo's test. A report that fired on every model
+    # would satisfy output_contains and still be wrong, so the scenario that
+    # must stay quiet says so here.
+    if "output_does_not_contain" in expect:
+        if expect["output_does_not_contain"] in out:
+            failures.append(f"output contains {expect['output_does_not_contain']!r}")
+
     if "message" in expect:
         found = ASSERT_RE.search(out)
         got = found.group(1) if found else ""

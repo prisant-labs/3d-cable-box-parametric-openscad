@@ -15,9 +15,14 @@ small calibration prints that check a fit before you commit to a full box.
 ## Orientation
 
 - Box: print it as exported, open top facing up.
-- Lid: print it as exported. The lid turns over in use, so the face on the bed
-  becomes the top of the closed box and gets the bed's finish. The lip, the
-  magnet pockets, and the post socket all face up and print without support.
+- Lid: print it as exported. Without a Gridfinity lid top, the lid turns over
+  in use, so the face on the bed becomes the top of the closed box and gets the
+  bed's finish; the lip, the magnet pockets, and the post socket all face up
+  and print without support.
+- Lid with `Enable_Gridfinity_Lid_Top`: the model exports it already turned
+  over, so the baseplate pockets face up and nothing bridges across them. The
+  lip's face is on the bed instead, filled solid, and it is that face which
+  ends up inside the closed box. Print it as exported either way.
 - Sliced parts: print each piece as exported, so the seam faces stay vertical
   and the clips keep their designed dimensions.
 
@@ -103,10 +108,18 @@ piece on its clips. Re-export any sliced pieces from those releases.
   the layer height you slice at. A slicer samples each layer near its middle
   height, so a step shorter than your real layers can be skipped, which
   defeats the technique.
-- The lid socket opens onto the bed when the lid prints as exported, so it
-  needs no support. Its floor, about 37 mm across, prints as a bridge. In test
-  prints that bridge sagged, and a sagging floor makes the socket shallower, so
-  tune bridging here.
+- The lid's pockets open upward when the lid prints as exported, so each floor
+  is printed on solid material rather than bridged. Until 2.0.0-rc.6 the lid
+  printed the other way up and each floor was a 37 mm bridge, which sagged and
+  made the sockets too shallow to seat a foot.
+- Two short ceilings remain on a Gridfinity lid, both on the face that lands on
+  the bed. The post socket's is a disc `Post_Diameter + 2 * Lid_Lip_Gap`
+  across, 15.3 mm at the defaults. With `Enable_Lid_Magnets` each magnet-boss
+  notch adds a ring about 8.9 mm across whose material only reaches 1.35 mm in
+  from its wall. Neither needs support, and nothing else on either part is a
+  flat overhang wider than about 15 mm.
+- The slab's rim overhangs the filled plug by about 4 mm all round, which
+  prints as a short unsupported ledge.
 - The feet are built to the spec's numbers, and a spec foot leaves 0.25 mm all
   round in a spec baseplate pocket. Test a one-cell box against a real
   baseplate before a full box anyway.

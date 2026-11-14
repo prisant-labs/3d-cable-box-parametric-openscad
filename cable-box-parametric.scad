@@ -345,15 +345,25 @@ GF_FOOT_TOP_RADIUS     = 3.75;  // corner radius of that footprint
 // The foot's profile from its bottom face up: 0.8 at 45 degrees, 1.8
 // vertical, 2.15 at 45 degrees. Sums to GF_BASE_HEIGHT.
 GF_FOOT_PROFILE        = [0.8, 1.8, 2.15];
-GF_CAVITY_ENTRY_SIZE   = 39.4;  // lower (wider) mating cavity
-GF_CAVITY_UPPER_SIZE   = 37.2;  // upper (narrower) mating cavity
-GF_CAVITY_ENTRY_DEPTH  = 3.2;
-GF_CAVITY_TOTAL_DEPTH  = 4.3;
-// Baseplate slab added to the lid's exposed face. The mating sockets cut into
-// it reuse GF_CAVITY_* above, because a socket on the lid and the mating cavity
-// under the box are the same feature: both accept a Gridfinity foot.
-// Thicker than GF_CAVITY_TOTAL_DEPTH so material remains under each socket.
-GF_LIDTOP_PLATE_HEIGHT = 4.75;
+// The baseplate pocket a foot drops into. Its own numbers, not the foot's:
+// the standard puts the fit clearance in the gap between the two, 42 against
+// the foot's 41.5 and 4.0 against its 3.75, which is 0.25 mm on every side.
+// The profile reads from the pocket's floor up to its mouth: 0.7 at 45
+// degrees, 1.8 vertical, 2.15 at 45 degrees, summing to GF_POCKET_PROFILE_H.
+GF_POCKET_CELL         = 42;    // mouth footprint of one pocket, the widest part
+GF_POCKET_TOP_RADIUS   = 4.0;   // corner radius of that footprint
+GF_POCKET_PROFILE      = [0.7, 1.8, 2.15];
+GF_POCKET_PROFILE_H    = 4.65;
+// The clearance the standard has already built into those numbers. The model's
+// own Gridfinity_Profile_Clearance is measured against it, so the default 0.25
+// reproduces the standard exactly and a larger value loosens the socket.
+GF_SPEC_CLEARANCE      = 0.25;
+// Baseplate slab added to the lid's exposed face. A pocket has to be deeper
+// than its 4.65 mm profile, because a foot is 4.75 mm tall and its last
+// 0.1 mm has to go somewhere; a real baseplate leaves that space too. The slab
+// is the pocket's full depth at the default clearance, so each pocket floor is
+// the lid panel's own face and no slab material is wasted under it.
+GF_LIDTOP_PLATE_HEIGHT = 5.0;
 GF_HOLE_OFFSET         = 13;    // magnet/screw offset from cell centre
 GF_MIN_FLOOR           = 0.8;   // solid material kept above lid magnet pockets
 // Model version. Must match the git tag and the top CHANGELOG.md section on a
@@ -378,6 +388,16 @@ $fn = 40;
 // inside the part and invisible in the print.
 SPACER=0.04;
 WELD=0.2;
+
+// Preview-only nudge for a cut whose floor lands exactly on another solid's
+// face. CGAL dissolves such a pair into one surface, but the preview's depth
+// buffer cannot order two coincident planes and speckles them. WELD is the cure
+// for a union and is far too deep to reuse here: 0.2 mm off a pocket floor is a
+// real change to the printed part. This is gated on $preview, which OpenSCAD
+// sets false for every CGAL render, so no exported mesh sees it.
+// Used by m_gridfinity_lid_top_cavities(), whose floor sits on the lid panel's
+// own face at the default clearance.
+PREVIEW_OVERCUT = $preview ? 0.01 : 0;
 
 // The four walls that can carry a side opening, in the order they are cut.
 OPENING_SIDES = ["Back", "Front", "Right", "Left"];
@@ -488,6 +508,9 @@ Plug_Outer_Depth = Inner_Depth - Lid_Lip_Gap * 2;
 // by their height at render time, exactly as the box is lifted over its base.
 // Putting them at Lid_Height+Lid_Lip_Gap_Height instead would bury them inside
 // the closed box, on the mating face.
+//
+// A lid carrying that plate is also FLIPPED for export, so the pockets face up
+// and print with no bridge over them. See m_lid_placed().
 GF_LID_TOTAL_HEIGHT = GF_LIDTOP_PLATE_HEIGHT;
 
 // How many whole 42 mm cells fit across a lid span once the edge keepout is
@@ -496,11 +519,68 @@ GF_LID_TOTAL_HEIGHT = GF_LIDTOP_PLATE_HEIGHT;
 function gf_cell_count(span) = max(0, floor((span - 2 * Gridfinity_Edge_Keepout) / GF_PITCH));
 function gf_cell_start(count) = -(count - 1) * GF_PITCH / 2;
 
-GF_Lid_Cells_X    = Enable_Gridfinity_Lid_Top ? gf_cell_count(Lid_Outer_Width) : 0;
-GF_Lid_Cells_Y    = Enable_Gridfinity_Lid_Top ? gf_cell_count(Lid_Outer_Depth) : 0;
+// With the base on, the lid holds exactly the base's cells, so one box stacks
+// on another. The keepout cannot decide this: the lid is the rounded box plus
+// a wall and a gap on each side, N * 42 + 3.5 mm, which leaves 1.75 mm beside
+// the outermost pockets, and the default 4 mm keepout would drop a whole
+// column. The box's own footprint already rounded up to make room for them.
+// With only the lid top on there is no base to match, so the keepout rules.
+GF_Lid_Cells_X    = !Enable_Gridfinity_Lid_Top ? 0
+                  : Enable_Gridfinity_Bottom   ? GF_Bottom_Cells_X
+                  : gf_cell_count(Lid_Outer_Width);
+GF_Lid_Cells_Y    = !Enable_Gridfinity_Lid_Top ? 0
+                  : Enable_Gridfinity_Bottom   ? GF_Bottom_Cells_Y
+                  : gf_cell_count(Lid_Outer_Depth);
 
 GF_Bottom_Active = GF_Bottom_Cells_X > 0 && GF_Bottom_Cells_Y > 0;
 GF_Lid_Active    = GF_Lid_Cells_X > 0 && GF_Lid_Cells_Y > 0;
+
+// How deep each lid-top pocket is cut, and how much wider than the standard.
+//
+// A foot is GF_BASE_HEIGHT tall against the pocket profile's
+// GF_POCKET_PROFILE_H, so a pocket cut only to its profile would stand every
+// foot off by that 0.1 mm. The pocket therefore runs past its profile, and the
+// run is sized from the user's clearance so one knob covers the whole fit.
+GF_Pocket_Depth = GF_BASE_HEIGHT + Gridfinity_Profile_Clearance;
+// Measured against the clearance the standard already builds in, so the
+// default reproduces the standard's profile exactly, a larger value loosens
+// the socket, and a smaller one tightens it.
+GF_Pocket_Extra = Gridfinity_Profile_Clearance - GF_SPEC_CLEARANCE;
+// How much is shaved off each side of a pocket's mouth so that neighbouring
+// pockets keep a hair of plate between them. See GF_POCKET_VNF for why.
+GF_Pocket_Mouth_Trim = max(0, GF_POCKET_CELL/2 + GF_Pocket_Extra
+                              - (GF_PITCH/2 - SPACER));
+
+// How much plate separates the outermost pockets from the lid's rounded
+// outside, measured at the corner where the two arcs come closest.
+//
+// Along the straight edges the gap is just the margin, 1.75 mm with the base
+// on. At a corner the lid's arc turns in while the pocket's turns out, and the
+// thin point lies on the diagonal between the two arc centres. Negative means
+// the pocket reaches past the lid's surface and opens through its side.
+GF_Lid_Pocket_R   = GF_POCKET_TOP_RADIUS + GF_Pocket_Extra - GF_Pocket_Mouth_Trim;
+GF_Lid_Mouth_Half = GF_POCKET_CELL/2 + GF_Pocket_Extra - GF_Pocket_Mouth_Trim;
+GF_Lid_Margin_X   = Lid_Outer_Width/2 - ((GF_Lid_Cells_X - 1) * GF_PITCH/2 + GF_Lid_Mouth_Half);
+GF_Lid_Margin_Y   = Lid_Outer_Depth/2 - ((GF_Lid_Cells_Y - 1) * GF_PITCH/2 + GF_Lid_Mouth_Half);
+GF_Lid_Corner_Wall =
+    Corner_Radius - GF_Lid_Pocket_R
+    - norm([max(0, Corner_Radius - GF_Lid_Margin_X - GF_Lid_Pocket_R),
+            max(0, Corner_Radius - GF_Lid_Margin_Y - GF_Lid_Pocket_R)]);
+// The radius at which that wall runs out, solving the line above for zero with
+// the tighter of the two margins. Exact when the margins match, which they do
+// whenever the base sets the footprint, and conservative otherwise.
+GF_Lid_Corner_Radius_Limit =
+    (sqrt(2) * (min(GF_Lid_Margin_X, GF_Lid_Margin_Y) + GF_Lid_Pocket_R) - GF_Lid_Pocket_R)
+    / (sqrt(2) - 1);
+
+// The z a lid seam clip's top sits at.
+//
+// Without a Gridfinity plate the lid prints slab-side down, and the clip hangs
+// from the top of the slab so it stays inside a thin lid. With one, the lid is
+// flipped for export (see m_lid_placed()) and this face is the one that lands
+// on the bed, so a clip here starts on the plate the way the floor clips do
+// and its protruding tab needs nothing to bridge.
+Lid_Clip_Top_Z = GF_Lid_Active ? Lid_Height + Lid_Lip_Gap_Height : Lid_Height;
 
 // The base is ADDED below the box rather than carved out of the floor, so
 // Box_Height keeps meaning "the box body" and enabling Gridfinity never
@@ -538,6 +618,19 @@ if (Enable_Gridfinity_Lid_Top && !GF_Lid_Active)
     echo(str("Gridfinity lid top enabled but no 42mm cell fits in ",
              Lid_Outer_Width, " x ", Lid_Outer_Depth,
              " with a ", Gridfinity_Edge_Keepout, "mm keepout; studs omitted"));
+// A corner pocket can reach past a rounded lid corner, and that is worth
+// saying out loud rather than blocking: the lid still exports as one solid and
+// still takes bins everywhere, so it is the user's call. It cannot be fixed by
+// trimming the pocket, which is the female half: a pocket cut back to the
+// lid's outline would no longer admit a standard bin's foot in that cell. The
+// male half had the opposite problem in phase A, where trimming the corner
+// feet was exactly right, because a smaller foot still seats.
+if (GF_Lid_Active && GF_Lid_Corner_Wall < 0)
+    echo(str("Gridfinity lid top: at Box_Corner_Radius = ", Box_Corner_Radius,
+             " each corner cell opens through the side of the lid by ",
+             -GF_Lid_Corner_Wall, " mm. The lid is still one solid and every cell still",
+             " takes a bin. To close the corners, set Box_Corner_Radius to about ",
+             GF_Lid_Corner_Radius_Limit, " or less."));
 
 // Validation
 assert(Box_Width > 0 && Box_Depth > 0 && Box_Height > 0, "Box_Width, Box_Depth, and Box_Height must be > 0");
@@ -611,13 +704,15 @@ assert(Stabilizers_Front_Back_Count >= 0 && Stabilizers_Left_Right_Count >= 0, "
 // so the cavity has to hold two ring walls with room left in the middle.
 assert(Lid_Style != "Plug" || min(Plug_Outer_Width, Plug_Outer_Depth) > Wall_Thickness * 2,
        "The box is too small for a Plug lid: its interior must exceed two Wall_Thickness ring walls plus Lid_Lip_Gap on each side. Use Lid_Style Skirt, or enlarge Box_Width or Box_Depth.");
-// Fins taper to a line on the wall at their top, so they only meet a Plug ring
-// if they reach into the Lid_Lip_Gap_Height band below the rim where it sits.
-assert(Lid_Style != "Plug" || !Enable_Stabilizers ||
+// Fins taper to a line on the wall at their top, so they only meet a plug if
+// they reach into the Lid_Lip_Gap_Height band below the rim where it sits. A
+// Skirt lid normally leaves that band empty and is exempt, but a Gridfinity
+// Skirt lid fills it solid (E-12 decision 3), so it is bound by the same rule.
+assert(!(Lid_Style == "Plug" || GF_Lid_Active) || !Enable_Stabilizers ||
        Stabilizer_Height + Wall_Thickness <= Box_Height - Lid_Lip_Gap_Height,
-       str("With Lid_Style Plug, Stabilizer_Height must be at most ",
+       str("With a plug filling the top of the box, Stabilizer_Height must be at most ",
            Box_Height - Lid_Lip_Gap_Height - Wall_Thickness,
-           " so the fins stop below the plug. Lower it, or use Lid_Style Skirt."));
+           " so the fins stop below it. Lower it, or use Lid_Style Skirt without a Gridfinity lid top."));
 // The post stands in the middle of the cavity, and a wide one reaches the
 // inside face of the Plug ring.
 assert(Lid_Style != "Plug" || !Enable_Post ||
@@ -652,12 +747,15 @@ assert(!Enable_Slicing || Seam_Tooth_Depth >= 0, "Seam_Tooth_Depth must be >= 0;
 assert(!Enable_Slicing || Seam_Tooth_Depth + Clip_Tolerance < Slice_Width / 2,
        str("Seam_Tooth_Depth must be less than ", Slice_Width / 2 - Clip_Tolerance,
            " mm so the teeth from two seams cannot meet inside one piece. Reduce it, or reduce Slice_Count."));
-// A lid seam clip spans Lid_Height - Clip_Tab_Height to Lid_Height, sunk SPACER
-// below the slab's face, so a thinner lid hangs it below the print bed. A
-// lid-top Gridfinity plate lies under the slab and catches it instead.
-assert(!Enable_Slicing || GF_Lid_Active || Lid_Height >= Clip_Tab_Height + SPACER,
-       str("With Enable_Slicing, Lid_Height must be at least ", Clip_Tab_Height + SPACER,
-           " mm so the lid's seam clips stay inside the lid. Raise Lid_Height, or lower Clip_Tab_Height."));
+// A lid seam clip hangs Clip_Tab_Height down from Lid_Clip_Top_Z, sunk SPACER
+// below that face, so a clip taller than the material under it reaches out of
+// the lid. On a plain lid that face is the slab's top and the limit is
+// Lid_Height; on a Gridfinity lid it is the lip's face, and the lip band
+// counts too, because the plug there is filled solid.
+assert(!Enable_Slicing || Lid_Clip_Top_Z >= Clip_Tab_Height + SPACER,
+       str("With Enable_Slicing, the lid's seam clips need ", Clip_Tab_Height + SPACER,
+           " mm of lid to sit in, and this lid offers ", Lid_Clip_Top_Z,
+           " mm. Raise Lid_Height, or lower Clip_Tab_Height."));
 assert(Clip_Tab_Width > 0 && Clip_Tab_Depth > 0 && Clip_Tab_Height > 0, "Clip tab dimensions must be > 0");
 assert(Clip_Style == "Tab" || Clip_Style == "Snap", "Clip_Style must be Tab or Snap");
 assert(Clip_Style != "Snap" || Clip_Snap > 0, "Clip_Snap must be > 0 for snap clips");
@@ -1631,7 +1729,12 @@ module m_place_lid_clips(x_pos, is_male) {
     // against an exported sliced lid returned a confident wrong answer.
     // Male and female clips share this offset, so the fit is unchanged, and
     // 0.04 mm is a fifth of a typical layer, so the print is too.
-    z_pos = Lid_Height - Clip_Tab_Height/2 - SPACER;
+    //
+    // Lid_Clip_Top_Z is the slab's top on a plain lid and the lip's face on a
+    // Gridfinity one, because that lid is turned over for export. Keeping the
+    // clips against the face that lands on the bed means a male tab protrudes
+    // past the seam onto the build plate rather than cantilevering in mid-air.
+    z_pos = Lid_Clip_Top_Z - Clip_Tab_Height/2 - SPACER;
     lid_depth = Lid_Outer_Depth;
     usable_depth = lid_depth - Clip_Tab_Width*2;
     female_depth = Clip_Tab_Depth + Clip_Tolerance*2 + SPACER;
@@ -1820,30 +1923,73 @@ module m_gridfinity_lid_top_solid() {
         anchor = BOTTOM);
 }
 
-// The two-stage mating socket cut into each cell of that slab, opening on the
-// exposed face. Same geometry as the cavity under the box base, so a foot that
-// fits one fits the other, and clearance is added rather than subtracted
-// because this is the female half.
+// One pocket as a VNF, its mouth at z=0 and its floor GF_Pocket_Depth below,
+// swept along the standard's pocket profile.
+//
+// Until rc.6 the socket was two stacked squares, 41.75 across for 3.2 mm and
+// then 37.45 for 1.1 mm. That is not the standard's shape and it is 0.45 mm
+// too shallow, so a 4.75 mm foot stood on its floor and its rounded corners
+// met the square mouth. The swept profile is the same construction the feet
+// use, read from the pocket's own numbers rather than from the foot's.
+//
+// The mouth is trimmed SPACER on each side, so it is 41.92 across at the
+// defaults rather than the standard's 42, and the rest of the profile follows
+// from there unchanged.
+//
+// At the pitch, neighbouring mouths are exactly 42 apart and exactly 42 wide.
+// Built to that, two of them meet in a line of zero width lying in the plate's
+// own face: the ridge between cells has no apex, just a seam of nothing. CGAL
+// renders it and reports "Simple: yes", and the exported mesh then makes CGAL
+// assert on re-import, so every point probe against it is meaningless. A
+// sliced lid showed it first, because the slice seam ran along that very line.
+//
+// Letting the mouths overlap instead is worse, not better: away from the
+// corners it does leave a real 45 degree apex, but at each corner the two
+// rounded outlines cross at a shallow angle and leave the same slivers that
+// made the corner feet unreadable in phase A. Trimming keeps the outlines
+// apart, so a hair of flat plate separates every pair.
+//
+// A trimmed mouth is still 0.42 mm wider than the 41.5 mm foot it has to
+// admit, and the waist, which is what actually bears against a foot, keeps the
+// standard's 0.25 mm all round. 0.08 mm of plate between cells is narrower
+// than any nozzle, so the printed part is the knife edge a real baseplate has
+// anyway. The sweep also runs WELD past the face so the cut is never coplanar
+// with it.
+//
+// os_profile() reads from the top of the swept shape downward, so the shape is
+// built widest-end-up and then turned over, because a pocket's widest end is
+// its mouth and the mouth faces down in the lid's frame.
+GF_POCKET_VNF = GF_Lid_Active
+    ? let(mouth = GF_POCKET_CELL + 2 * (GF_Pocket_Extra - GF_Pocket_Mouth_Trim),
+          waist_in = GF_POCKET_PROFILE[2] - GF_Pocket_Mouth_Trim,
+          floor_in = waist_in + GF_POCKET_PROFILE[0])
+      xrot(180, p = offset_sweep(
+          rect([mouth, mouth],
+               rounding = GF_POCKET_TOP_RADIUS + GF_Pocket_Extra - GF_Pocket_Mouth_Trim),
+          height = GF_Pocket_Depth + WELD,
+          bottom = os_profile(points = [
+              [0, 0],
+              [waist_in, waist_in],
+              [waist_in, waist_in + GF_POCKET_PROFILE[1]],
+              [floor_in, GF_POCKET_PROFILE_H - GF_Pocket_Mouth_Trim],
+              [floor_in, GF_Pocket_Depth]])))
+    : undef;
+
+// The mating pocket cut into each cell of that slab, opening on the exposed
+// face. The cells are separate children rather than one joined polyhedron, as
+// the feet are: the feet stand 0.5 mm apart and never meet, while these
+// overlap at the mouth, and overlapping shells inside one polyhedron are a
+// self-intersection rather than a saving.
+//
+// At the default clearance the pocket is exactly as deep as the plate is
+// thick, so its floor lands on the lid panel's own face. PREVIEW_OVERCUT
+// lifts the whole cutter clear of that plane for the preview only. The mouth
+// keeps most of its WELD overshoot and stays outside the exposed face, and
+// the exported mesh is unchanged, because $preview is false for every render.
 module m_gridfinity_lid_top_cavities() {
-    entry_depth = min(GF_CAVITY_ENTRY_DEPTH, GF_CAVITY_TOTAL_DEPTH - 0.01);
-    upper_depth = GF_CAVITY_TOTAL_DEPTH - entry_depth;
-
-    // The mouth is sized from the widest part of a foot, not from
-    // GF_CAVITY_ENTRY_SIZE. That constant describes the cavity hollowed *into*
-    // the box base, which is the inside of the male half and 39.4 across. A
-    // Gridfinity foot is 41.5 at its widest, so a 39.4 mouth would hold every
-    // part proud of the plate instead of seating it.
-    entry_size = min(GF_BASE_CELL + Gridfinity_Profile_Clearance, GF_PITCH);
-    upper_size = GF_CAVITY_UPPER_SIZE + Gridfinity_Profile_Clearance;
-
-    m_gridfinity_cells(GF_Lid_Cells_X, GF_Lid_Cells_Y) {
-        translate([0, 0, -GF_LIDTOP_PLATE_HEIGHT + entry_depth/2])
-            cube([entry_size, entry_size, entry_depth + SPACER*2], center = true);
-
-        if (upper_depth > 0.01)
-            translate([0, 0, -GF_LIDTOP_PLATE_HEIGHT + entry_depth + upper_depth/2])
-                cube([upper_size, upper_size, upper_depth + SPACER*2], center = true);
-    }
+    translate([0, 0, GF_Pocket_Depth - GF_LIDTOP_PLATE_HEIGHT + PREVIEW_OVERCUT])
+        m_gridfinity_cells(GF_Lid_Cells_X, GF_Lid_Cells_Y)
+            vnf_polyhedron(GF_POCKET_VNF);
 }
 
 // Magnet pockets only, no screw holes. On a real baseplate the screw fastens
@@ -1851,17 +1997,22 @@ module m_gridfinity_lid_top_cavities() {
 // hole would breach the box. Magnets keep their purpose: a bin with magnets
 // in its feet snaps onto the closed lid.
 //
-// Each pocket opens at its socket's floor and reaches AWAY from the socket,
-// into the sliver of plate under the floor and on into the lid panel. Cutting
-// from the panel interface outward instead (as the stud version did) overlaps
-// the socket void: only the 0.45mm between socket and panel would remain as
-// pocket, and a 2.4mm magnet glued there would stand proud into the socket
-// and hold every foot off the floor.
+// Each pocket opens at its cell's floor and reaches AWAY from that floor, into
+// the lid panel behind it. Cutting from the panel interface the other way
+// instead (as the stud version did) overlaps the cell's void, so almost
+// nothing would remain as pocket and a 2.4mm magnet glued there would stand
+// proud into the cell and hold every foot off the floor.
+//
+// In the flipped print orientation each of these is a blind hole opening
+// upward at the bottom of its cell, so it needs no bridge and a magnet drops
+// in from above.
 module m_gridfinity_lid_top_holes() {
-    floor_z = -GF_LIDTOP_PLATE_HEIGHT + GF_CAVITY_TOTAL_DEPTH;
-    // Depth available: plate under the socket floor plus the panel itself,
-    // always keeping GF_MIN_FLOOR of panel solid above the pocket.
-    usable = (GF_LIDTOP_PLATE_HEIGHT - GF_CAVITY_TOTAL_DEPTH)
+    floor_z = -GF_LIDTOP_PLATE_HEIGHT + GF_Pocket_Depth;
+    // Depth available: any plate under the pocket floor plus the panel itself,
+    // always keeping GF_MIN_FLOOR of panel solid above the pocket. At the
+    // default clearance the pocket floor IS the panel's face, so the first
+    // term is zero and the whole pocket is panel.
+    usable = (GF_LIDTOP_PLATE_HEIGHT - GF_Pocket_Depth)
              + Lid_Height - GF_MIN_FLOOR;
     magnet_depth = min(Gridfinity_Magnet_Depth, usable);
 
@@ -2114,8 +2265,12 @@ function box_seam_bands(x_seam) =
 
 // Lid bands: the slab below the band its seam clips occupy. A front or back
 // relief on the seam takes the whole slab height, so it clears the band.
+//
+// On a Gridfinity lid the clips move up into the lip band, which frees the top
+// of the slab for teeth; the teeth still stop at the slab, because the lip
+// band is only as wide as the plug and teeth there would cut it.
 function lid_seam_bands(x_seam) =
-    let(top = Lid_Height - Clip_Tab_Height - Clip_Tolerance,
+    let(top = min(Lid_Height, Lid_Clip_Top_Z - Clip_Tab_Height - Clip_Tolerance),
         relief_hit = [for (side = ["Front", "Back"])
                          if (lid_relief_enabled(side) &&
                              seam_strip_hit(x_seam, -Lid_Relief_Width / 2, Lid_Relief_Width / 2))
@@ -2251,6 +2406,21 @@ module m_lid_relief(is_cut) {
 // Both styles leave Lid_Lip_Gap of clearance on each side of the wall the lip
 // meets.
 module m_lid_body() {
+    // Groove inside the Skirt's pocket. The region to fill is the one a Plug
+    // ring's outside covers, so it is built from the same two numbers: the box
+    // cavity less Lid_Lip_Gap on each side. Filling everything inside it leaves
+    // a slot the width of the box wall plus its gaps, which is the groove lid
+    // E-12 decision 3 asks for.
+    //
+    // The corner rounding is the Plug ring's too, and it is deliberately not
+    // the box's inner corner offset by the gap. Tracing that arc exactly puts
+    // two polygon approximations of near-equal arcs against each other, and
+    // one dips inside the other: a Skirt lid built that way left eight slivers
+    // of overlap, one at each end of each corner arc. The Plug ring's rounding
+    // pulls the corner further in, which costs nothing and crosses nothing.
+    groove_fill_r = min(max(0, Corner_Radius - Lid_Lip_Gap),
+                        min(Plug_Outer_Width, Plug_Outer_Depth) / 2);
+
     if (Lid_Style == "Skirt") {
         difference() {
             m_edge_treated_shell([Lid_Outer_Width, Lid_Outer_Depth,
@@ -2258,12 +2428,38 @@ module m_lid_body() {
                 Lid_Chamfer_Effective, Lid_Chamfer_Effective);
 
             // The pocket's corners follow the box's outer corners at the gap.
-            up(Lid_Height)
-                cuboid([Box_Width_Effective + Lid_Lip_Gap * 2, Box_Depth_Effective + Lid_Lip_Gap * 2,
-                        Lid_Lip_Gap_Height + SPACER],
-                    rounding = Corner_Radius > 0 ? Corner_Radius + Lid_Lip_Gap : 0,
-                    except = [TOP, BOTTOM],
-                    anchor = BOTTOM);
+            //
+            // With a Gridfinity plate on the other face the lid is flipped for
+            // export, which puts this pocket's ceiling over the bed as a bridge
+            // the width of the whole box. Filling the middle leaves only the
+            // groove the box wall needs, so the bridge becomes one wall wide.
+            difference() {
+                up(Lid_Height)
+                    cuboid([Box_Width_Effective + Lid_Lip_Gap * 2, Box_Depth_Effective + Lid_Lip_Gap * 2,
+                            Lid_Lip_Gap_Height + SPACER],
+                        rounding = Corner_Radius > 0 ? Corner_Radius + Lid_Lip_Gap : 0,
+                        except = [TOP, BOTTOM],
+                        anchor = BOTTOM);
+
+                if (GF_Lid_Active && min(Plug_Outer_Width, Plug_Outer_Depth) > 0)
+                    // Reaches SPACER past the pocket cutter at both ends, so
+                    // the groove's floor is not shaved by a coplanar face.
+                    up(Lid_Height - SPACER)
+                        cuboid([Plug_Outer_Width, Plug_Outer_Depth,
+                                Lid_Lip_Gap_Height + SPACER * 3],
+                            rounding = groove_fill_r,
+                            except = [TOP, BOTTOM],
+                            anchor = BOTTOM);
+            }
+
+            // The fill would otherwise sit where the box's magnet bosses stand.
+            // A Plug lid has always notched around them; a filled Skirt needs
+            // the same notches for the first time.
+            if (GF_Lid_Active && Enable_Lid_Magnets)
+                m_magnet_corner_positions()
+                    up(Lid_Height)
+                        cyl(d = Magnet_Boss_Diameter + Lid_Lip_Gap * 2,
+                            h = Lid_Lip_Gap_Height + SPACER, anchor = BOTTOM);
         }
     } else {
         m_edge_treated_shell([Lid_Outer_Width, Lid_Outer_Depth, Lid_Height],
@@ -2278,13 +2474,19 @@ module m_lid_body() {
                     except = [TOP, BOTTOM],
                     anchor = BOTTOM);
 
-            up(Lid_Height)
-                cuboid([Plug_Outer_Width - Wall_Thickness * 2,
-                        Plug_Outer_Depth - Wall_Thickness * 2,
-                        Lid_Lip_Gap_Height + SPACER],
-                    rounding = max(0, Corner_Radius - Lid_Lip_Gap - Wall_Thickness),
-                    except = [TOP, BOTTOM],
-                    anchor = BOTTOM);
+            // With a Gridfinity plate the lid is flipped for export, so this
+            // ring's face lands on the bed and the panel above it would have to
+            // bridge the whole box opening. Leaving the ring filled solid turns
+            // that face into one unbroken first layer, and a plug that is solid
+            // in the model still prints as infill (E-12 decision 3).
+            if (!GF_Lid_Active)
+                up(Lid_Height)
+                    cuboid([Plug_Outer_Width - Wall_Thickness * 2,
+                            Plug_Outer_Depth - Wall_Thickness * 2,
+                            Lid_Lip_Gap_Height + SPACER],
+                        rounding = max(0, Corner_Radius - Lid_Lip_Gap - Wall_Thickness),
+                        except = [TOP, BOTTOM],
+                        anchor = BOTTOM);
 
             if (Enable_Lid_Magnets)
                 m_magnet_corner_positions()
@@ -2469,8 +2671,24 @@ module m_box_placed() {
     up(Gridfinity_Base_Offset) children();
 }
 
+// A lid with a Gridfinity plate is turned over for export (E-12 decision 3).
+//
+// Modelled, the plate hangs below z=0 and its pockets open downward, so
+// printing the lid as modelled would make every pocket floor a bridge the
+// width of a cell. Turned over, the pockets face up and print with nothing
+// over them, and the lip's face lands on the bed, which is why that face is
+// filled solid in m_lid_body().
+//
+// It is a rotation about X, not a mirror: a mirror would reverse the part. The
+// lift that follows is the whole lip-side height, so the turned part still
+// sits on z=0 and the envelope is unchanged either way. Everything measured
+// inside m_lid() keeps the modelled frame; only what leaves through
+// m_lid_part() or full_render() is turned.
 module m_lid_placed() {
-    up(Gridfinity_Lid_Offset) children();
+    if (GF_Lid_Active)
+        up(Lid_Height + Lid_Lip_Gap_Height) xrot(180) children();
+    else
+        up(Gridfinity_Lid_Offset) children();
 }
 
 // ============================================
@@ -2539,9 +2757,16 @@ module m_lid_part(anchor = BOTTOM, spin = 0, orient = UP) {
     // and the engagement lip points up, into the box. So the face that ends up
     // EXPOSED when the box is closed is the model's z=0 face, and anything
     // mounted on it (Gridfinity, labels, feet) grows downward from there.
+    //
+    // A Gridfinity lid is turned over for export (see m_lid_placed()), which
+    // swaps which end of the part each face is on. The anchors name features,
+    // not coordinates, so they follow the part rather than staying put: on a
+    // Gridfinity lid the exposed face is the top and the lip is underneath.
+    flipped = GF_Lid_Active;
+    face_z  = (flipped ? 1 : -1) * Lid_Total_Height/2;
     anchors = [
-        named_anchor("lid-face", [0, 0, -Lid_Total_Height/2], DOWN, 0),
-        named_anchor("lip",      [0, 0,  Lid_Total_Height/2], UP,   0),
+        named_anchor("lid-face", [0, 0,  face_z], flipped ? UP   : DOWN, 0),
+        named_anchor("lip",      [0, 0, -face_z], flipped ? DOWN : UP,   0),
     ];
 
     attachable(anchor, spin, orient,
