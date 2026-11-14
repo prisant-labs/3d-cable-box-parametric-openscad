@@ -86,7 +86,7 @@ The cable-wrapping core.
 
 ### Post disabled
 
-`Enable_Post=False`
+`Enable_Post=false`
 
 ![Post disabled](images/options/post-off.png)
 
@@ -98,7 +98,7 @@ The cable-wrapping core.
 
 ### Closed_Post: solid floor under the post
 
-`Closed_Post=True`
+`Closed_Post=true`
 
 ![Closed_Post: solid floor under the post](images/options/post-closed.png)
 
@@ -172,7 +172,7 @@ Optional finishing features. All are off by default.
 
 ### Enable_Lid_Magnets: corner bosses
 
-`Enable_Lid_Magnets=True`
+`Enable_Lid_Magnets=true`
 
 ![Enable_Lid_Magnets: corner bosses](images/options/lid-magnets.png)
 
@@ -226,7 +226,7 @@ Where cables enter and leave.
 
 ### Front and back only
 
-`Opening_On_Left=False`, `Opening_On_Right=False`
+`Opening_On_Left=false`, `Opening_On_Right=false`
 
 ![Front and back only](images/options/open-two-sides.png)
 
@@ -242,7 +242,7 @@ Interior ribs that stiffen the walls.
 
 ### Disabled
 
-`Enable_Stabilizers=False`
+`Enable_Stabilizers=false`
 
 ![Disabled](images/options/stab-off.png)
 
@@ -278,19 +278,19 @@ Cutouts through the box floor.
 
 ### 3 openings along X
 
-`Enable_Bottom_Openings=True`
+`Enable_Bottom_Openings=true`
 
 ![3 openings along X](images/options/bottom-on.png)
 
 ### Arranged along Y
 
-`Enable_Bottom_Openings=True`, `Bottom_Opening_Axis=Along Y`
+`Enable_Bottom_Openings=true`, `Bottom_Opening_Axis=Along Y`
 
 ![Arranged along Y](images/options/bottom-y.png)
 
 ### 6 openings, distributed
 
-`Enable_Bottom_Openings=True`, `Bottom_Openings_Count=6`, `Bottom_Opening_Alignment_Primary=Distributed`
+`Enable_Bottom_Openings=true`, `Bottom_Openings_Count=6`, `Bottom_Opening_Alignment_Primary=Distributed`
 
 ![6 openings, distributed](images/options/bottom-many.png)
 
@@ -300,31 +300,31 @@ Split the model into pieces that push together. Floor clips hold them in line, a
 
 ### 2 pieces, preview layout
 
-`Enable_Slicing=True`, `Slice_Count=2`, `Part_To_Render=Box Only`
+`Enable_Slicing=true`, `Slice_Count=2`, `Part_To_Render=Box Only`
 
 ![2 pieces, preview layout](images/options/slice-2.png)
 
 ### 3 pieces
 
-`Enable_Slicing=True`, `Slice_Count=3`, `Part_To_Render=Box Only`
+`Enable_Slicing=true`, `Slice_Count=3`, `Part_To_Render=Box Only`
 
 ![3 pieces](images/options/slice-3.png)
 
 ### Exporting a single piece
 
-`Enable_Slicing=True`, `Slice_Count=2`, `Slice_Piece_To_Render=1`, `Part_To_Render=Box Only`
+`Enable_Slicing=true`, `Slice_Count=2`, `Slice_Piece_To_Render=1`, `Part_To_Render=Box Only`
 
 ![Exporting a single piece](images/options/slice-one.png)
 
 ### 4 clips per seam
 
-`Enable_Slicing=True`, `Slice_Count=2`, `Clips_Per_Edge=4`, `Part_To_Render=Box Only`
+`Enable_Slicing=true`, `Slice_Count=2`, `Clips_Per_Edge=4`, `Part_To_Render=Box Only`
 
 ![4 clips per seam](images/options/slice-clips.png)
 
 ### Flat seam, without teeth
 
-`Enable_Slicing=True`, `Slice_Count=2`, `Seam_Tooth_Depth=0`, `Part_To_Render=Box Only`
+`Enable_Slicing=true`, `Slice_Count=2`, `Seam_Tooth_Depth=0`, `Part_To_Render=Box Only`
 
 ![Flat seam, without teeth](images/options/slice-flat.png)
 
@@ -334,25 +334,25 @@ Optional interfaces. The box is shown from below, where its feet are, and the li
 
 ### Disabled (default)
 
-`Closed_Post=True`
+`Closed_Post=true`
 
 ![Disabled (default)](images/options/gf-off.png)
 
 ### Feet under the box, rounded up to whole cells
 
-`Enable_Gridfinity_Bottom=True`, `Closed_Post=True`
+`Enable_Gridfinity_Bottom=true`, `Closed_Post=true`
 
 ![Feet under the box, rounded up to whole cells](images/options/gf-bottom.png)
 
 ### Baseplate pockets on the lid
 
-`Enable_Gridfinity_Lid_Top=True`, `Part_To_Render=Lid Only`
+`Enable_Gridfinity_Lid_Top=true`, `Part_To_Render=Lid Only`
 
 ![Baseplate pockets on the lid](images/options/gf-lid.png)
 
 ### Both, with magnet and screw holes
 
-`Enable_Gridfinity_Bottom=True`, `Enable_Gridfinity_Lid_Top=True`, `Closed_Post=True`, `Enable_Gridfinity_Magnet_Screw=True`
+`Enable_Gridfinity_Bottom=true`, `Enable_Gridfinity_Lid_Top=true`, `Closed_Post=true`, `Enable_Gridfinity_Magnet_Screw=true`
 
 ![Both, with magnet and screw holes](images/options/gf-both.png)
 

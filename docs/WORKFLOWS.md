@@ -4,8 +4,14 @@ This guide focuses on repeatable workflows for configuring, printing, and valida
 
 ## 1) Quick Start Workflow
 
+Install [BOSL2](https://github.com/BelfrySCAD/BOSL2) first, or use the
+standalone bundle. The
+[README](https://github.com/prisant-labs/3d-cable-box-parametric-openscad#get-a-box)
+has the install commands. Without BOSL2 the model stops with a message that
+says so.
+
 1. Open `cable-box-parametric.scad` in OpenSCAD.
-2. Open Customizer (`Window -> Customizer`, or `F3`).
+2. Open the Customizer from the `Window` menu.
 3. Configure dimensions in sections: `Overall`, `Box`, `Post`, `Lid`, and `Openings`.
 4. Press `F6` (full render).
 5. Export STL for the current `Part_To_Render` value.
@@ -87,7 +93,7 @@ the value is per side rather than a total.
 ### Validation checklist
 
 - Confirm openings do not intersect rounded corners too aggressively.
-- Verify opening height still satisfies model assertion (`height > width` globally).
+- Verify `All_Opening_Height` is above `0` and at most `Box_Height`, which the model asserts while any side opening is on. Width may be larger or smaller than height.
 - Verify opening placement does not conflict with stabilizer zones unless intended.
 
 ## 5) Stabilizer Workflow
@@ -165,9 +171,9 @@ Enable slicing when full box/lid dimensions exceed your print bed width.
 
 ### Orientation
 
-- Box: open side up.
-- Lid: top cosmetic surface orientation based on visual preference.
-- Sliced parts: orient to maximize seam accuracy and clip strength.
+- Box: open side up, as exported.
+- Lid: print it as exported. The [Printing guide](PRINTING.md#orientation) explains which face lands on the bed.
+- Sliced parts: print each piece as exported, so the seam faces stay vertical and the clips keep their designed dimensions.
 
 ## 9) CI Smoke Workflow
 

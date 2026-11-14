@@ -1,7 +1,7 @@
 # Release Checklist
 
 A version here promises something specific: the same parameters produce the same
-geometry. See [E-10 (versioning)](internal/E-10_versioning.md) for what each
+geometry. See [E-10 (versioning)](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/blob/main/docs/internal/E-10_versioning.md) for what each
 level of bump means. The steps below exist because a version that lies makes a
 bug report untraceable.
 

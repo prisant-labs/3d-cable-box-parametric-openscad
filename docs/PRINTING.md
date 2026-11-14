@@ -75,6 +75,7 @@ and without magnets, on a Bambu Lab P1S printing PLA+.
 Every piece sits flat on its floor, so sliced pieces print without support.
 The seam teeth are at most 45 degrees from vertical, so they need no support
 either.
+
 Releases up to and including 2.0.0-rc.4 centred each male floor clip on the
 floor, and 0.575 mm of it hung below the piece. A slicer then stood the whole
 piece on its clips. Re-export any sliced pieces from those releases.
@@ -109,8 +110,8 @@ piece on its clips. Re-export any sliced pieces from those releases.
   height, so a step shorter than your real layers can be skipped, which
   defeats the technique.
 - The lid's pockets open upward when the lid prints as exported, so each floor
-  is printed on solid material rather than bridged. Until 2.0.0-rc.6 the lid
-  printed the other way up and each floor was a 37 mm bridge, which sagged and
+  is printed on solid material rather than bridged. Releases through 2.0.0-rc.6
+  printed the lid the other way up and each floor was a 37 mm bridge, which sagged and
   made the sockets too shallow to seat a foot.
 - Two short ceilings remain on a Gridfinity lid, both on the face that lands on
   the bed. The post socket's is a disc `Post_Diameter + 2 * Lid_Lip_Gap`

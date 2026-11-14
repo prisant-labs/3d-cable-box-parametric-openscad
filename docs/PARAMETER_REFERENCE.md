@@ -469,15 +469,15 @@ post.
 | Parameter | Type | Default | Description |
 |---|---|---:|---|
 | `Model_Version` | string | current release | Echoed at render so an exported STL can be traced back to its source. |
-| `Render_On_Include` | boolean | `true` | Set `false` to use the file as a library: modules and anchors become available without geometry appearing. See the attachment section in `MODULE_REFERENCE.md`. |
+| `Render_On_Include` | boolean | `true` | Set `false` to use the file as a library: modules and anchors become available without geometry appearing. See the [attachment interface](MODULE_REFERENCE.md#attachment-interface) in the module reference. |
 | `$fn` | integer | `40` | Circle/arc resolution for cylinders and rounded geometry. |
 | `GF_*` | various | Gridfinity spec | Gridfinity standard dimensions (pitch, the foot's and the pocket's footprints and profiles, the plate height, hole offsets). Hidden because changing one produces a part that no longer mates with other Gridfinity gear, but still overridable with `-D` if you need to. |
 | `SPACER` | number | `0.04` | Internal modeling offset used for robust boolean operations and tiny clearances. |
 
 ## Built-In Validation
 
-The model enforces these assertions. `docs/VALIDATION_RULES.md` explains each one
-and how to resolve it.
+The model enforces these assertions. The [Validation rules](VALIDATION_RULES.md)
+page explains each one and how to resolve it.
 
 Box and wall:
 

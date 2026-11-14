@@ -44,8 +44,8 @@ git clone https://github.com/BelfrySCAD/BOSL2.git ~/.local/share/OpenSCAD/librar
 ```
 
 Then open `cable-box-parametric.scad` in [OpenSCAD](https://openscad.org/)
-(2021.01 or newer), press <kbd>F3</kbd> for the Customizer, adjust,
-<kbd>F6</kbd> to render, then export an STL.
+(2021.01 or newer), open the Customizer from the **Window** menu, adjust,
+press <kbd>F6</kbd> to render, then export an STL.
 
 Would rather not install anything? Every release attaches a **standalone
 bundle** with BOSL2 inlined. Unzip both files into the same folder and open the
@@ -129,8 +129,8 @@ complete `config.json`, STLs, renders, and notes. They are also browsable with
 | [`surge-strip-6-sliced`](library/surge-strip-6-sliced/) | Same, split for a 180 mm bed | 265 x 100 x 62 assembled; largest piece 136 x 100 |
 
 All nine are also collected into `cable-box-parametric.json` next to the model,
-so opening `cable-box-parametric.scad` and pressing <kbd>F3</kbd> offers every
-preset in the Customizer's dropdown.
+so opening `cable-box-parametric.scad` and then the Customizer (**Window**
+menu) offers every preset in its dropdown.
 
 Load one from the command line, from the merged file:
 
