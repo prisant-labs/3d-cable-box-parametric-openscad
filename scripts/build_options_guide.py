@@ -344,10 +344,12 @@ def build_html(version: str) -> str:
         "<tr><td>A ready-to-print file</td><td>Grab an STL from <code>library/</code> "
         "or from the GitHub Releases page. No software needed beyond a slicer.</td></tr>"
         "<tr><td>To change the dimensions</td><td>Open <code>cable-box-parametric.scad</code> "
-        "in OpenSCAD, press <kbd>F3</kbd> for the Customizer, adjust, then <kbd>F6</kbd> "
-        "to render and export.</td></tr>"
-        "<tr><td>To start from a preset</td><td>Load a <code>config.json</code> from "
-        "<code>library/</code> in the Customizer's preset dropdown, then tweak.</td></tr>"
+        "in OpenSCAD, open the Customizer from the <b>Window</b> menu, adjust, then press "
+        "<kbd>F6</kbd> to render and export.</td></tr>"
+        "<tr><td>To start from a preset</td><td>Open <code>cable-box-parametric.scad</code>, "
+        "show the Customizer, and pick a preset from its dropdown, then tweak. The "
+        "dropdown reads <code>cable-box-parametric.json</code>, which sits beside the "
+        "model.</td></tr>"
         "</tbody></table></div>")
     parts.append(
         '<div class="callout"><strong>Dimensions are outer dimensions.</strong> '
@@ -402,7 +404,11 @@ def build_md(version: str) -> str:
                 continue
             out += [f"### {caption}", ""]
             if params:
-                shown = ", ".join(f"`{k}={v}`" for k, v in params.items())
+                # OpenSCAD spells booleans in lower case. `Enable_Post=False`
+                # copied from here is not a boolean to the Customizer or -D.
+                shown = ", ".join(
+                    f"`{k}={str(v).lower() if isinstance(v, bool) else v}`"
+                    for k, v in params.items())
                 out += [shown, ""]
             out += [f"![{caption}](images/options/{slug}.png)", ""]
     out += ["---", "",

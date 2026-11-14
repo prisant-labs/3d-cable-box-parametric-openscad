@@ -206,12 +206,12 @@ remove those:
   print as separate layers.
 
 All three keep today's shapes by default, so a saved preset renders exactly as
-before. `docs/PRINTING.md` has the details.
+before. The [Printing guide](PRINTING.md) has the details.
 
 ## How do I load one of the presets?
 
-Open `cable-box-parametric.scad` and press `F3`. All nine presets appear in the
-Customizer's preset dropdown, because `cable-box-parametric.json` sits next to
+Open `cable-box-parametric.scad`, then open the Customizer from the `Window`
+menu. All nine presets appear in the Customizer's preset dropdown, because `cable-box-parametric.json` sits next to
 the model and OpenSCAD reads parameter sets from it.
 
 From the command line:

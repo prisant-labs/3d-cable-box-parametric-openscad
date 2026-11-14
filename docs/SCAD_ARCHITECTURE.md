@@ -129,7 +129,7 @@ interpretation is unambiguous: an over-large `Box_Corner_Radius` is reduced to
 what the inner cavity allows, and a seam clip landing inside the post opening is
 moved clear of it. Both report via `echo` rather than failing.
 
-See `docs/VALIDATION_RULES.md` for each rule with its trigger and resolution.
+See [Validation rules](VALIDATION_RULES.md) for each rule with its trigger and resolution.
 
 ## BOSL2 Dependency
 
