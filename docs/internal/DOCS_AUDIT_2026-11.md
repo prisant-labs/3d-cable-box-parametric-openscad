@@ -23,8 +23,10 @@ engaging, and a newcomer can get stuck before the first print.
 - **The site is a reference manual with a link list for a front door.** Eleven
   of the thirteen site pages carry no image at all. The options guide carries
   54 images and the preset library carries 9.
-- **The newcomer path breaks in three places**, all fixable in one afternoon.
-  They are findings F-01, F-02 and F-03 below.
+- **The newcomer path breaks in three places.** They are F-01 (wrong shortcut
+  and no BOSL2 step, now fixed), F-03 (no print guidance after the download)
+  and F-05 (a landing page with no way in). The sliced preset adds a fourth
+  gap, F-02.
 
 ## How to read this document
 
@@ -53,11 +55,11 @@ These three decisions matter most. Everything else follows from them.
 1. **Which release do newcomers get?** The README sends readers to the newest
    pre-release "for the current geometry". That is `v2.0.0-rc.6`. The docs, the
    site and the library all describe `main`, which now holds the unreleased
-   Gridfinity lid. See F-04.
+   Gridfinity lid. See F-04 (the docs describe `main`, the README points at rc.6).
 2. **What does the landing page promise?** A newcomer wants to get a box. The
-   page today lists the parameter reference first. See F-05.
+   page today lists the parameter reference first. See F-05 (landing page: no hero, no call to action).
 3. **What counts as print validated?** The landing page says unvalidated
-   features are marked where they appear, and they are not. See F-06.
+   features are marked where they appear, and they are not. See F-06 (unvalidated features are not marked as promised).
 
 ---
 
@@ -70,11 +72,13 @@ These three decisions matter most. Everything else follows from them.
   `docs/FAQ.md` heading "How do I load one of the presets?"; the "Getting
   started" table generated into `docs/options-guide.html`.
 - **What is wrong.** Five places told the reader to press `F3` to open the
-  Customizer. F3 is not the Customizer. In OpenSCAD 2021.01 the Customizer
-  is a menu item under **Window**, and neither the Customizer actions nor F3 has a
-  shortcut in `MainWindow.ui`. The same
-  file shows F5 preview, F6 render and F7 export, so the F6 advice was right.
-  This is the first dead end: the reader presses F3 and nothing opens.
+  Customizer. F3 is not the Customizer. In OpenSCAD 2021.01 and in current
+  `master`, the code adds F3 as a second shortcut for **File > Reload** on
+  Windows and Linux, and binds nothing to it on macOS. The Customizer is a
+  menu item under **Window**, and it has no shortcut in either version's
+  `MainWindow.ui`. The 2021.01 file also shows F5 preview, F6 render and F7
+  export, so the F6 advice was right. This is the first dead end: the reader
+  presses F3 and the file reloads, or nothing happens, and no panel opens.
 - **Second break, site only.** The site never says where to get the `.scad`
   or how to install BOSL2. Only the README does, and the README is not a site
   page. `docs/WORKFLOWS.md` step 1 says "Open `cable-box-parametric.scad`"
@@ -92,27 +96,11 @@ These three decisions matter most. Everything else follows from them.
   "the Customizer (F3)" into `library/README.md`. I may not regenerate
   `library/`, so I left the script alone. Change the script and rerun it. The
   fix is the same wording as above.
-- **Confidence:** high that F3 is not the Customizer (External: the 2021.01 and
-  current `master` `MainWindow.ui` files). Medium on what F3 does instead,
-  because I did not run the application.
-
-### F-02 (sliced preset has no printable file) - Proposed
-
-- **Where:** `library/surge-strip-6-sliced/`, the preset's page on the site,
-  and the README "Get a box" paragraph that says "No software needed beyond
-  your slicer".
-- **What is wrong.** The preset is advertised as "split for a 180 mm bed". Its
-  downloadable STLs are the preview layout with both halves side by side.
-  `library/index.json` gives the "Box Only" part as 270.0 x 100.0 x 62.0 mm,
-  which is wider than the bed it names. The preset's `notes.md` tells the
-  reader to export each half from OpenSCAD. So this one preset needs the
-  software the README says is not needed.
-- **Proposed fix.** In `scripts/build_library.py`, for a sliced preset also
-  render one STL per piece with `Slice_Piece_To_Render=1..Slice_Count`. Add them
-  as downloads, named `<preset>_box-piece-1.stl`, `-piece-2.stl`, and the same
-  for the lid. Until then, change the preset's note to say that no per-piece
-  STL exists.
-- **Confidence:** high (Crawled and Source: file list and sizes in the index).
+- **Confidence:** high that F3 is not the Customizer, and high that it means
+  File > Reload on Windows and Linux (External: `src/mainwin.cc` at the
+  `openscad-2021.01` tag and `src/gui/MainWindow.cc` on `master`, plus both
+  `MainWindow.ui` files). I did not press the key in a running application.
+  A Nightly build is the only version I did not read line by line.
 
 ### F-03 (no print guidance on the path from download to print) - Proposed
 
@@ -138,7 +126,7 @@ These three decisions matter most. Everything else follows from them.
   Gridfinity lid.
 - **What is wrong.** The README says take "the newest Pre-release for the
   current geometry". The newest pre-release is `v2.0.0-rc.6`. Only
-  `d5e9466` separates `main` from that tag, and that commit is E-12 phase B. So
+  `d5e9466` separates `main` from that tag, and that commit is E-12 (Gridfinity to spec) phase B. So
   the lid in rc.6 prints the other way up from what the docs, the library STLs
   and every Gridfinity image show. A reader who downloads the rc.6 `.scad`
   and follows the lid guidance gets a part the docs do not describe.
@@ -149,7 +137,7 @@ These three decisions matter most. Everything else follows from them.
   banner to the README and the site landing page: "`main` is ahead of the
   latest release. The Gridfinity lid changed after rc.6."
 - **Confidence:** high (Source: `git tag --contains` shows rc.6 holds phase A
-  and E-14 but not phase B; `gh release list` shows rc.6 as the newest tag).
+  and E-14 (printability options) but not phase B; `gh release list` shows rc.6 as the newest tag).
 
 ### F-05 (landing page: no hero, no call to action) - Proposed
 
@@ -182,7 +170,7 @@ These three decisions matter most. Everything else follows from them.
 - **What is wrong.** The page says "Features still awaiting physical print
   validation are marked as such where they appear." Only two things are marked:
   the `Lid_Lip_Gap` default (confirmed on one printer) and the Snap clip. The
-  maintainer has not print tested the Gridfinity lid from E-12 phase B, and the
+  maintainer has not print tested the Gridfinity lid from E-12 (Gridfinity to spec) phase B, and the
   README, `docs/PRINTING.md` and the FAQ state that it prints with no bridging
   as fact. The same is true of the teardrop and chamfer options from
   [E-14 (printability options)](E-14_printability-options.md), the seam teeth,
@@ -199,6 +187,29 @@ These three decisions matter most. Everything else follows from them.
 
 ## Medium severity
 
+### F-02 (sliced preset has no per-piece files or slicer instruction) - Proposed
+
+Severity note: I first rated this high. It is medium, because a slicer that
+splits objects into parts can handle the file, and a reader who owns one knows
+how. The gap is that nothing tells a newcomer to do that.
+
+- **Where:** `library/surge-strip-6-sliced/`, the preset's page on the site,
+  and the README "Get a box" paragraph that says "No software needed beyond
+  your slicer".
+- **What is wrong.** The preset is advertised as "split for a 180 mm bed". Its
+  downloadable STLs are the preview layout with both halves side by side.
+  `library/index.json` gives the "Box Only" part as 270.0 x 100.0 x 62.0 mm,
+  which is wider than the bed it names. The preset's `notes.md` tells the
+  reader to export each half from OpenSCAD, and never mentions that a slicer
+  can separate the two solids. So the "slicer only" promise holds only for
+  readers who already know that trick.
+- **Proposed fix.** In `scripts/build_library.py`, for a sliced preset also
+  render one STL per piece with `Slice_Piece_To_Render=1..Slice_Count`. Add them
+  as downloads, named `<preset>_box-piece-1.stl`, `-piece-2.stl`, and the same
+  for the lid. Until then, change the preset's note to say that no per-piece
+  STL exists.
+- **Confidence:** high (Crawled and Source: file list and sizes in the index).
+
 ### F-07 (images that do not show what their caption names) - Proposed
 
 All findings here were **Seen** at full size. Each fix is a scene change in
@@ -209,10 +220,10 @@ All findings here were **Seen** at full size. Each fix is a scene change in
 | Image | Problem | Proposed scene change |
 |---|---|---|
 | `lid-deep-lip` ("Lid_Lip_Gap_Height 8") | Shot from below with `CAM_UNDER`. It shows the flat face and no lip at all. | Use `CAM_ISO` with `Lid_Lip_Gap_Height=8` and `Part_To_Render=Lid Only`, as `lid-default` does, so the lip shows. |
-| `wall-thin`, `wall-thick` | Side view at `CAM_LOW`. A 1.2 mm and a 3.0 mm wall look the same at box scale. | Zoom on one corner of the rim, for example `--camera=50,37,50,55,0,25,90`, or add a `Wall_Thickness=6` exaggeration labelled as such. |
+| `wall-thin`, `wall-thick` | Side view at `CAM_LOW`. A 1.2 mm and a 3.0 mm wall look the same at box scale. | Zoom on one corner of the rim, or add a `Wall_Thickness=6` exaggeration labelled as such. A zoomed scene needs a per-scene opt-out, because `render()` always passes `--viewall --autocenter` and appends `,0` to the camera, which override any translation and distance. |
 | `edge-fillet`, `edge-bottom-teardrop`, `edge-bottom-chamfer`, `edge-chamfer` | A 1.5 mm or 0.8 mm edge treatment on a 100 mm box is invisible. | Zoom on the bottom edge, or render a small box (`Box_Width=30`, `Box_Depth=30`, `Box_Height=15`) so the profile reads. |
 | `gf-both` ("Both, with magnet and screw holes") | The scene renders `Box Only` from below. No lid is visible, so `Enable_Gridfinity_Lid_Top` has no visible effect. The section intro promises a lid shown from above. | Split into `gf-both-box` (underside) and `gf-both-lid` (lid from above), or render `Box and Lid` from a side angle. |
-| `lid-default`, `lid-skirt`, `lid-tall` | Three near-identical top views. The Plug versus Skirt difference is a thin ring. | Show the lids from below at `CAM_UNDER` in this one section, which is where the lip is. |
+| `lid-default`, `lid-skirt`, `lid-tall` | Three near-identical top views. The Plug versus Skirt difference is a thin ring. | Use a closer `CAM_ISO` on one corner of the lip, so the ring inside a Plug and the wall outside a Skirt are both visible. The lid exports lip up, so do not shoot it from below. |
 | `open-default`, `open-up` | Nearly identical at `CAM_ISO`. `open-flush` differs only by a small notch at the floor. | Use `CAM_LOW` and a front-on view, so the gap under the opening shows. |
 | `post-closed`, `gf-off` | Underside views where the closed-post floor reads as a small speckle. | Pair each with its default so the difference is visible, or add a cutaway-style zoom. |
 | `feature_gridfinity` (README) | The caption names "Gridfinity feet under the box", and the feet are a thin purple rim at this angle. The lid half is correct. | Add a second image from `CAM_UNDER`, or tilt the camera down to 100 degrees. |
@@ -382,14 +393,16 @@ one sentence under the options guide intro that names the colours.
   `docs/FAQ.md`, "Why is my Gridfinity lid upside down compared with the box?".
   Confidence: high. This is a style pass for the maintainer to schedule.
 - **F-17 (naming).** "Ultimate Cable Box", "Parametric Cable Management Box"
-  and "cable box" are three names for one product. See F-05.
+  and "cable box" are three names for one product. See F-05 (landing page: no hero, no call to action).
 - **F-18 (README length and order).** The README is 224 lines. Its
   "Validation" section serves contributors and sits before the licence. The
   hero render appears after the install steps, far from the top. Move the
   contributor sections to the end, or to `CONTRIBUTING.md`.
-- **F-19 (library render framing).** The `box-and-lid` images for each preset use
-  about a quarter of the frame, so the part is small on the card. Crop closer
-  in `scripts/build_library.py`.
+- **F-19 (library render framing).** I measured all nine `box-and-lid` images. The
+  part fills between 38 and 78 percent of the frame width, so the same card
+  shows `usb-charger` (38), `gridfinity-module` (40) and `desk-compact` (44)
+  small beside `surge-strip-6` (78). Frame each preset to a similar fill in
+  `scripts/build_library.py`. Confidence: high (Seen and measured).
 - **F-20 (`docs/FAQ.md` bare-path mentions).** Several answers named files
   without linking them. **Fixed** for the three I found: `docs/FAQ.md`,
   `docs/PARAMETER_REFERENCE.md` (two) and `docs/SCAD_ARCHITECTURE.md`.
@@ -447,6 +460,9 @@ images do not churn, because renders are not byte-stable.
   source and crawled their links, but did not view them. Layout problems on
   the long reference pages would not show up in my checks.
 - **Mobile layout and dark mode.** Not tested.
+- **Library images other than `box-and-lid`.** I viewed the `gridfinity-module`
+  set in full and measured the framing of the rest. I did not view every
+  `box-only` and `lid-only` image.
 - **Interactive parts of the preset library**: the 3D viewer, the bed-size
   filter and the downloads. I confirmed the pages and downloads load (HTTP 200),
   not that they behave.
