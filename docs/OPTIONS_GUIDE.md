@@ -330,7 +330,7 @@ Split the model into pieces that push together. Floor clips hold them in line, a
 
 ## Gridfinity
 
-Optional interfaces, both shown from below.
+Optional interfaces. The box is shown from below, where its feet are, and the lid from above, where its pockets are.
 
 ### Disabled (default)
 
@@ -344,11 +344,11 @@ Optional interfaces, both shown from below.
 
 ![Feet under the box, rounded up to whole cells](images/options/gf-bottom.png)
 
-### Profile on the lid
+### Baseplate pockets on the lid
 
 `Enable_Gridfinity_Lid_Top=True`, `Part_To_Render=Lid Only`
 
-![Profile on the lid](images/options/gf-lid.png)
+![Baseplate pockets on the lid](images/options/gf-lid.png)
 
 ### Both, with magnet and screw holes
 

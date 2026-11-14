@@ -101,23 +101,25 @@ BOSL2 aborts with a message about a negative size.
 
 Fix: use `Lid_Style=Skirt`, or enlarge `Box_Width` or `Box_Depth`.
 
-### A Plug lid needs the stabilizer fins to stop below it
+### A plug needs the stabilizer fins to stop below it
 
 ```scad
-assert(Lid_Style != "Plug" || !Enable_Stabilizers ||
+assert(!(Lid_Style == "Plug" || GF_Lid_Active) || !Enable_Stabilizers ||
        Stabilizer_Height + Wall_Thickness <= Box_Height - Lid_Lip_Gap_Height,
-       "With Lid_Style Plug, Stabilizer_Height must be at most ...");
+       "With a plug filling the top of the box, Stabilizer_Height must be at most ...");
 ```
 
-Why: the plug ring sits in the top `Lid_Lip_Gap_Height` of the box, against
-the walls the fins grow from. A fin reaching into that band renders cleanly and
+Why: the plug sits in the top `Lid_Lip_Gap_Height` of the box, against the
+walls the fins grow from. A fin reaching into that band renders cleanly and
 stops the lid from seating, so nothing but a print would show it. The box's own
-fin check allows fins right up to the rim, which a Skirt lid tolerates. Plug
-is the default, so this check applies unless you choose Skirt, and it applies
-even when only the box is rendered.
+fin check allows fins right up to the rim.
+
+A Skirt lid normally leaves that band empty and is exempt. A Skirt lid with
+`Enable_Gridfinity_Lid_Top` is not: it prints turned over, so the band is
+filled solid and behaves like a plug.
 
 Fix: lower `Stabilizer_Height` to the value in the message, or use
-`Lid_Style=Skirt`.
+`Lid_Style=Skirt` without a Gridfinity lid top.
 
 ### A Plug lid needs the post to clear the ring
 
@@ -378,15 +380,20 @@ Fix: reduce `Seam_Tooth_Depth`, or reduce `Slice_Count` so each piece is wider.
 ### A sliced lid must be thick enough for its seam clips
 
 ```scad
-assert(!Enable_Slicing || GF_Lid_Active || Lid_Height >= Clip_Tab_Height + SPACER, ...);
+assert(!Enable_Slicing || Lid_Clip_Top_Z >= Clip_Tab_Height + SPACER, ...);
 ```
 
-Why: a lid seam clip spans from `Lid_Height - Clip_Tab_Height` to `Lid_Height`,
-sunk 0.04 mm below the slab's face. A thinner lid hangs the clip below the
-print bed, so a slicer stands the piece on its clips. The sliced box floor had
-the same fault until 2.0.0-rc.5. A lid-top Gridfinity plate lies under the slab
-and holds the clip instead, so the check is off when that interface is active.
-This closes backlog item 19 (lid seam clips below the bed).
+Why: a lid seam clip hangs `Clip_Tab_Height` down from the lid face it is
+anchored to, sunk 0.04 mm below that face. Given less material than that, the
+clip reaches out of the lid and a slicer stands the piece on its clips. The
+sliced box floor had the same fault until 2.0.0-rc.5. This closes backlog item
+19 (lid seam clips below the bed).
+
+`Lid_Clip_Top_Z` is the slab's top on a plain lid, so the limit is
+`Lid_Height`. With `Enable_Gridfinity_Lid_Top` the lid prints turned over, and
+the clips move to the lip's face, which lands on the bed; the lip band is
+filled solid there, so it counts too and the limit becomes
+`Lid_Height + Lid_Lip_Gap_Height`.
 
 Fix: raise `Lid_Height` to at least `Clip_Tab_Height` plus 0.04 mm (3.04 mm at
 the defaults), or lower `Clip_Tab_Height`.
@@ -556,6 +563,24 @@ ECHO: "Gridfinity base: box footprint rounded up to 125.5 x 83.5 mm (3 x 2 cells
 ```
 
 A footprint that is already a whole number of cells stays quiet.
+
+A Gridfinity lid top reports a corner that its pockets reach through. With the
+base on, only about 1.75 mm of plate sits beside the outermost pockets, and the
+lid's corners are arcs. Past roughly `Box_Corner_Radius = 10`, the lid's arc
+turns in further than the corner pocket's does, and that pocket opens through
+the side of the lid:
+
+```
+ECHO: "Gridfinity lid top: at Box_Corner_Radius = 16 each corner cell opens through the side of the lid by 2.4564 mm. The lid is still one solid and every cell still takes a bin. To close the corners, set Box_Corner_Radius to about 10.0714 or less."
+```
+
+This reports rather than blocks, for two reasons. The lid still exports as one
+solid and every cell still accepts a bin, so it is a look-and-strength question
+the user owns. And it cannot be fixed by trimming the pocket: a pocket is the
+female half, and one cut back to the lid's outline would stop admitting a
+standard foot in that cell. Phase A trimmed the corner **feet** for the mirror
+image of this problem, which was right there, because a smaller foot still
+seats.
 
 Seam clip placement is corrected the same way. A clip whose center falls inside
 the post opening has no material to bond to, so its position is pushed clear of

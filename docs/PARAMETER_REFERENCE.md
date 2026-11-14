@@ -388,10 +388,10 @@ Both default to off and change no geometry when disabled.
 | Parameter | Type | Default | Description | Interactions |
 |---|---|---:|---|---|
 | `Enable_Gridfinity_Bottom` | boolean | `false` | Adds solid Gridfinity feet under the box, built to the spec's profile, so it drops into a 42 mm baseplate. | Rounds the footprint up to whole cells (see below), and the lid grows with it. Mutually exclusive with `Enable_Bottom_Openings`. Requires `Closed_Post=true` when the post is enabled. Adds `4.75 mm` to total height. |
-| `Enable_Gridfinity_Lid_Top` | boolean | `false` | Adds a Gridfinity baseplate to the lid's exposed face: a plate with sockets, so bins or another box sit on the closed box. | Adds `4.75 mm` to lid height. |
-| `Gridfinity_Profile_Clearance` | number | `0.25` | Fit clearance on the lid-top sockets, and on every magnet pocket and screw hole. | The feet need none: a spec foot already leaves `0.25 mm` all round in a spec pocket. Increase if lid sockets are tight. |
-| `Gridfinity_Edge_Keepout` | number | `4` | Margin from the lid edge before the first lid-top cell. | Prevents thin, fragile cells at the lid's perimeter. The base ignores it, because its feet fill the rounded footprint. |
-| `Enable_Gridfinity_Magnet_Screw` | boolean | `false` | Adds magnet pockets to whichever interfaces are enabled; the bottom base also gets screw holes. The lid gets pockets only, because a through screw hole would breach the closed box. Lid pockets open at each socket floor. | Foot pockets open on the foot's bottom face, so magnets go in after printing. |
+| `Enable_Gridfinity_Lid_Top` | boolean | `false` | Adds a Gridfinity baseplate to the lid's exposed face: a plate with pockets cut to the spec profile, so bins or another box sit on the closed box. | Adds `5.0 mm` to lid height, and the lid is exported turned over so the pockets print facing up. The plug or skirt is then filled solid. |
+| `Gridfinity_Profile_Clearance` | number | `0.25` | Fit clearance on the lid-top pockets, and on every magnet pocket and screw hole. | Measured against the `0.25 mm` the standard already builds into the gap between a `41.5 mm` foot and a `42 mm` pocket, so the default reproduces the standard exactly. Raise it if bins are tight in the lid; the feet are unaffected, because they must stay at spec to fit anyone else's baseplate. |
+| `Gridfinity_Edge_Keepout` | number | `4` | Margin from the lid edge before the first lid-top cell, used only when the base is off. | Prevents thin, fragile cells at the lid's perimeter. With `Enable_Gridfinity_Bottom` on, the lid instead takes the base's own cell count so a second box stacks on the first, and the keepout is ignored. The base has ignored it since 2.0.0-rc.6, because its feet fill the rounded footprint. |
+| `Enable_Gridfinity_Magnet_Screw` | boolean | `false` | Adds magnet pockets to whichever interfaces are enabled; the bottom base also gets screw holes. The lid gets pockets only, because a through screw hole would breach the closed box. Lid pockets open at each cell's floor. | Both open onto the bed in their print orientations, so magnets go in after printing and neither needs a bridge. |
 | `Gridfinity_Magnet_Diameter` | number | `6.25` | Magnet diameter the pockets are cut for. | Each pocket adds `Gridfinity_Profile_Clearance`, so the default gives the spec's `6.5 mm` pocket for a `6 mm` magnet. |
 | `Gridfinity_Magnet_Depth` | number | `2.4` | Magnet pocket depth. | In a foot, two bridging layers, each `Print_Layer_Height` tall, sit above the pocket, so the depth can be at most `4.75 - 2 * Print_Layer_Height`: `4.35 mm` at the default. In the lid, capped so `0.8 mm` of material always remains above the pocket. |
 | `Gridfinity_Screw_Diameter` | number | `3.2` | Through screw hole diameter. | Sized for M3, and adds `Gridfinity_Profile_Clearance`. In a foot it runs up to the box's underside, and the floor above stays closed. |
@@ -417,8 +417,32 @@ corner, as at the default `Box_Corner_Radius` of `8.1`, the four corner feet are
 trimmed to the box's outline. They are then smaller than a spec foot, which a
 baseplate still accepts.
 
-The lid top keeps the older layout: as many whole cells as fit inside the lid
-less `Gridfinity_Edge_Keepout` on each side, centred.
+The lid top follows the base when the base is on. It holds exactly the base's
+cells, so one box stacks on another. The lid is the rounded box plus a wall and
+a gap on each side, `N * 42 + 3.5` mm, which leaves `1.75 mm` beside the
+outermost pockets; the default `4 mm` keepout would drop a whole column, so it
+does not apply. With only the lid top on there is no base to match, and the
+older layout stands: as many whole cells as fit inside the lid less
+`Gridfinity_Edge_Keepout` on each side, centred.
+
+Because that margin is narrow, a lid rounder than about `Box_Corner_Radius = 10`
+lets each corner pocket reach through the side of the lid. The model reports it
+and carries on; see
+[Clamped Values Rather Than Assertions](VALIDATION_RULES.md#clamped-values-rather-than-assertions).
+
+### The lid prints turned over
+
+With `Enable_Gridfinity_Lid_Top` on, the exported lid is rotated 180 degrees
+about X, so its pockets face up and print with nothing bridging over them. The
+face that then lands on the bed is the lip's, so the plug ring is filled solid;
+a Skirt lid's pocket is filled too and keeps only a groove for the box wall.
+A plug that is solid in the model prints as infill, so it costs little filament.
+
+Three things follow from the flip. The `lid-face` anchor moves to the top of
+the part, because it names the exposed face rather than a coordinate. The seam
+clips on a sliced lid move to the lip's face so they start on the build plate.
+And the part is mirrored in Y relative to the modelled lid, which is simply
+what turning a part over does.
 
 ### Height convention
 
@@ -447,7 +471,7 @@ post.
 | `Model_Version` | string | current release | Echoed at render so an exported STL can be traced back to its source. |
 | `Render_On_Include` | boolean | `true` | Set `false` to use the file as a library: modules and anchors become available without geometry appearing. See the attachment section in `MODULE_REFERENCE.md`. |
 | `$fn` | integer | `40` | Circle/arc resolution for cylinders and rounded geometry. |
-| `GF_*` | various | Gridfinity spec | Gridfinity standard dimensions (pitch, the foot's footprint and profile, socket sizes, hole offsets). Hidden because changing one produces a part that no longer mates with other Gridfinity gear, but still overridable with `-D` if you need to. |
+| `GF_*` | various | Gridfinity spec | Gridfinity standard dimensions (pitch, the foot's and the pocket's footprints and profiles, the plate height, hole offsets). Hidden because changing one produces a part that no longer mates with other Gridfinity gear, but still overridable with `-D` if you need to. |
 | `SPACER` | number | `0.04` | Internal modeling offset used for robust boolean operations and tiny clearances. |
 
 ## Built-In Validation
@@ -507,9 +531,10 @@ Slicing and clips:
 - `Clip_Tab_Width`, `Clip_Tab_Depth`, and `Clip_Tab_Height` must be greater than `0`.
 - When slicing is enabled, `Seam_Tooth_Depth` must be `>= 0`, and
   `Seam_Tooth_Depth + Clip_Tolerance` must be less than half a slice width.
-- When slicing is enabled and the lid-top Gridfinity interface is not active,
-  `Lid_Height` must be at least `Clip_Tab_Height` plus 0.04 mm, so the lid's
-  seam clips stay inside the lid.
+- When slicing is enabled, the lid must offer `Clip_Tab_Height` plus 0.04 mm of
+  material for its seam clips to sit in. That is `Lid_Height` on a plain lid,
+  and `Lid_Height + Lid_Lip_Gap_Height` with the lid-top Gridfinity interface
+  active, because the lid then prints turned over with its lip band filled.
 
 Gridfinity:
 

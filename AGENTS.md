@@ -16,9 +16,10 @@ clone.
 
 | Task | Command |
 |---|---|
-| Geometry suite (118 scenarios) | `python tests/run_tests.py [--filter NAME]` |
+| Geometry suite (132 scenarios) | `python tests/run_tests.py [--filter NAME]` |
 | Version consistency | `bash scripts/check-version.sh` |
 | Standalone bundle | `python scripts/build_bundle.py` |
+| Mesh diff against a revision | `python scripts/compare_meshes.py --baseline main` |
 | Calibration coupons (local only) | `python _local/calibration/build_calibration.py [--only NAME ...]` |
 | Preset library | `python scripts/build_library.py` (`--no-stl --no-png --no-glb` for metadata only) |
 | Options guide | `python scripts/build_options_guide.py [--no-render] [--only SLUG ...]` |
@@ -47,7 +48,9 @@ clone.
   `python scripts/regen_missing_bosl2_fixture.py`.
 - Regenerated STLs and PNGs are not byte-stable, so a byte diff is not
   evidence of a geometry change. Compare canonical meshes instead, the way
-  `build_library.py` does for GLBs.
+  `build_library.py` does for GLBs. `scripts/compare_meshes.py` does that
+  against any git revision, which is how a change answers "did this leave the
+  parts it was not meant to touch alone?".
 - `build_library.py` rotates each GLB from OpenSCAD's Z-up into glTF's Y-up
   (`to_gltf_axes`). Keep that rotation, or every 3D preview lies on its back.
 - When a default changes, re-run the library metadata build, so

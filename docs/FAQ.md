@@ -261,19 +261,22 @@ the spec's profile, so it drops into a 42 mm baseplate. The footprint rounds up
 to whole cells, so the default `100 x 75` box becomes `125.5 x 83.5`.
 
 `Enable_Gridfinity_Lid_Top` puts a Gridfinity **baseplate** on the lid's exposed
-face: a plate with sockets cut into it, so bins or another box sit on the closed
-box. Sockets rather than studs, because the lid inverts in use and studs would
-end up pointing at the ceiling with nothing able to rest on them. It adds
-4.75 mm to the closed height.
+face: a plate with pockets cut into it to the spec's own profile, so bins or
+another box sit on the closed box. Pockets rather than studs, because the lid
+inverts in use and studs would end up pointing at the ceiling with nothing able
+to rest on them. It adds 5.0 mm to the closed height, and the lid is exported
+turned over so those pockets print facing up.
 
 Turn on either, both, or neither. Both together gives a box that sits in a
-baseplate and is itself a baseplate.
+baseplate and is itself a baseplate, and the lid then carries exactly the cells
+the base does, so one box stacks squarely on another.
 
-The feet follow the spec's profile, and the test suite seats them in a
-baseplate built from the spec's own numbers. The lid top is still experimental:
-test prints show its sockets do not yet print or fit as cleanly as a standard
-baseplate. Test a one-cell [fit test box](PRINTING.md#fit-test-box) against
-real Gridfinity parts before you print a full box.
+Both halves follow the spec's profile, and the test suite checks each against
+the other half built from the spec's own numbers: the model's feet in a
+spec baseplate, and a spec foot in the model's lid. It also stacks one whole
+box on another. Test a one-cell
+[fit test box](PRINTING.md#fit-test-box) against real Gridfinity parts before
+you print a full box.
 
 ## Why does Gridfinity require `Closed_Post`?
 
@@ -298,8 +301,44 @@ The lid is probably too small for a single 42 mm cell once
 in the OpenSCAD console. At the default `4 mm` keepout the lid needs roughly
 `50 mm` in both directions for one cell.
 
+The keepout only decides this when the base is off. With
+`Enable_Gridfinity_Bottom` on, the lid takes the base's cell count instead, and
+the base always makes at least one cell.
+
+## Why is my Gridfinity lid upside down compared with the box?
+
+It is not upside down; it is the right way up for printing. A lid with
+`Enable_Gridfinity_Lid_Top` exports turned over, so its pockets face up and
+print with nothing bridging across them. The face resting on the bed is the one
+that ends up inside the closed box. Print it as exported, then turn it over to
+put it on the box.
+
+The flip is also why that lid's plug is solid rather than a ring: the plug's
+face is on the bed, and a hollow ring there would leave the panel above it
+bridging the whole box opening. A solid plug prints as infill, so it costs
+little filament.
+
+## My lid's corner cells open through the side of the lid
+
+Your `Box_Corner_Radius` is rounder than the corner cells leave room for. With
+the base on, only about `1.75 mm` of plate sits beside the outermost pockets,
+and past roughly `10 mm` the lid's corner arc turns in further than the
+pocket's does.
+
+The model reports this and carries on, because the lid is still one solid and
+every cell still takes a bin. It is not fixed by trimming the pocket: a pocket
+is the female half, and one cut back to the lid's outline would stop accepting
+a standard foot in that cell. Reduce `Box_Corner_Radius` to the figure the
+message gives if you want the corners closed.
+
 ## Does enabling Gridfinity shrink the inside of my box?
 
 No. The base is added below the box rather than carved out of the floor, so
 `Box_Height` still describes the box body and interior volume is unchanged.
-Total printed height grows by `4.75 mm`.
+Total printed height grows by `4.75 mm` for the base, and the lid grows by
+`5.0 mm` for the lid-top baseplate.
+
+The lid top does take a little of the box's interior, though not its volume:
+with `Enable_Gridfinity_Lid_Top` on, the plug is filled solid, so the top
+`Lid_Lip_Gap_Height` of the box is occupied by lid rather than by a ring around
+its edge. Stabilizer fins must stop below that band, which the model checks.

@@ -78,6 +78,13 @@ finished joint restrains each direction as follows:
 - **The lid.** The same profile runs across the lid's slab. The cut stays
   vertical in the band where the lid's seam clips sit. At the default 8.1 mm
   slab, that leaves room for about one tooth.
+
+  [E-12 (Gridfinity to spec)](E-12_gridfinity-to-spec.md) phase B moved the
+  clips on a Gridfinity lid up into the lip band, because that lid prints
+  turned over and the clips have to start on the bed. The teeth get the slab
+  back as a result: the band runs to 7.9 mm instead of 4.9 at the defaults.
+  They still stop at the slab, because the lip band is only as wide as the
+  plug and teeth there would cut into it.
 - **Backlog item 19 (lid seam clips below the bed).** Add an assert or a
   clamp, with a scenario that fails first. E-12's flipped Gridfinity lid also
   moves where the lid clips must sit.

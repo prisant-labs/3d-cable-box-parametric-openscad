@@ -215,6 +215,36 @@ first bridging layer is a slot across the pocket and the second a square, so
 each layer's material spans a supported edge. Each layer is
 `Print_Layer_Height` tall, so it matches one sliced layer.
 
+### `m_gridfinity_lid_top_solid()` and `m_gridfinity_lid_top_cavities()`
+
+The Gridfinity baseplate on the lid's exposed face: a slab spanning the whole
+lid, with one spec pocket cut into each cell. One pocket is swept once, at load
+time, into `GF_POCKET_VNF` with BOSL2 `offset_sweep()`, from the pocket's own
+numbers rather than the foot's; the standard puts the fit clearance in the gap
+between a `41.5 mm` foot and a `42 mm` pocket.
+
+The pockets are separate children rather than one joined polyhedron, which is
+the opposite of what the feet do. The feet stand `0.5 mm` apart and never meet,
+so joining them costs CGAL nothing. Pocket mouths sit exactly a pitch apart and
+are exactly a pitch wide, so they would have to overlap, and overlapping shells
+inside one polyhedron are a self-intersection rather than a saving.
+
+Each mouth is trimmed `SPACER` on every side for the same reason. Built to a
+full `42 mm`, two mouths meet in a line of zero width lying in the plate's own
+face: CGAL renders that and reports `Simple: yes`, and the exported mesh then
+makes CGAL assert on re-import, so every point probe against it is meaningless.
+Letting them overlap instead is worse, because the rounded outlines then cross
+at a shallow angle at each corner and leave slivers.
+
+At the default clearance the pocket is exactly as deep as the plate is thick,
+so each floor lands on the lid panel's own face. A render dissolves that
+coincident pair into one surface, but a preview's depth buffer cannot order two
+coplanar faces and speckles the floors. `PREVIEW_OVERCUT` lifts the whole
+cutter `0.01 mm` clear of that plane, gated on `$preview`, which OpenSCAD sets
+false for every render. `WELD` is the usual cure for a coincident pair and is
+far too deep here: `0.2 mm` off a pocket floor is a real change to the printed
+part.
+
 ### `m_lid_relief(is_cut)`
 
 Finger relief on the lid's outer face, one shape per enabled wall, at the wall
@@ -323,6 +353,11 @@ lip points up, into the box, so the exposed face is the model's `z=0` face and
 anything mounted on it grows downward. Getting this backwards is a real bug this
 project has already shipped once, in the v1.2.0 Gridfinity lid interface. The
 anchor exists so nobody has to re-derive it.
+
+With `Enable_Gridfinity_Lid_Top`, `m_lid_placed()` turns the whole lid over for
+export so the pockets print facing up, and both anchors follow it: `"lid-face"`
+is then the top of the part and `"lip"` the bottom. They name features, not
+coordinates.
 
 ## Final Dispatcher
 

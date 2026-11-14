@@ -374,45 +374,54 @@
     },
     {
       "name": "gridfinity_lid_top",
-      "_why": "The lid's lip is its mating face, so z=0 is the exposed top and",
-      "_why2": "the plate grows downward from there, with the lid lifted 4.75.",
-      "_why3": "It is a baseplate with sockets, not studs: the lid inverts in",
-      "_why4": "use, so studs would point at the ceiling and hold nothing.",
+      "_why": "E-12 (Gridfinity to spec) phase B. The lid's lip is its mating",
+      "_why2": "face, so the plate grows from the opposite one, and the whole lid",
+      "_why3": "is then turned over for export so the pockets face up and print",
+      "_why4": "with nothing over them. It is a baseplate with pockets, not studs:",
+      "_why5": "the lid inverts in use, so studs would point at the ceiling.",
+      "_why6": "Probes read the export frame. The part spans z 0 to 16.1: plug",
+      "_why7": "fill 0 to 3, panel 3 to 11.1, plate 11.1 to 16.1 with the pocket",
+      "_why8": "mouths on the top face. With the base off the keepout still rules,",
+      "_why9": "so a 104 x 79 lid holds 2 x 1 cells at x = +-21.",
       "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Lid_Top=true"],
       "expect": {
         "rc": 0,
         "solids": 1,
+        "bbox": { "x": [-52.0, 52.0], "y": [-39.5, 39.5], "z": [0.0, 16.1] },
         "probes": [
-          { "translate": [-24, -3, 1.0], "size": [6, 6, 0.3], "expect": "empty",
-            "why": "open socket, so a Gridfinity foot can drop into it" },
-          { "translate": [-1, -3, 1.0], "size": [2, 6, 0.3], "expect": "material",
-            "why": "the slab between sockets is solid; studs left a gap here" },
-          { "translate": [-24, -3, 4.4], "size": [6, 6, 0.2], "expect": "material",
-            "why": "socket floor: plate is 4.75 deep and the cavity stops at 4.3" },
-          { "translate": [-24, -3, 6.0], "size": [6, 6, 0.3], "expect": "material",
-            "why": "lid panel above the plate" },
-          { "translate": [-24, -3, 14.0], "size": [6, 6, 0.3], "expect": "empty",
-            "why": "lip ring is perimeter only, so centre is open" }
+          { "translate": [-24, -3, 15.9], "size": [6, 6, 0.15], "expect": "empty",
+            "why": "open pocket at the mouth, so a Gridfinity foot drops in" },
+          { "translate": [-1, -3, 14.0], "size": [2, 6, 0.2], "expect": "material",
+            "why": "the plate between two cells, 2 mm down; studs left a gap" },
+          { "translate": [-24, -3, 11.3], "size": [6, 6, 0.2], "expect": "empty",
+            "why": "still inside the pocket just above its floor" },
+          { "translate": [-24, -3, 10.85], "size": [6, 6, 0.2], "expect": "material",
+            "why": "the pocket floor is the flat top of solid material" },
+          { "translate": [-24, -3, 1.0], "size": [6, 6, 0.3], "expect": "material",
+            "why": "the plug is filled solid, so the face on the bed is unbroken" }
         ]
       }
     },
     {
       "name": "gridfinity_lid_top_magnets",
-      "_why": "Pockets open at the socket floor (world z=4.30) and reach into",
-      "_why2": "the lid panel, so a 2.4mm magnet sits flush with the floor.",
-      "_why3": "The stud-era cut started at the panel interface and overlapped",
-      "_why4": "the socket void, leaving a 0.45mm pocket a magnet stood proud",
-      "_why5": "of. Default 100x75 box: lid cells at x=+-21, holes at +-13.",
+      "_why": "E-12 (Gridfinity to spec) phase B. Pockets open at each cell's",
+      "_why2": "floor and reach away from it into the lid panel, so a 2.4 mm",
+      "_why3": "magnet sits flush with the floor. The stud-era cut started at the",
+      "_why4": "panel interface and overlapped the cell's void, leaving a 0.45 mm",
+      "_why5": "pocket a magnet stood proud of.",
+      "_why6": "Export frame, as above: cells at x = +-21 and y = 0, holes 13 mm",
+      "_why7": "from each cell centre, floors at z = 11.1. The hole probed here is",
+      "_why8": "at (-8, 13), and its pocket runs down from 11.1 to 8.7.",
       "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Lid_Top=true",
                   "Enable_Gridfinity_Magnet_Screw=true"],
       "expect": {
         "rc": 0,
         "solids": 1,
         "probes": [
-          { "translate": [6, 11, 5.5], "size": [4, 4, 0.5], "expect": "empty",
-            "why": "pocket void above the socket floor, inside the panel" },
-          { "translate": [6, 11, 7.0], "size": [4, 4, 0.4], "expect": "material",
-            "why": "panel solid again above the 2.4mm pocket depth" }
+          { "translate": [-10, 11, 9.5], "size": [4, 4, 0.5], "expect": "empty",
+            "why": "pocket void below the cell floor, inside the panel" },
+          { "translate": [-10, 11, 8.2], "size": [4, 4, 0.4], "expect": "material",
+            "why": "panel solid again past the 2.4 mm pocket depth" }
         ]
       }
     },
@@ -432,20 +441,32 @@
       "_why12": "so any probe here fails if the flush placement comes back.",
       "_why13": "rc.5 lid footprint is Box + 2*(Wall_Thickness + Lid_Lip_Gap), 104 mm",
       "_why14": "here, so the seam moved from 25.95 to 26.0 and x-max from 29.91.",
+      "_why15": "E-12 phase B turns a Gridfinity lid over for export, which moves",
+      "_why16": "the clips to the face that lands on the bed: a tab now spans",
+      "_why17": "z 0.04 to 3.04 instead of hanging in mid-air. The plate is 5.0",
+      "_why18": "rather than 4.75, so the part is 12.6 tall. The flip also mirrors",
+      "_why19": "the piece in y, and the lid sits 95 mm out in y in the sliced",
+      "_why20": "layout, so the clip that reads near y=65 is the other one of the",
+      "_why21": "pair. Phase B found a second sliver source the same way: pocket",
+      "_why22": "mouths exactly a pitch apart met in a zero-width line lying in",
+      "_why23": "the plate's face, and these probes fail again if that returns.",
       "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Lid_Top=true",
                   "Lid_Height=4.6", "Enable_Slicing=true", "Slice_Count=2",
                   "Slice_Piece_To_Render=1"],
       "expect": {
         "rc": 0,
-        "bbox": { "x": [-26.0, 29.96], "z": [0.0, 12.35] },
+        "solids": 1,
+        "bbox": { "x": [-26.0, 29.96], "z": [0.0, 12.6] },
         "probes": [
-          { "translate": [27.0, 65.0, 8.0], "size": [1, 1, 0.2], "expect": "material",
-            "why": "clip tab, past the seam at x=26.0 and mid its 6.31-9.31 height" },
-          { "translate": [27.0, 65.0, 9.6], "size": [1, 1, 0.2], "expect": "empty",
-            "why": "above the tab: it must stop below the 9.35 panel top, not at it" },
-          { "translate": [-0.5, 94.5, 9.0], "size": [1, 1, 0.2], "expect": "material",
-            "why": "lid panel above the Gridfinity plate" },
-          { "translate": [30.5, 65.0, 8.0], "size": [1, 1, 0.2], "expect": "empty",
+          { "translate": [27.0, 65.0, 1.0], "size": [1, 1, 0.2], "expect": "material",
+            "why": "clip tab, past the seam at x=26.0 and inside its 0.04-3.04 height" },
+          { "translate": [27.0, 65.0, 3.2], "size": [1, 1, 0.2], "expect": "empty",
+            "why": "above the tab: it must stop below the filled plug's face, not at it" },
+          { "translate": [27.0, 65.0, 0.1], "size": [1, 1, 0.1], "expect": "material",
+            "why": "the tab starts on the bed, so its overhang rests on the plate" },
+          { "translate": [-24.5, 94.5, 11.5], "size": [1, 1, 0.2], "expect": "material",
+            "why": "the plate's edge margin, now above the lid panel rather than below it" },
+          { "translate": [30.5, 65.0, 1.0], "size": [1, 1, 0.2], "expect": "empty",
             "why": "past x-max, so the tab has a finite reach" }
         ]
       }
@@ -671,6 +692,19 @@
       "source": "tests/anchors/lid_face.scad",
       "defines": ["Render_On_Include=false"],
       "expect": { "rc": 0, "bbox": { "z": [-3.0, 11.1] } }
+    },
+    {
+      "name": "anchor_lid_face_follows_the_gridfinity_flip",
+      "_why": "E-12 (Gridfinity to spec) phase B turns a Gridfinity lid over for",
+      "_why2": "export, which moves the exposed face from the bottom of the part",
+      "_why3": "to the top. The anchor names that face, not a coordinate, so it",
+      "_why4": "has to follow: a 6 mm marker attached to lid-face must now sit",
+      "_why5": "at the TOP of the lid. attach() centres the marker on the anchor,",
+      "_why6": "so with the part spanning z 0 to 16.1 it reaches 19.1. Left",
+      "_why7": "unflipped the marker would hang below z=0, down to -3.",
+      "source": "tests/anchors/lid_face.scad",
+      "defines": ["Render_On_Include=false", "Enable_Gridfinity_Lid_Top=true"],
+      "expect": { "rc": 0, "bbox": { "z": [0.0, 19.1] } }
     },
     {
       "name": "anchor_box_floor",
@@ -905,6 +939,31 @@
       "_why": "The Plug lip sits inside the wall, beside the stabilizer fins.",
       "defines": ["Render_On_Include=false", "Lid_Style=\"Plug\""],
       "source": "tests/assembly/lid_seated.scad",
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "assembly_filled_plug_lid_does_not_overlap_box",
+      "_why": "E-12 (Gridfinity to spec) phase B fills the plug ring solid, so a",
+      "_why2": "Gridfinity lid meets the box over its whole interior rather than",
+      "_why3": "along a Wall_Thickness ring. Everything that stood in that space",
+      "_why4": "now has to be cut out of the fill, not merely missed by it.",
+      "_why5": "This is a fit guard, not a red-first scenario: rc.6 passes it,",
+      "_why6": "because there the ring is hollow and meets almost nothing.",
+      "source": "tests/assembly/lid_seated.scad",
+      "defines": ["Render_On_Include=false", "Lid_Style=\"Plug\"",
+                  "Enable_Gridfinity_Bottom=true", "Enable_Gridfinity_Lid_Top=true",
+                  "Closed_Post=true", "Enable_Lid_Magnets=true"],
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "assembly_filled_skirt_lid_does_not_overlap_box",
+      "_why": "The same for a Skirt lid, whose fill is new in phase B: the pocket",
+      "_why2": "keeps only a groove for the box wall, and the magnet bosses need",
+      "_why3": "notches a Skirt lid has never carried before.",
+      "source": "tests/assembly/lid_seated.scad",
+      "defines": ["Render_On_Include=false", "Lid_Style=\"Skirt\"",
+                  "Enable_Gridfinity_Bottom=true", "Enable_Gridfinity_Lid_Top=true",
+                  "Closed_Post=true", "Enable_Lid_Magnets=true"],
       "expect": { "rc": 1, "output_contains": "top level object is empty" }
     },
     {
@@ -1184,6 +1243,219 @@
           { "translate": [19.8, 20, -1.1], "size": [0.1, 2, 0.1], "expect": "empty",
             "why": "clearance along the upper 45 degree runs" }
         ]
+      }
+    },
+    {
+      "name": "assembly_gridfinity_spec_foot_fits_lid_pocket",
+      "_why": "E-12 (Gridfinity to spec) phase B. Anyone's Gridfinity bin must",
+      "_why2": "drop into the lid, so the reference part here is a foot typed from",
+      "_why3": "the spec, not the model's own. rc.6 cut a two-step square cavity",
+      "_why4": "4.3 deep: a 4.75 mm foot bottomed out on its floor, and the square",
+      "_why5": "mouth met the foot's rounded corners.",
+      "source": "tests/assembly/gridfinity_lid_seated.scad",
+      "defines": ["Render_On_Include=false", "Part_To_Render=\"Lid Only\"",
+                  "Enable_Gridfinity_Bottom=true", "Enable_Gridfinity_Lid_Top=true",
+                  "Closed_Post=true"],
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "assembly_gridfinity_spec_foot_seated_in_lid_pocket",
+      "_why": "The empty overlap above would also pass for a lid with no pockets",
+      "_why2": "at all. Here lid and feet are joined, in the lid's export frame:",
+      "_why3": "the part spans z 0 to 16.1, the pocket mouths lie on its top face",
+      "_why4": "at 16.1, and each pocket floor sits 5.0 below that at 11.1. A foot",
+      "_why5": "lifted SPACER has its top at 16.14 and its bottom at 11.39, so a",
+      "_why6": "0.29 mm gap under it shows it is not standing on the floor.",
+      "_why7": "Probes use the cell at (0, 21), whose waist is 37.2 across inside",
+      "_why8": "the pocket's 37.7.",
+      "source": "tests/assembly/gridfinity_lid_seated.scad",
+      "defines": ["Render_On_Include=false", "Part_To_Render=\"Lid Only\"",
+                  "Enable_Gridfinity_Bottom=true", "Enable_Gridfinity_Lid_Top=true",
+                  "Closed_Post=true", "Assembly_Check=\"seated\""],
+      "expect": {
+        "rc": 0,
+        "probes": [
+          { "translate": [18.3, 20, 12.6], "size": [0.25, 2, 0.9], "expect": "material",
+            "why": "the foot's waist, inside 37.2 mm" },
+          { "translate": [18.65, 20, 12.6], "size": [0.15, 2, 0.9], "expect": "empty",
+            "why": "clearance between the waist and the pocket's 37.7 mm wall" },
+          { "translate": [18.95, 20, 12.6], "size": [0.3, 2, 0.9], "expect": "material",
+            "why": "the plate's wall beyond the pocket" },
+          { "translate": [-3, 18, 11.5], "size": [6, 6, 0.2], "expect": "material",
+            "why": "the foot reaches to within 0.29 mm of the pocket floor" },
+          { "translate": [-3, 18, 11.15], "size": [6, 6, 0.15], "expect": "empty",
+            "why": "the gap under the foot: it seats on its profile, not its end" },
+          { "translate": [-3, 18, 10.8], "size": [6, 6, 0.2], "expect": "material",
+            "why": "the pocket floor is the flat top of solid material" }
+        ]
+      }
+    },
+    {
+      "name": "assembly_gridfinity_box_stacks_on_lid",
+      "_why": "E-12 (Gridfinity to spec) phase B. Both interfaces exist so that a",
+      "_why2": "closed box carries another box. The two halves are sized by",
+      "_why3": "different rules, so only the pair shows whether they meet. rc.6 gave",
+      "_why4": "the 3 x 2 box a lid with 2 x 1 sockets, because the lid still",
+      "_why5": "counted cells under Gridfinity_Edge_Keepout.",
+      "_why6": "The box is placed in its modelled frame, underside on the lid's",
+      "_why7": "top face and feet hanging into the pockets, so against rc.6 the",
+      "_why8": "feet drive straight into the lip ring and this fails too.",
+      "source": "tests/assembly/gridfinity_stacked.scad",
+      "defines": ["Render_On_Include=false", "Enable_Gridfinity_Bottom=true",
+                  "Enable_Gridfinity_Lid_Top=true", "Closed_Post=true"],
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "assembly_gridfinity_box_seated_on_lid",
+      "_why": "The empty overlap above would also pass for a box held off the lid.",
+      "_why2": "Same frame and same cell as the spec-foot pair above, so the two",
+      "_why3": "sets of probes can be read against each other: this model's foot",
+      "_why4": "must sit where a spec foot sits.",
+      "source": "tests/assembly/gridfinity_stacked.scad",
+      "defines": ["Render_On_Include=false", "Enable_Gridfinity_Bottom=true",
+                  "Enable_Gridfinity_Lid_Top=true", "Closed_Post=true",
+                  "Assembly_Check=\"seated\""],
+      "expect": {
+        "rc": 0,
+        "probes": [
+          { "translate": [18.3, 20, 12.6], "size": [0.25, 2, 0.9], "expect": "material",
+            "why": "the box foot's waist, inside 37.2 mm" },
+          { "translate": [18.65, 20, 12.6], "size": [0.15, 2, 0.9], "expect": "empty",
+            "why": "clearance between the waist and the pocket's 37.7 mm wall" },
+          { "translate": [-3, 18, 11.5], "size": [6, 6, 0.2], "expect": "material",
+            "why": "the box foot reaches the bottom of the lid's pocket" },
+          { "translate": [-3, 18, 11.15], "size": [6, 6, 0.15], "expect": "empty",
+            "why": "the gap under the foot, so the box rests on the profile" }
+        ]
+      }
+    },
+    {
+      "name": "gridfinity_lid_no_wide_bridge",
+      "_why": "E-12 (Gridfinity to spec) phase B acceptance: neither part may carry",
+      "_why2": "a flat overhang or bridge wider than about 15 mm in its print",
+      "_why3": "orientation. tests/assembly/lid_overhangs.scad measures every height",
+      "_why4": "at once and shrinks the result by half the allowed span, so an empty",
+      "_why5": "export is the pass. rc.6 printed the lid pocket-side down, which made",
+      "_why6": "every socket floor a 37.45 mm bridge.",
+      "_why7": "The post socket's ceiling is Post_Diameter + 2 * Lid_Lip_Gap,",
+      "_why8": "15.3 mm at the defaults, which E-12 accepts by name; the file's",
+      "_why9": "Max_Bridge_Width of 16 is what lets it through.",
+      "source": "tests/assembly/lid_overhangs.scad",
+      "defines": ["Render_On_Include=false", "Part_To_Render=\"Lid Only\"",
+                  "Enable_Gridfinity_Bottom=true", "Enable_Gridfinity_Lid_Top=true",
+                  "Closed_Post=true"],
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "gridfinity_lid_skirt_no_wide_bridge",
+      "_why": "A Skirt lid has no plug ring to fill, so phase B fills the region",
+      "_why2": "inside the skirt instead and leaves a Wall_Thickness groove for the",
+      "_why3": "box wall: E-12 decision 3's groove lid. Unfilled, the flip turns the",
+      "_why4": "skirt's whole pocket ceiling into a 125.5 mm bridge.",
+      "source": "tests/assembly/lid_overhangs.scad",
+      "defines": ["Render_On_Include=false", "Part_To_Render=\"Lid Only\"",
+                  "Lid_Style=\"Skirt\"", "Enable_Gridfinity_Bottom=true",
+                  "Enable_Gridfinity_Lid_Top=true", "Closed_Post=true"],
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "gridfinity_lid_no_wide_bridge_without_gridfinity",
+      "_why": "A control for the two scenarios above. The detector must be able to",
+      "_why2": "report a pass, or an always-empty export would make them vacuous.",
+      "_why3": "A plain lid prints slab-side down and has no wide ceiling.",
+      "source": "tests/assembly/lid_overhangs.scad",
+      "defines": ["Render_On_Include=false", "Part_To_Render=\"Lid Only\""],
+      "expect": { "rc": 1, "output_contains": "top level object is empty" }
+    },
+    {
+      "name": "gridfinity_lid_cells_match_the_base",
+      "_why": "E-12 (Gridfinity to spec) phase B. With the base on, the lid holds",
+      "_why2": "the same cells as the base, so a second box stacks on the first.",
+      "_why3": "The lid is then N * 42 + 3.5 across, 129.5 for three cells, leaving",
+      "_why4": "1.75 mm beside the outermost pockets. rc.6 counted the lid's cells",
+      "_why5": "under Gridfinity_Edge_Keepout and found only 2 x 1.",
+      "_why6": "Probes read the export frame: the part spans z 0 to 16.1 and the",
+      "_why7": "pocket mouths lie on its top face.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Enable_Gridfinity_Lid_Top=true", "Closed_Post=true"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "bbox": { "x": [-64.75, 64.75], "y": [-43.75, 43.75], "z": [0.0, 16.1] },
+        "probes": [
+          { "translate": [39, 18, 15.9], "size": [6, 6, 0.15], "expect": "empty",
+            "why": "the outer cell at (42, 21) has a pocket; rc.6 had plate here" },
+          { "translate": [20, 20, 14.0], "size": [2, 2, 0.2], "expect": "material",
+            "why": "the wall between the cells at x=0 and x=42, 2.0 mm down" },
+          { "translate": [-3, 18, 15.9], "size": [6, 6, 0.15], "expect": "empty",
+            "why": "the middle cell's pocket is open at the mouth" }
+        ]
+      }
+    },
+    {
+      "name": "gridfinity_lid_sliced_with_both_interfaces",
+      "_why": "E-12 (Gridfinity to spec) phase B. A sliced lid with both",
+      "_why2": "toggles on is where the pocket geometry and the slice seam meet,",
+      "_why3": "and it is the configuration that found phase B's worst bug: 33",
+      "_why4": "zero-area triangles where pocket mouths a pitch apart met in a",
+      "_why5": "line of zero width lying in the plate's face. The piece rendered,",
+      "_why6": "reported one solid and Simple: yes, and then made CGAL assert on",
+      "_why7": "re-import, so probe() raises and every probe below fails if it",
+      "_why8": "returns. The thin-lid scenario above cannot catch it: with the",
+      "_why9": "base off the seam runs between two cells rather than through one.",
+      "_why10": "Lid 129.5 x 87.5 in two pieces: the seam lands at x = 32.375 and",
+      "_why11": "the male clip tabs reach 36.335. The sliced layout puts the lid",
+      "_why12": "103.5 mm out in y, and the clips sit 33.75 either side of that.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Enable_Gridfinity_Lid_Top=true", "Closed_Post=true",
+                  "Enable_Slicing=true", "Slice_Count=2",
+                  "Slice_Piece_To_Render=1"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "bbox": { "x": [-32.375, 36.335], "z": [0.0, 16.1] },
+        "probes": [
+          { "translate": [33.0, 69.0, 0.1], "size": [1, 1, 0.2], "expect": "material",
+            "why": "the clip tab starts on the bed, so its overhang rests on the plate" },
+          { "translate": [33.0, 69.0, 3.2], "size": [1, 1, 0.2], "expect": "empty",
+            "why": "above the tab: it stops below the filled plug's face, not at it" },
+          { "translate": [-20, 82.5, 15.9], "size": [6, 6, 0.15], "expect": "empty",
+            "why": "inside the near row's pocket on the kept side, just under its mouth. The rows sit at y = 82.5 and 124.5; the lid's own centre at 103.5 is the ridge between them, not a pocket" },
+          { "translate": [-20, 82.5, 10.5], "size": [6, 6, 0.15], "expect": "material",
+            "why": "the same column below that pocket's floor at 11.1, so the empty probe above is reading a pocket in solid lid rather than air beside the part" }
+        ]
+      }
+    },
+    {
+      "name": "gridfinity_lid_reports_corner_breakthrough",
+      "_why": "E-12 (Gridfinity to spec) phase B. With the base on, only 1.79 mm",
+      "_why2": "of plate sits beside the outermost pockets, and a lid corner",
+      "_why3": "rounder than about 10 mm curves in past the corner pocket's own",
+      "_why4": "arc, so that pocket opens through the side of the lid. This is",
+      "_why5": "reported rather than blocked: the lid is still one solid and every",
+      "_why6": "cell still takes a bin, and cutting the pocket back to the lid's",
+      "_why7": "outline would stop that cell accepting a standard foot.",
+      "_why8": "At Box_Corner_Radius 16 the breakthrough is about 2.46 mm.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Enable_Gridfinity_Lid_Top=true", "Closed_Post=true",
+                  "Box_Corner_Radius=16"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "output_contains": "each corner cell opens through the side of the lid"
+      }
+    },
+    {
+      "name": "gridfinity_lid_quiet_at_the_default_corner",
+      "_why": "The companion to the scenario above: at the default 8.1 mm corner",
+      "_why2": "0.82 mm of plate remains, so the report must not fire. Without",
+      "_why3": "this a report that fired on every model would still pass.",
+      "defines": ["Part_To_Render=\"Lid Only\"", "Enable_Gridfinity_Bottom=true",
+                  "Enable_Gridfinity_Lid_Top=true", "Closed_Post=true"],
+      "expect": {
+        "rc": 0,
+        "solids": 1,
+        "output_does_not_contain": "each corner cell opens through the side of the lid"
       }
     },
     {

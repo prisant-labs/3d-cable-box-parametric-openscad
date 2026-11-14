@@ -5,8 +5,10 @@ standard's swept profile, so the box seats in a real baseplate and both parts
 print without supports.
 
 **Status:** Scoped 2026-10-07. Phase A (box feet) implemented 2026-10-08
-and shipped in `v2.0.0-rc.6`; phase B (lid-top baseplate) not started, for
-rc.7. Replaces the geometry of
+and shipped in `v2.0.0-rc.6`; phase B (lid-top baseplate) implemented
+2026-11-13, for rc.7. Every code-checkable acceptance criterion is met; the
+five print checks, two from rc.6 and three from rc.7, still need the
+maintainer's P1S. Replaces the geometry of
 [E-01 (Gridfinity promotion)](E-01_gridfinity-promotion.md); E-01's two toggles
 and its user-facing parameters stay.
 **Effort:** M
@@ -113,6 +115,59 @@ kennetek's `standard.scad`.
    6.5 mm. Changing the default rather than the formula keeps the meaning of
    every value a user has already set.
 
+## Decisions (2026-11-13, phase B)
+
+10. **The lid's cells follow the base's when the base is on.** The lid is the
+    rounded box plus a wall and a gap on each side, `N * 42 + 3.5` mm, which
+    leaves 1.75 mm beside the outermost pockets. The default 4 mm
+    `Gridfinity_Edge_Keepout` would drop a whole column, so it applies only
+    when the base is off. The box's footprint already rounded up to make room.
+11. **Trim each pocket mouth by `SPACER` on every side rather than letting
+    neighbouring mouths meet or overlap.** Mouths sit exactly a pitch apart and
+    are exactly a pitch wide. Built flush, two of them meet in a line of zero
+    width lying in the plate's own face: CGAL renders it, reports `Simple: yes`,
+    and the exported mesh then makes CGAL assert on re-import, so every point
+    probe against it is meaningless. A sliced lid showed it first, because the
+    slice seam ran along that line. Letting them overlap instead was tried and
+    is worse: away from the corners it gives a real 45 degree apex, but at each
+    corner the two rounded outlines cross at a shallow angle and leave the same
+    slivers that made the corner feet unreadable in phase A. A trimmed mouth is
+    still 0.42 mm wider than the 41.5 mm foot it admits, the waist keeps the
+    standard's 0.25 mm all round, and 0.08 mm of plate between cells is
+    narrower than any nozzle.
+12. **`Gridfinity_Profile_Clearance` is measured against the standard's own
+    0.25 mm, and moves the lid's pockets only.** The default reproduces the
+    standard exactly and a larger value loosens the socket. The feet cannot
+    take it: they are the male half and have to stay at spec to fit anyone
+    else's baseplate, so the female half is the only one where clearance can
+    legitimately vary.
+13. **Report a corner that the pockets reach through; do not block it, and do
+    not trim the pocket.** Past roughly `Box_Corner_Radius = 10` the lid's
+    corner arc turns in further than the corner pocket's, and that pocket opens
+    through the side of the lid. The lid still exports as one solid and every
+    cell still takes a bin, so it is the user's call. Trimming is what
+    Decision 7 did for the corner **feet** and is right there, because a
+    smaller foot still seats; a pocket cut back to the lid's outline would stop
+    admitting a standard foot in that cell.
+14. **Fill a Skirt lid's pocket from the Plug ring's own footprint.** Tracing
+    the box's inner corner arc offset by the gap puts two polygon
+    approximations of near-equal arcs against each other, and one dips inside
+    the other: that version left eight slivers of overlap, one at each end of
+    each corner arc. The Plug ring's rounding pulls the corner further in,
+    which costs nothing and crosses nothing.
+15. **Lift the pocket cutter 0.01 mm in preview only, through `$preview`.** At
+    the default clearance the pocket is exactly as deep as the plate is thick,
+    so every pocket floor lands on the lid panel's own face. CGAL dissolves
+    that coincident pair into one surface and the exported mesh is correct,
+    but the preview's depth buffer cannot order two coplanar faces and
+    speckles the floors. It showed up in the generated images, not in the
+    suite, which renders through CGAL. `WELD` is the usual cure for a
+    coincident pair and is far too deep to reuse: 0.2 mm off a pocket floor is
+    a real change to the printed part. Gating on `$preview`, which OpenSCAD
+    sets false for every render, leaves the exported mesh byte-identical;
+    that was checked by exporting the lid with the lift forced to zero and
+    comparing canonical mesh fingerprints.
+
 ## Spec dimensions
 
 All values are in millimetres. They come from the gridfinity.xyz spec diagram
@@ -201,14 +256,28 @@ requires.
 
 - [x] The model's feet seat fully in a spec-built reference pocket with no
       overlap. Phase A: `tests/assembly/gridfinity_seated.scad`.
-- [ ] A spec-built reference foot seats fully in the lid-top pocket with no
-      overlap.
-- [ ] One box's feet seat in another box's lid-top pockets.
+- [x] A spec-built reference foot seats fully in the lid-top pocket with no
+      overlap. Phase B: `tests/assembly/gridfinity_lid_seated.scad`, as
+      `assembly_gridfinity_spec_foot_fits_lid_pocket` (the overlap is empty)
+      and `assembly_gridfinity_spec_foot_seated_in_lid_pocket` (probes show the
+      foot reaching to within 0.29 mm of the floor, so it bears on its profile
+      rather than standing on its end).
+- [x] One box's feet seat in another box's lid-top pockets. Phase B:
+      `tests/assembly/gridfinity_stacked.scad`, as
+      `assembly_gridfinity_box_stacks_on_lid` and
+      `assembly_gridfinity_box_seated_on_lid`. Both fail against rc.6.
 - [x] The base footprint rounds up to whole cells, and the model echoes the
       size it used.
-- [ ] Neither part has a flat overhang or bridge wider than about 15 mm in its
-      print orientation. The box meets this after phase A; the lid waits for
-      phase B.
+- [x] Neither part has a flat overhang or bridge wider than about 15 mm in its
+      print orientation. The box met this after phase A. Phase B adds
+      `tests/assembly/lid_overhangs.scad`, which measures every height of the
+      exported lid at once and shrinks the unsupported material by half the
+      allowed span, so an empty export is the pass:
+      `gridfinity_lid_no_wide_bridge` for a Plug lid,
+      `gridfinity_lid_skirt_no_wide_bridge` for a Skirt lid, and
+      `gridfinity_lid_no_wide_bridge_without_gridfinity` as the control that
+      shows the measure can report a pass at all. The first two fail against
+      rc.6, where every socket floor is a 37.45 mm bridge.
 - [x] The magnet pockets are 6.5 by 2.4 mm at the defaults. Probes check the
       pocket's position and depth; the 6.5 mm diameter rests on the parameter
       arithmetic, because a probe cannot tell it from rc.5's 6.45.
@@ -217,7 +286,10 @@ requires.
       edge-treated box, a lid-top-only lid, and the router-shelf preset.
 - [x] `docs/VALIDATION_RULES.md`, `docs/PARAMETER_REFERENCE.md`,
       `docs/PRINTING.md` (print orientation), and `docs/FAQ.md` change in the
-      same commit as the model. Phase B must update them again.
+      same commit as the model, in both phases. Phase B also touches
+      `README.md`, `docs/MODULE_REFERENCE.md`, `docs/OPTIONS_GUIDE.md`,
+      `docs/options-guide.html`, `docs/images/`, `cable-box-parametric.json`
+      and the `gridfinity-module` preset, which is the list phase A touched.
 
 ## Human print test
 

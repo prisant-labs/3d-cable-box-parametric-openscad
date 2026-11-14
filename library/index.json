@@ -765,7 +765,7 @@
       "name": "gridfinity-module",
       "title": "Gridfinity desk module",
       "fits": "Sits in a Gridfinity baseplate on a 3 x 2 cell footprint.",
-      "note": "Gridfinity bottom requires Closed_Post. Total height is Box_Height plus 4.75 mm of feet. The footprint is whole cells, so the base does not round it up.",
+      "note": "Gridfinity bottom requires Closed_Post. Total height is Box_Height plus 4.75 mm of feet. The footprint is whole cells, so the base does not round it up. The lid carries the same 3 x 2 cells and prints turned over, pockets facing up.",
       "params": {
         "Box_Width": 125.5,
         "Box_Depth": 83.5,
@@ -799,7 +799,7 @@
       },
       "notes": {
         "path": "gridfinity-module/notes.md",
-        "bytes": 719
+        "bytes": 799
       },
       "parts": [
         {
@@ -829,19 +829,19 @@
           "size_mm": [
             129.5,
             87.5,
-            15.85
+            16.1
           ],
           "stl": {
             "path": "gridfinity-module/stl/gridfinity-module_lid-only.stl",
-            "bytes": 163064
+            "bytes": 627317
           },
           "glb": {
             "path": "gridfinity-module/stl/gridfinity-module_lid-only.glb",
-            "bytes": 17072
+            "bytes": 60708
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_lid-only.png",
-            "bytes": 23850
+            "bytes": 42392
           }
         },
         {
@@ -854,15 +854,15 @@
           ],
           "stl": {
             "path": "gridfinity-module/stl/gridfinity-module_box-and-lid.stl",
-            "bytes": 825341
+            "bytes": 1284907
           },
           "glb": {
             "path": "gridfinity-module/stl/gridfinity-module_box-and-lid.glb",
-            "bytes": 81988
+            "bytes": 125624
           },
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_box-and-lid.png",
-            "bytes": 18168
+            "bytes": 22722
           }
         }
       ],
@@ -871,7 +871,7 @@
           "slug": "underside",
           "image": {
             "path": "gridfinity-module/images/gridfinity-module_underside.png",
-            "bytes": 28623
+            "bytes": 27110
           }
         }
       ]
