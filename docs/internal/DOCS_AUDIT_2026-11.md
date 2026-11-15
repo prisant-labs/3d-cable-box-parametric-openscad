@@ -545,12 +545,17 @@ are to prose, one Astro template sentence, and one generator script.
   claim about that print. Only the maintainer knows the real setting. The
   wider half of F-08, that one photograph is the whole photographic record,
   still stands.
-- **F-17**, one product name. The site title in `web/astro.config.mjs` was
-  "Ultimate Cable Box Parametric OpenSCAD" and the landing heading was
-  "Ultimate Cable Box Documentation". Both are now "Parametric Cable
-  Management Box", which is the README's name. The site-wide `description`
-  was rewritten from "Detailed technical documentation" to a sentence about
-  the product.
+- **F-17**, not fixed, and the audit was wrong to treat it as a free choice.
+  Standardising on the README's "Parametric Cable Management Box" was tried
+  and reverted: [`BACKLOG.md`](BACKLOG.md) item 16 records that this is the
+  2022 original design's name, and that renaming belongs with the provenance
+  checklist in [E-03 (openings array)](E-03_openings-array.md). Picking it
+  would have spread an inherited name onto the site header. The landing
+  heading is now "Ultimate Cable Box", the short form of the site title, so
+  the page no longer calls itself "Documentation" and no new name is
+  introduced. The site-wide `description` was rewritten from "Detailed
+  technical documentation" to a sentence about the product, which is
+  independent of the naming decision.
 - **F-12**, the two remaining items. Every synced page now carries an explicit
   `editUrl` pointing at its real source under `docs/`, so "Edit page" no
   longer returns 404; the generated options guide opts out with

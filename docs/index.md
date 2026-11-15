@@ -1,4 +1,4 @@
-# Parametric Cable Management Box
+# Ultimate Cable Box
 
 A cable box you size to your own gear, instead of buying one and hoping it
 fits. You set the dimensions, the wall openings and the extras, and the model
