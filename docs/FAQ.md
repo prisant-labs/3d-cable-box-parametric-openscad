@@ -192,9 +192,11 @@ those profiles have to match the standard.
 
 ## Can I print the box without supports?
 
-Yes, at the defaults. Every feature either stands on the bed or rises at 45
-degrees or steeper, except for a few short arcs and bridges. Three options
-remove those:
+Yes. At the defaults no part needs support material, because every face
+either stands on the bed or rises at 45 degrees or steeper. What remains is a
+handful of short arcs and bridges, which print unsupported but can sag. Two
+settings replace those arcs with 45 degree flanks, and a third makes the
+magnet bridging land on your real layers:
 
 - `All_Opening_Top_Style=Teardrop` replaces the flat top of each rounded side
   opening with 45 degree flanks and a short flat cap. The opening keeps its

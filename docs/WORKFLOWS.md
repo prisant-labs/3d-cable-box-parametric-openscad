@@ -14,8 +14,10 @@ says so.
 2. Open the Customizer from the `Window` menu.
 3. Configure dimensions in sections: `Overall`, `Box`, `Post`, `Lid`, and `Openings`.
 4. Press `F6` (full render).
-5. Export STL for the current `Part_To_Render` value.
-6. Repeat for `Box Only` and `Lid Only` if needed.
+5. Export STL for the current `Part_To_Render` value. The default is
+   `Box Only`, so a first export gives you the box and no lid.
+6. Set `Part_To_Render` to `Lid Only` and export again, so you have both
+   parts.
 
 ### Starting from a preset instead of the defaults
 

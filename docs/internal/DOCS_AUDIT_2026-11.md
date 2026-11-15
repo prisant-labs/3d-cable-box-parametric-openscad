@@ -50,16 +50,39 @@ viewed as screenshots.
 
 ## Decisions for the maintainer
 
-These three decisions matter most. Everything else follows from them.
+These three decisions matter most. Everything else follows from them. The
+maintainer answered all three on 2026-11-14, and the answers are recorded
+under each one.
 
 1. **Which release do newcomers get?** The README sends readers to the newest
    pre-release "for the current geometry". That is `v2.0.0-rc.6`. The docs, the
    site and the library all describe `main`, which now holds the unreleased
    Gridfinity lid. See F-04 (the docs describe `main`, the README points at rc.6).
+
+   **Decided: cut `v2.0.0-rc.7` now**, rather than adding a banner and waiting
+   for a print test. No banner was added. The README sentence about taking the
+   newest pre-release becomes true as soon as the tag exists, and is false
+   until then.
+
 2. **What does the landing page promise?** A newcomer wants to get a box. The
    page today lists the parameter reference first. See F-05 (landing page: no hero, no call to action).
+
+   **Decided: get a box first.** `docs/index.md` was rebuilt in the order
+   photo, "Get a box", "Change a box", hero render, "Reference", "Scope
+   notes". The sidebar in `web/astro.config.mjs` was reordered to match. The
+   layout is plain Markdown rather than Starlight's `<CardGrid>`, because
+   `docs/` is the source of truth and is read on GitHub as well as on the
+   site, and `sync-docs.mjs` emits Markdown rather than MDX.
+
 3. **What counts as print validated?** The landing page says unvalidated
    features are marked where they appear, and they are not. See F-06 (unvalidated features are not marked as promised).
+
+   **Decided: publish a status table, prefilled from the repository.**
+   `docs/PRINTING.md` gained a "Print validation status" section. Two rows are
+   marked printed, because this repository records a fit result for them on a
+   Bambu Lab P1S in PLA+. Every other row says "rendered only", which means
+   no record of a print exists here, not that a print failed. The maintainer
+   corrects the table from their own history.
 
 ---
 
@@ -486,7 +509,53 @@ images do not churn, because renders are not byte-stable.
 
 ## Change log of this pull request
 
+### First pass, before the decisions
+
 Changed directly: F-01 (F3 wording and BOSL2 prerequisite), F-12 (one preset
 page sentence), F-15 (workflow orientation), F-20, F-21, F-22, F-23. All edits
 are to prose, one Astro template sentence, and one generator script.
-Everything else above is a proposal.
+
+### Second pass, after the decisions of 2026-11-14
+
+- **F-05**, landing page rebuilt in "get a box first" order, with the printed
+  photo at the top and the hero render between the two task sections. "Local
+  Build" moved to `CONTRIBUTING.md`, which gained the `npm ci` warning about
+  Astro's Node floor.
+- **F-06**, "Print validation status" table added to `docs/PRINTING.md` and
+  linked from the landing page's scope notes.
+- **F-17**, one product name. The site title in `web/astro.config.mjs` was
+  "Ultimate Cable Box Parametric OpenSCAD" and the landing heading was
+  "Ultimate Cable Box Documentation". Both are now "Parametric Cable
+  Management Box", which is the README's name. The site-wide `description`
+  was rewritten from "Detailed technical documentation" to a sentence about
+  the product.
+- **F-12**, the two remaining items. Every synced page now carries an explicit
+  `editUrl` pointing at its real source under `docs/`, so "Edit page" no
+  longer returns 404; the generated options guide opts out with
+  `editUrl: false`. The sidebar is reordered into Start, Change a box, Model
+  Reference and Project.
+- **F-03**, print guidance added to the README's "Get a box" paragraph and as
+  a "Print it" section on every preset page, both linking the printing guide.
+- **F-01**, the two leftovers. `docs/WORKFLOWS.md` step 5 now says the default
+  export is the box alone, and step 6 says to export the lid.
+  `scripts/build_library.py` no longer writes "the Customizer (F3)";
+  `library/README.md` was regenerated with `--no-stl --no-png --no-glb`, and
+  `library/index.json` and `cable-box-parametric.json` are byte-identical.
+- **F-14**, the contradiction only. The FAQ answer about printing without
+  supports now says that no part needs support material at the defaults, and
+  that the three settings improve short arcs and bridges rather than making
+  the model printable. The FAQ is still one flat list of 41 questions.
+
+A side effect of the title change: Starlight builds every `<title>` as
+"page | site", so the landing page read "Parametric Cable Management Box |
+Parametric Cable Management Box". `sync-docs.mjs` now emits an explicit title
+tag for that one page.
+
+### Still proposed, in rough order of value
+
+F-07 and F-10 (the image work, which is the largest remaining item), F-02
+(per-piece STLs for the sliced preset), F-09 (move maintainer material out of
+the user pages), F-11 (version history out of guidance), F-13 (options guide
+gaps), F-14's grouping, F-15's duplication, F-16, F-18, F-19. F-08 needs the
+maintainer: only they know what `All_Openings_Up` was set to for the
+photographed print.

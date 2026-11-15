@@ -22,6 +22,11 @@ STL downloads, or take the files straight from [`library/`](library/). Nine
 presets cover the common jobs, from a compact desk tidy to a six-outlet surge
 strip split for a 180 mm bed. No software needed beyond your slicer.
 
+Print each part in the orientation it was exported in, in PLA or PETG, at a
+0.20 mm layer height with three or more walls. The
+[Printing guide](docs/PRINTING.md) explains why each of those matters, and
+records which features have been printed on a real machine.
+
 Both track `main`, so they match the current model. The
 [Releases page](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/releases) holds fixed, tested snapshots, and from `v2.0.0-rc.4` on
 each release attaches all nine presets as `cable-box-presets.zip`. Until 2.0.0

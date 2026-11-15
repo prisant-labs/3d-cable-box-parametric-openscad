@@ -22,6 +22,25 @@ the thing it builds.
 There is no lockfile for the Python side on purpose: the scripts use the
 standard library plus `trimesh` and nothing else.
 
+## Previewing the docs site
+
+The site is built with [Astro Starlight](https://starlight.astro.build/) from
+`web/`, which syncs its content from `docs/` at build time:
+
+```bash
+cd web
+npm ci
+npm run dev
+```
+
+Then open `http://localhost:4321`.
+
+Use `npm ci` rather than `npm install`, because only `npm ci` enforces peer
+ranges the way CI does. Astro raises its minimum Node version on minor
+releases, and the workflow pins a floating `node-version: 22`, so CI can pass
+while a local build fails. When `npm run build` reports an unsupported engine,
+upgrade Node rather than pinning Astro back.
+
 ## Workflow
 
 1. Open an issue for significant changes.
