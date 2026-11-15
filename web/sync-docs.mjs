@@ -86,6 +86,17 @@ function pageDescription(body) {
 	return stripped ? truncateDescription(stripped) : null;
 }
 
+// Starlight's site-wide editLink.baseUrl is joined with the page's own path,
+// which for a synced page is web/src/content/docs/<slug>.md. This script
+// generates that directory and .gitignore excludes it, so every "Edit page"
+// link resolved to a file that does not exist on main and returned 404. Each
+// page therefore carries an explicit editUrl pointing at its real source
+// under docs/, and a generated page opts out entirely, because editing it by
+// hand would be overwritten by its generator.
+const EDIT_BASE =
+	'https://github.com/prisant-labs/3d-cable-box-parametric-openscad/edit/main/docs/';
+const GENERATED_PAGES = new Set(['OPTIONS_GUIDE.md']);
+
 const WEB = dirname(fileURLToPath(import.meta.url));
 const DOCS = join(WEB, '..', 'docs');
 const OUT = join(WEB, 'src', 'content', 'docs');
@@ -137,12 +148,24 @@ for (const [file, slug] of Object.entries(PAGES)) {
 	// characters inside a double-quoted string) is also valid YAML, and safer
 	// than the ad hoc quote-escaping above for text pulled from prose rather
 	// than typed as a title.
-	const frontmatter = description
-		? `title: "${title.replaceAll('"', '\\"')}"\ndescription: ${JSON.stringify(description)}\n`
-		: `title: "${title.replaceAll('"', '\\"')}"\n`;
+	const lines = [`title: "${title.replaceAll('"', '\\"')}"`];
+	if (description) lines.push(`description: ${JSON.stringify(description)}`);
+	lines.push(
+		GENERATED_PAGES.has(file)
+			? 'editUrl: false'
+			: `editUrl: ${JSON.stringify(EDIT_BASE + file)}`,
+	);
+	// Starlight builds every <title> as "<page title> | <site title>". The
+	// landing page's heading is the product name and so is the site title, so
+	// the tab read "Parametric Cable Management Box | Parametric Cable
+	// Management Box". An explicit title tag overrides the pair for this one
+	// page; every other page still wants the suffix.
+	if (slug === 'index') {
+		lines.push('head:', '  - tag: title', `    content: ${JSON.stringify(title)}`);
+	}
 	writeFileSync(
 		join(OUT, out),
-		`---\n${frontmatter}---\n\n${text.trimStart()}`,
+		`---\n${lines.join('\n')}\n---\n\n${text.trimStart()}`,
 	);
 }
 

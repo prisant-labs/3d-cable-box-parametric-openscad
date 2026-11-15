@@ -12,6 +12,38 @@ small calibration prints that check a fit before you commit to a full box.
 - Infill: `15%` to `25%`
 - Material: PLA or PETG recommended for first-fit calibration
 
+## Print Validation Status
+
+Most of this model is checked by a geometry regression suite, which proves
+that the solids are the shape and the count they should be. It cannot prove
+that a part prints well, that a clip holds, or that two pieces fit. Only a
+print does that.
+
+This table records what has actually been printed. A feature marked
+**rendered only** is not known to be broken; it is simply untested in
+filament. Print a [fit test box](#fit-test-box) first when you use one.
+
+| Feature | Status | Printer and material |
+|---|---|---|
+| Box body, walls and side openings | Printed | Not recorded; the photo in `README.md` is black PETG |
+| Lid, both `Lid_Style` values, and the `Lid_Lip_Gap` default of `0.15` | Printed | Bambu Lab P1S, PLA+, with and without magnets |
+| `Enable_Lid_Magnets` pockets | Printed | Bambu Lab P1S, PLA+ |
+| `Enable_Post` and its lid socket | Rendered only | - |
+| `Enable_Stabilizers` fins | Rendered only | - |
+| `Enable_Bottom_Openings` floor cutouts | Rendered only | - |
+| `Lid_Relief_Style` `Scallop` and `Tab` | Rendered only | - |
+| Slicing with `Clip_Style="Tab"`, seam teeth and floor clips | Rendered only | - |
+| Slicing with `Clip_Style="Snap"` | Rendered only | - |
+| `Enable_Gridfinity_Bottom` feet | Rendered only | - |
+| `Enable_Gridfinity_Lid_Top` baseplate | Rendered only | - |
+| `Enable_Gridfinity_Magnet_Screw` pockets and screw holes | Rendered only | - |
+| `All_Opening_Top_Style="Teardrop"` | Rendered only | - |
+| `Bottom_Edge_Style` `Teardrop` and `Chamfer` | Rendered only | - |
+
+The two printed rows come from the fit figures recorded in this guide and in
+the FAQ. Every other row is marked rendered only because the repository holds
+no record of a print, not because a print is known to have failed.
+
 ## Orientation
 
 - Box: print it as exported, open top facing up.

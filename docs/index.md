@@ -1,47 +1,69 @@
-# Ultimate Cable Box Documentation
+# Parametric Cable Management Box
 
-This site documents the **primary model**: `cable-box-parametric.scad`.
+A cable box you size to your own gear, instead of buying one and hoping it
+fits. You set the dimensions, the wall openings and the extras, and the model
+builds the part.
 
-It is intended to be as implementation-close as possible, so parameter behavior matches what the SCAD actually generates.
+![A printed cable box in black PETG](images/printed-box-black-petg.jpg)
 
-## Start Here
+The model is one OpenSCAD file, `cable-box-parametric.scad`. These pages stay
+close to that file, so the behaviour described here is the behaviour the model
+produces.
 
-- [Parameter reference](PARAMETER_REFERENCE.md): every parameter, section by section
-- [Options guide](OPTIONS_GUIDE.md): every option rendered, with images
-- [Workflows](WORKFLOWS.md): practical setup and tuning
-- [Printing](PRINTING.md): print recommendations and the fit test box
-- [FAQ](FAQ.md): common issues and fixes
+## Get a box
 
-## Deep Technical Docs
+Start here if you own a printer and want a part today.
 
-- [Module reference](MODULE_REFERENCE.md): geometry and module breakdown
-- [SCAD architecture](SCAD_ARCHITECTURE.md): data flow and render architecture
-- [Validation rules](VALIDATION_RULES.md): assertion constraints and why they exist
-- [Parameter interactions](PARAMETER_INTERACTIONS.md): high-impact parameter interactions
+- [Preset library](./library/): nine ready configurations, each sized for
+  something you already own. Every entry carries an orbitable 3D view, the
+  parameters behind it, and STL, GLB and `config.json` downloads.
+- [Printing guide](PRINTING.md): the baseline settings, which face lands on
+  the bed, and the small fit test box to print before a full one.
 
-## Presets
+## Change a box
 
-The [preset library](../library/) is nine ready-to-print configurations, each
-sized for something you already own. Every entry has an orbitable 3D view of
-each part, the parameters that define it, and STL, GLB and `config.json`
-downloads. Everything there is generated from the model, so a preset cannot
-drift from it.
+Start here when a preset is close but not quite right.
 
-## Scope Notes
+- [Workflows](WORKFLOWS.md): install BOSL2, open the Customizer, then tune one
+  group of parameters at a time.
+- [Options guide](OPTIONS_GUIDE.md): every option rendered from the model, so
+  you can see what each one does before you set it.
+- [FAQ](FAQ.md): the questions that come up most often, answered with the
+  parameter names and the numbers.
 
-- This docs set describes the primary model at the repo root.
-- Gridfinity (base and lid interfaces), snap-fit seam clips, and the preset
-  library are part of the model and documented here. Features still awaiting
-  physical print validation are marked as such where they appear.
+![The box and its lid, rendered from the model](images/hero_box-and-lid.png)
 
-## Local Build
+## Reference
 
-The site is built with [Astro Starlight](https://starlight.astro.build/) from `web/`, which syncs its content from this directory at build time:
+These pages describe the model itself. Reach for them when a parameter or an
+assertion needs explaining.
 
-```bash
-cd web
-npm ci
-npm run dev
-```
+- [Parameter reference](PARAMETER_REFERENCE.md): every parameter, section by
+  section
+- [Parameter interactions](PARAMETER_INTERACTIONS.md): the pairs of parameters
+  that constrain each other
+- [Validation rules](VALIDATION_RULES.md): each assertion, what trips it, and
+  how to resolve it
+- [Module reference](MODULE_REFERENCE.md): the geometry modules and what each
+  one builds
+- [SCAD architecture](SCAD_ARCHITECTURE.md): how a parameter set becomes
+  geometry
+- [Docs index](DOCS_INDEX.md): every file in the repository, with its purpose
+- [Release checklist](RELEASE.md): what a version number promises, and the
+  steps that keep that promise
 
-Then open `http://localhost:4321`.
+## Scope notes
+
+This set describes the primary model at the repository root. Gridfinity
+interfaces, snap-fit seam clips and the preset library are part of that model
+and are documented here.
+
+Most of the model is verified by a geometry regression suite rather than by
+printing. The
+[print validation status](PRINTING.md#print-validation-status) table says
+which features have been printed on a real machine, and on which printer.
+Treat anything marked "rendered only" as untested in filament.
+
+Contributors should start from
+[`CONTRIBUTING.md`](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/blob/main/CONTRIBUTING.md),
+which covers building this site locally.

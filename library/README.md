@@ -22,7 +22,8 @@ cannot drift from the model the way hand-made artifacts do.
 
 Every preset is also collected into `cable-box-parametric.json` beside
 the model, so opening `cable-box-parametric.scad` in OpenSCAD and then
-the Customizer (F3) offers all of them in the preset dropdown.
+opening the Customizer, from the Window menu, offers all of them
+in the preset dropdown.
 
 From the command line, against the merged file:
 
