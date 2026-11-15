@@ -14,7 +14,7 @@ produces.
 
 Start here if you own a printer and want a part today.
 
-- [Preset library](./library/): nine ready configurations, each sized for
+- [Preset library](../library/): nine ready configurations, each sized for
   something you already own. Every entry carries an orbitable 3D view, the
   parameters behind it, and STL, GLB and `config.json` downloads.
 - [Printing guide](PRINTING.md): the baseline settings, which face lands on

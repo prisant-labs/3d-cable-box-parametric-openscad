@@ -7,8 +7,8 @@ splits oversized boxes into pieces that clip together.
 
 ![A printed cable box in black PETG](docs/images/printed-box-black-petg.jpg)
 
-*Printed in black PETG with `All_Openings_Up=0`, which sits the openings flush
-with the floor so a cable resting on the desk slides straight in.*
+*Printed in black PETG. Set `All_Openings_Up=0` to sit the openings flush with
+the floor, so a cable resting on the desk slides straight in.*
 
 [![scad-smoke](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/actions/workflows/scad-smoke.yml/badge.svg)](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/actions/workflows/scad-smoke.yml)
 [![docs](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/actions/workflows/docs-pages.yml/badge.svg)](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/actions/workflows/docs-pages.yml)
