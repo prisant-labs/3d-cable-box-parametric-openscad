@@ -23,26 +23,28 @@ This table records what has actually been printed. A feature marked
 **rendered only** is not known to be broken; it is simply untested in
 filament. Print a [fit test box](#fit-test-box) first when you use one.
 
-| Feature | Status | Printer and material |
+| Feature | Status | What the print showed |
 |---|---|---|
-| Box body, walls and side openings | Printed | Not recorded; the photo in `README.md` is black PETG |
-| Lid, both `Lid_Style` values, and the `Lid_Lip_Gap` default of `0.15` | Printed | Bambu Lab P1S, PLA+, with and without magnets |
-| `Enable_Lid_Magnets` pockets | Printed | Bambu Lab P1S, PLA+ |
-| `Enable_Post` and its lid socket | Rendered only | - |
-| `Enable_Stabilizers` fins | Rendered only | - |
+| Box body, walls and side openings | Printed | The `2.0.0-rc.5` test prints, and the box photographed in `README.md` |
+| Lid, both `Lid_Style` values, and the `Lid_Lip_Gap` default of `0.15` | Printed | `0.15` fitted well with both styles, with and without magnets, at `rc.5` |
+| `Enable_Lid_Magnets` pockets | Printed | Part of the same `rc.5` fit prints |
+| `Enable_Post` | Printed | The photographed box carries one. Its mating lid socket is not shown |
+| Floor clips, both `Clip_Style` values | Printed, with a known weakness | At `rc.4` the clips held the piece off the bed, which `rc.5` fixed. At `rc.5` each half printed its whole floor flat, but the halves could still slide against each other, and the `Tab` pair's rims did not meet flush |
+| Seam teeth | Rendered only | Added after those prints, to fix the sliding the `rc.5` pair showed |
+| `Enable_Stabilizers` fins | Rendered only | The photographed box has none |
 | `Enable_Bottom_Openings` floor cutouts | Rendered only | - |
 | `Lid_Relief_Style` `Scallop` and `Tab` | Rendered only | - |
-| Slicing with `Clip_Style="Tab"`, seam teeth and floor clips | Rendered only | - |
-| Slicing with `Clip_Style="Snap"` | Rendered only | - |
-| `Enable_Gridfinity_Bottom` feet | Rendered only | - |
-| `Enable_Gridfinity_Lid_Top` baseplate | Rendered only | - |
+| `Enable_Gridfinity_Bottom` feet | Rendered only | The shape they replaced was printed at `rc.5`, and its 4 mm ledge printed as loose loops |
+| `Enable_Gridfinity_Lid_Top` baseplate | Rendered only | The socket it replaced was printed at `rc.5`, and its 37 mm floor sagged. Printing the pockets upward is the fix, and it is the untested part |
 | `Enable_Gridfinity_Magnet_Screw` pockets and screw holes | Rendered only | - |
 | `All_Opening_Top_Style="Teardrop"` | Rendered only | - |
 | `Bottom_Edge_Style` `Teardrop` and `Chamfer` | Rendered only | - |
 
-The two printed rows come from the fit figures recorded in this guide and in
-the FAQ. Every other row is marked rendered only because the repository holds
-no record of a print, not because a print is known to have failed.
+Every printed row was printed on a Bambu Lab P1S in PLA+, except the
+photographed box, which is black PETG on an unrecorded machine. A row marked
+rendered only means this repository holds no record of a print, not that a
+print failed. Where an earlier version of a feature did fail in print, the
+row says so, because that failure is why the current shape exists.
 
 ## Orientation
 

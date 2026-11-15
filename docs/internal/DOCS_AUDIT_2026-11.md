@@ -78,11 +78,24 @@ under each one.
    features are marked where they appear, and they are not. See F-06 (unvalidated features are not marked as promised).
 
    **Decided: publish a status table, prefilled from the repository.**
-   `docs/PRINTING.md` gained a "Print validation status" section. Two rows are
-   marked printed, because this repository records a fit result for them on a
-   Bambu Lab P1S in PLA+. Every other row says "rendered only", which means
-   no record of a print exists here, not that a print failed. The maintainer
-   corrects the table from their own history.
+   `docs/PRINTING.md` gained a "Print validation status" section.
+
+   This audit's own search for print evidence was too narrow: it covered
+   `docs/*.md` and `README.md` and skipped `CHANGELOG.md` and
+   `docs/internal/`. Those two hold most of the record. `CHANGELOG.md` dates
+   the `Lid_Lip_Gap` fit to the `rc.5` test prints, and
+   [`BACKLOG.md`](BACKLOG.md) items 13, 18 and 20 record printed clip
+   coupons at `rc.4` and `rc.5`, the sliding seam that led to
+   [E-13 (seam joints)](E-13_seam-joints.md), and the two Gridfinity print
+   failures that led to [E-12 (Gridfinity to spec)](E-12_gridfinity-to-spec.md).
+   The README photograph adds one more: the box in it has a post and has no
+   stabilizer fins.
+
+   So five rows are marked printed, one of them with a known weakness, and
+   two Gridfinity rows record that the shape each one replaced was printed
+   and failed. A row marked "rendered only" means no record exists here, not
+   that a print failed. The maintainer corrects the table from their own
+   history.
 
 ---
 
@@ -522,7 +535,16 @@ are to prose, one Astro template sentence, and one generator script.
   Build" moved to `CONTRIBUTING.md`, which gained the `npm ci` warning about
   Astro's Node floor.
 - **F-06**, "Print validation status" table added to `docs/PRINTING.md` and
-  linked from the landing page's scope notes.
+  linked from the landing page's scope notes. Built from `CHANGELOG.md`,
+  `docs/internal/BACKLOG.md` and the README photograph, not from the
+  user-facing docs alone.
+- **F-08**, the caption only. The README said the photographed box was
+  printed with `All_Openings_Up=0`, which sits the openings flush with the
+  floor. In the photograph the front slot's lower end is well above the floor,
+  so the caption now gives `All_Openings_Up=0` as advice rather than as a
+  claim about that print. Only the maintainer knows the real setting. The
+  wider half of F-08, that one photograph is the whole photographic record,
+  still stands.
 - **F-17**, one product name. The site title in `web/astro.config.mjs` was
   "Ultimate Cable Box Parametric OpenSCAD" and the landing heading was
   "Ultimate Cable Box Documentation". Both are now "Parametric Cable
