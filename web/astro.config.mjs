@@ -16,11 +16,14 @@ export default defineConfig({
 	base: '/3d-cable-box-parametric-openscad',
 	integrations: [
 		starlight({
-			// One product name across the README, this site and the landing
-			// page. The site previously said "Ultimate Cable Box Parametric
-			// OpenSCAD" while the README said "Parametric Cable Management Box"
-			// and the landing page said "Ultimate Cable Box Documentation".
-			title: 'Parametric Cable Management Box',
+			// The project still answers to two names, which the docs audit
+			// raised as F-17. Resolving it is backlog item 16: the README's
+			// "Parametric Cable Management Box" is the 2022 original design's
+			// name, so picking it would spread an inherited name rather than
+			// settle anything. The decision belongs with the provenance
+			// checklist in E-03 (openings array). Until then this title stands
+			// and the landing page uses its shorter form.
+			title: 'Ultimate Cable Box Parametric OpenSCAD',
 			description:
 				'A cable box you size to your own gear: an OpenSCAD model with nine ready-to-print presets, configurable openings, and Gridfinity interfaces.',
 			social: [
