@@ -317,6 +317,16 @@ Phase A prints from `v2.0.0-rc.6`. Phase B prints from rc.7.
 - **The flip changes the lid's frame.** Relief, magnets, seam clips, and
   slicing are all written in the face-down frame. Scenarios for a Gridfinity
   lid need probes written in the flipped frame.
+- **The flipped lid's rim is an unsupported ledge.** On a `Plug` lid the
+  slab's rim overhangs the filled plug by about 4 mm all round. The lid now
+  prints lip-face down, so nothing sits beneath that rim. A ledge of the same
+  width on the rc.5 Gridfinity base printed as loose loops, which is why
+  Decision 2 rounds the base footprint up to whole cells.
+  `tests/assembly/lid_overhangs.scad` only flags an unsupported span wider
+  than 16 mm, so a 4 mm ledge sits below its threshold and the suite says
+  nothing about it. Look at the rim first when the rc.7 lid comes off the
+  plate. If it comes out badly, the fix is a chamfer under the rim rather than
+  a wider plug, because the plug's width is what the box wall seats against.
 
 ## Licensing
 

@@ -9,11 +9,13 @@ the model behind opt-in defaults, with nine regression scenarios. Sits in
 untouched and that makes it a minor bump under
 [E-10 (versioning)](E-10_versioning.md).
 
-**Not print-validated.** Three items in the human smoke test below still need
-hardware: whether the lid comes off one-handed, whether a magnet seats without
-cracking its boss, and whether the bottom fillet prints without a droopy first
-layer. The last is the one most likely to send a parameter default back for
-revision.
+**Partly print-validated.** Magnet seating is answered: the `2.0.0-rc.5` fit
+prints carried `Enable_Lid_Magnets` and no boss cracked. Two smoke items still
+need hardware, whether the lid comes off one-handed and whether a bottom
+fillet prints without a droopy first layer, and neither can be answered by the
+defaults, because `Lid_Relief_Style` is `"None"` and `Bottom_Edge_Fillet` is 0.
+The fillet is the item most likely to send a parameter default back for
+revision, so print it before anyone raises that default.
 
 **Effort:** S total
 **Depends on:** nothing. Cheaper after
@@ -133,16 +135,46 @@ magnet parameter convention. Reuse it rather than inventing a second one.
 
 ## Acceptance criteria
 
-- [ ] All three default to a state that leaves current geometry unchanged, or
+Reconciled on 2026-11-15 against the shipped scenarios in
+`tests/scenarios.json` and the model itself. Each ticked box names the code and
+the scenarios that back it.
+
+- [x] All three default to a state that leaves current geometry unchanged, or
       the change is versioned per [E-10 (versioning)](E-10_versioning.md).
-- [ ] Edge treatment suppressed automatically in Gridfinity mode.
-- [ ] Lid relief never collides with an opening.
-- [ ] Magnet pockets assert when they do not fit the available wall.
-- [ ] All three survive slicing mode.
+      `Bottom_Edge_Fillet` and `Top_Edge_Chamfer` default to 0,
+      `Lid_Relief_Style` to `"None"`, and `Enable_Lid_Magnets` to `false`, so a
+      default box still takes the plain `cuboid()` path. Covered by
+      `e04_edge_treatment_box`.
+- [x] Edge treatment suppressed automatically in Gridfinity mode.
+      `Bottom_Fillet_Effective` and `Lid_Chamfer_Effective` each zero
+      themselves when the matching Gridfinity interface is active. Covered by
+      `e04_edge_treatment_suppressed_by_gridfinity`.
+- [x] Lid relief never collides with an opening. `lid_relief_enabled()` drops
+      the relief on any wall whose opening reaches the rim. Covered by
+      `e04_lid_relief_skipped_by_full_height_opening` and
+      `e04_lid_relief_skipped_by_per_wall_lift`.
+- [x] Magnet pockets assert when they do not fit the available wall. The boss
+      diameter is checked against the box, and a relief width that would eat
+      into a rounded corner is checked per wall. Covered by
+      `e04_lid_magnet_too_big_blocked` and
+      `e04_lid_relief_width_short_wall_blocked`.
+- [ ] All three survive slicing mode. Only magnets have a named scenario,
+      `e04_lid_magnets_survive_slicing`. Edge treatment rides on the shared box
+      and lid code, and `lid_seam_bands()` deliberately suppresses a seam's
+      clip bands when a front or back relief sits on that seam, but no scenario
+      asserts either behaviour. Two scenarios would close this box.
 
 ## Human smoke test
 
-- [ ] Lid comes off comfortably one-handed.
+- [ ] Lid comes off comfortably one-handed. No relief has ever been printed.
+      `docs/PRINTING.md` marks both `Lid_Relief_Style` values rendered only,
+      and the default is `"None"`, so a print has to ask for one.
 - [ ] Magnets seat without cracking the wall and hold when the box is lifted by
-      the lid.
-- [ ] Bottom fillet prints without a droopy first layer.
+      the lid. Seating is answered by the `rc.5` fit prints, which used
+      `Enable_Lid_Magnets` with both lid styles and cracked no boss. Lifting
+      the box by its lid was not tried, so this box stays open on that half
+      alone.
+- [ ] Bottom fillet prints without a droopy first layer. `Bottom_Edge_Fillet`
+      defaults to 0, so no print has ever carried a fillet.
+      `Bottom_Edge_Style=Teardrop` exists to avoid the droop and is unprinted
+      too.
