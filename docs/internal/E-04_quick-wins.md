@@ -9,8 +9,11 @@ the model behind opt-in defaults, with nine regression scenarios. Sits in
 untouched and that makes it a minor bump under
 [E-10 (versioning)](E-10_versioning.md).
 
-**Partly print-validated.** Magnet seating is answered: the `2.0.0-rc.5` fit
-prints carried `Enable_Lid_Magnets` and no boss cracked. Two smoke items still
+**Partly print-validated.** The magnet pockets have been printed. The record
+is [backlog item 17 (lid could not fit)](BACKLOG.md) and the `2.0.0-rc.5`
+changelog entry, both of which say the rc.5 reprints fitted well with both lid
+styles, with and without magnets, at the default 0.15 mm gap. Two smoke items
+still
 need hardware, whether the lid comes off one-handed and whether a bottom
 fillet prints without a droopy first layer, and neither can be answered by the
 defaults, because `Lid_Relief_Style` is `"None"` and `Bottom_Edge_Fillet` is 0.
@@ -143,8 +146,11 @@ the scenarios that back it.
       the change is versioned per [E-10 (versioning)](E-10_versioning.md).
       `Bottom_Edge_Fillet` and `Top_Edge_Chamfer` default to 0,
       `Lid_Relief_Style` to `"None"`, and `Enable_Lid_Magnets` to `false`, so a
-      default box still takes the plain `cuboid()` path. Covered by
-      `e04_edge_treatment_box`.
+      default box still takes the plain `cuboid()` path. That is a property of
+      the control flow, as the resolved decision above says, and every
+      pre-existing scenario would move if it broke. No scenario asserts it
+      directly: `e04_edge_treatment_box` switches both treatments on and
+      asserts the envelope does not move, which is the adjacent claim.
 - [x] Edge treatment suppressed automatically in Gridfinity mode.
       `Bottom_Fillet_Effective` and `Lid_Chamfer_Effective` each zero
       themselves when the matching Gridfinity interface is active. Covered by
@@ -154,27 +160,30 @@ the scenarios that back it.
       `e04_lid_relief_skipped_by_full_height_opening` and
       `e04_lid_relief_skipped_by_per_wall_lift`.
 - [x] Magnet pockets assert when they do not fit the available wall. The boss
-      diameter is checked against the box, and a relief width that would eat
-      into a rounded corner is checked per wall. Covered by
-      `e04_lid_magnet_too_big_blocked` and
-      `e04_lid_relief_width_short_wall_blocked`.
+      diameter plus its surround is checked against the box, and the assertion
+      names the parameters to reduce. Covered by
+      `e04_lid_magnet_too_big_blocked`, which expects the render to fail with
+      "Magnet bosses do not fit". The relief has the same shape of check on its
+      own width, covered by `e04_lid_relief_width_short_wall_blocked`.
 - [ ] All three survive slicing mode. Only magnets have a named scenario,
       `e04_lid_magnets_survive_slicing`. Edge treatment rides on the shared box
-      and lid code, and `lid_seam_bands()` deliberately suppresses a seam's
-      clip bands when a front or back relief sits on that seam, but no scenario
-      asserts either behaviour. Two scenarios would close this box.
+      and lid code. `lid_seam_bands()` returns no bands at all when a front or
+      back relief sits on a seam, which leaves that seam of the lid flat
+      instead of toothed, because the bands it returns are what
+      `m_seam_cutter()` cuts teeth into. Neither behaviour is asserted. Two
+      scenarios would close this box.
 
 ## Human smoke test
 
-- [ ] Lid comes off comfortably one-handed. No relief has ever been printed.
-      `docs/PRINTING.md` marks both `Lid_Relief_Style` values rendered only,
-      and the default is `"None"`, so a print has to ask for one.
+- [ ] Lid comes off comfortably one-handed. The repository holds no record of
+      a printed relief, and the default `Lid_Relief_Style` is `"None"`, so a
+      print has to ask for one.
 - [ ] Magnets seat without cracking the wall and hold when the box is lifted by
-      the lid. Seating is answered by the `rc.5` fit prints, which used
-      `Enable_Lid_Magnets` with both lid styles and cracked no boss. Lifting
-      the box by its lid was not tried, so this box stays open on that half
-      alone.
+      the lid. The rc.5 reprints used `Enable_Lid_Magnets` with both lid styles
+      and fitted well, so the pockets print and take a magnet. Whether a boss
+      cracked is not recorded either way, and no record mentions lifting the
+      box by its lid, so this box stays open.
 - [ ] Bottom fillet prints without a droopy first layer. `Bottom_Edge_Fillet`
-      defaults to 0, so no print has ever carried a fillet.
-      `Bottom_Edge_Style=Teardrop` exists to avoid the droop and is unprinted
-      too.
+      defaults to 0, so a fillet has to be asked for, and the repository holds
+      no record of a print that did. `Bottom_Edge_Style=Teardrop` exists to
+      avoid the droop and has no print record either.

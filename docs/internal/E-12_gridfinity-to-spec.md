@@ -325,8 +325,9 @@ Phase A prints from `v2.0.0-rc.6`. Phase B prints from rc.7.
   `tests/assembly/lid_overhangs.scad` only flags an unsupported span wider
   than 16 mm, so a 4 mm ledge sits below its threshold and the suite says
   nothing about it. Look at the rim first when the rc.7 lid comes off the
-  plate. If it comes out badly, the fix is a chamfer under the rim rather than
-  a wider plug, because the plug's width is what the box wall seats against.
+  plate. No fix is proposed here, because part of that rim is the face which
+  seats on the box wall and the rest hangs past the box entirely, so the two
+  halves of the overhang do not take the same remedy.
 
 ## Licensing
 
