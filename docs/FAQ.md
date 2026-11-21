@@ -162,6 +162,8 @@ Three options, cheapest first.
 
 ## How do the lid magnets work?
 
+![The box with four corner magnet bosses, and the lid lifted above it](images/showcase_exploded.png)
+
 `Enable_Lid_Magnets` cuts a pocket in the box and a matching pocket in the lid
 at each of the four inside corners, so a magnet in each holds the lid shut.
 Corners rather than the rim, because the rim is only `Wall_Thickness` wide

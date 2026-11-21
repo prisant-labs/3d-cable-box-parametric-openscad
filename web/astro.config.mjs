@@ -33,6 +33,31 @@ export default defineConfig({
 					href: 'https://github.com/prisant-labs/3d-cable-box-parametric-openscad',
 				},
 			],
+			// The image chat apps and social sites show when someone shares a
+			// link to the site. Starlight sets the title and description itself
+			// but no image, so shared links showed a bare text card. The file is
+			// rendered by scripts/build_readme_images.py and copied to public/ by
+			// sync-docs.mjs. Crawlers need an absolute URL.
+			head: [
+				{
+					tag: 'meta',
+					attrs: {
+						property: 'og:image',
+						content:
+							'https://projects.prisantlabs.com/3d-cable-box-parametric-openscad/social-card.png',
+					},
+				},
+				{ tag: 'meta', attrs: { property: 'og:image:width', content: '1200' } },
+				{ tag: 'meta', attrs: { property: 'og:image:height', content: '630' } },
+				{
+					tag: 'meta',
+					attrs: {
+						property: 'og:image:alt',
+						content: 'A rendered cable box and its lid, side by side',
+					},
+				},
+				{ tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
+			],
 			editLink: {
 				baseUrl:
 					'https://github.com/prisant-labs/3d-cable-box-parametric-openscad/edit/main/web/',

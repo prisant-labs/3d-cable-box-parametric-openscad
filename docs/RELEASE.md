@@ -53,7 +53,7 @@ Rerun them when default geometry or the preview palette changes:
 
 ```bash
 python scripts/build_options_guide.py            # docs/images/options/ + options-guide.html
-python scripts/build_readme_images.py            # README hero and feature images
+python scripts/build_readme_images.py            # README, landing and Printing images
 ```
 
 - [ ] Regenerate whichever apply, and check `git status` matches expectations.
