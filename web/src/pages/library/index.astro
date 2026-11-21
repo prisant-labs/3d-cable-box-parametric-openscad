@@ -17,16 +17,57 @@ import {
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
+const partSize = (preset: (typeof presets)[number], slug: string) =>
+	preset.parts.find((p) => p.slug === slug)?.size_mm ?? null;
+
+// The longest side that has to fit on a printer bed, in mm, or undefined when
+// the index does not say. A square bed takes a part either way round, so the
+// longest side of the largest separately printed part decides.
+//
+// The lid prints on its own and is 2 * (Wall_Thickness + Lid_Lip_Gap) larger
+// than the box each way, 4 mm at the defaults, so it is usually the part that
+// decides. Comparing the box alone passed under-desk-passthrough (a 180 mm box)
+// for a 180 mm bed, although its 184 mm lid does not fit one.
+//
+// A sliced preset's box_size_mm is the preview layout, every piece side by
+// side, so largest_piece_mm stands in for the box. That figure is measured from
+// the box's pieces only. The lid's pieces are as deep as the whole lid, which
+// is counted here, but their width is not in the index.
+function bedFit(preset: (typeof presets)[number]): number | undefined {
+	const lid = partSize(preset, 'lid-only');
+	if (preset.features.sliced) {
+		const piece = preset.largest_piece_mm;
+		if (!piece) return undefined;
+		return Math.max(piece[0], piece[1], lid ? lid[1] : 0);
+	}
+	const box = partSize(preset, 'box-only') ?? preset.box_size_mm;
+	if (!box) return undefined;
+	return Math.max(box[0], box[1], lid ? lid[0] : 0, lid ? lid[1] : 0);
+}
+
 const cards = presets.map((preset) => {
 	const card = preset.parts.find((p) => p.slug === 'box-and-lid') ?? preset.parts[0];
-	const [w, d] = preset.box_size_mm ?? [0, 0];
-	// largest_piece_mm is the footprint that actually has to fit a bed for a
-	// sliced preset; box_size_mm for a sliced preset is the preview layout
-	// (every piece side by side), which is why the filter below needs this
-	// instead. undefined, not null, when absent, so the attribute below is
-	// dropped rather than rendered as the literal string "null".
-	const [pw, pd] = preset.largest_piece_mm ?? [undefined, undefined];
-	return { preset, image: card?.image ?? null, w, d, pw, pd };
+	return { preset, image: card?.image ?? null, fit: bedFit(preset) };
+});
+
+// The footprint chart draws every box from above at one scale, in a square
+// cell this many millimetres across. It covers the largest preset with room
+// for a 300 mm bed outline; a larger bed grows every cell together.
+const CHART_CELL_MM = 300;
+const footprints = presets.map((preset) => {
+	const [w, d] = preset.assembled_size_mm ?? preset.box_size_mm ?? [0, 0];
+	const lid = partSize(preset, 'lid-only');
+	// A sliced preset's lid size is also the preview layout, so draw its lid
+	// from the assembled box plus the same margin a whole lid adds.
+	const lidPad = lid && !preset.features.sliced ? (lid[0] - w) / 2 : 2;
+	return {
+		preset,
+		w,
+		d,
+		lidPad,
+		seams: preset.features.sliced ? (preset.features.slice_count ?? 2) : 1,
+		fit: bedFit(preset),
+	};
 });
 ---
 
@@ -60,13 +101,10 @@ const cards = presets.map((preset) => {
 
 	<ul class="grid">
 		{
-			cards.map(({ preset, image, w, d, pw, pd }) => (
+			cards.map(({ preset, image, fit }) => (
 				<li
 					class="card"
-					data-w={w}
-					data-d={d}
-					data-pw={pw}
-					data-pd={pd}
+					data-fit={fit}
 					data-gridfinity={String(
 						preset.features.gridfinity_bottom || preset.features.gridfinity_lid_top,
 					)}
@@ -102,6 +140,45 @@ const cards = presets.map((preset) => {
 		No preset matches those filters. The model is parametric: start from the
 		closest preset and change the dimensions.
 	</p>
+
+	<h2 id="footprints">Footprints to scale</h2>
+	<p>
+		Each preset seen from above, all at one scale. The dark shape is the box,
+		and the light outline around it is the lid, which prints on its own and is
+		slightly larger. A sliced preset shows its seams, because each piece prints
+		separately. Enter a printer bed size above, and a dashed square of that
+		size appears over every preset: red where a part will not fit.
+	</p>
+	<ul class="footprints" data-cell={CHART_CELL_MM}>
+		{
+			footprints.map(({ preset, w, d, lidPad, seams, fit }) => (
+				<li data-fit={fit}>
+					<svg
+						viewBox={`${-CHART_CELL_MM / 2} ${-CHART_CELL_MM / 2} ${CHART_CELL_MM} ${CHART_CELL_MM}`}
+						role="img"
+						aria-label={`${preset.title}: ${w} by ${d} mm from above`}
+					>
+						<rect
+							class="lid"
+							x={-w / 2 - lidPad}
+							y={-d / 2 - lidPad}
+							width={w + 2 * lidPad}
+							height={d + 2 * lidPad}
+							rx="6"
+						/>
+						<rect class="box" x={-w / 2} y={-d / 2} width={w} height={d} rx="5" />
+						{Array.from({ length: seams - 1 }, (_, i) => {
+							const x = -w / 2 + ((i + 1) * w) / seams;
+							return <line class="seam" x1={x} x2={x} y1={-d / 2 - lidPad} y2={d / 2 + lidPad} />;
+						})}
+						<rect class="bed" display="none" x="0" y="0" width="0" height="0" />
+					</svg>
+					<a href={`${base}/library/${preset.name}/`}>{preset.title}</a>
+					<span class="size">{w} x {d} mm</span>
+				</li>
+			))
+		}
+	</ul>
 </StarlightPage>
 
 <style>
@@ -197,6 +274,60 @@ const cards = presets.map((preset) => {
 		margin-top: 1rem;
 		font-style: italic;
 	}
+
+	.footprints {
+		list-style: none;
+		padding: 0;
+		display: grid;
+		gap: 1rem;
+		grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+	}
+	.footprints li {
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+		font-size: var(--sl-text-sm);
+	}
+	.footprints svg {
+		width: 100%;
+		height: auto;
+		aspect-ratio: 1;
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 0.5rem;
+		/* A faint 50 mm grid, drawn as a background so it scales with the cell. */
+		background-image:
+			linear-gradient(var(--sl-color-gray-6) 1px, transparent 1px),
+			linear-gradient(90deg, var(--sl-color-gray-6) 1px, transparent 1px);
+		background-size: calc(100% / 6) calc(100% / 6);
+		background-position: center;
+	}
+	.footprints .lid {
+		fill: none;
+		stroke: #8fa6bf;
+		stroke-width: 2;
+	}
+	.footprints .box {
+		fill: #3e4c5e;
+	}
+	.footprints .seam {
+		stroke: #f28c38;
+		stroke-width: 2.5;
+		stroke-dasharray: 6 4;
+	}
+	.footprints .bed {
+		fill: none;
+		stroke: var(--sl-color-text-accent);
+		stroke-width: 2.5;
+		stroke-dasharray: 8 5;
+	}
+	.footprints li.over .bed {
+		stroke: #dc2626;
+	}
+	.footprints .size {
+		font-family: var(--sl-font-mono, monospace);
+		color: var(--sl-color-gray-3);
+	}
 </style>
 
 <script>
@@ -218,32 +349,48 @@ const cards = presets.map((preset) => {
 
 		let shown = 0;
 		for (const card of cards) {
-			// A part is printable on the bed when its footprint fits either way
-			// round, so compare the smaller dimension against the smaller limit.
-			const w = Number(card.dataset.w);
-			const d = Number(card.dataset.d);
-			let fits: boolean;
-			if (card.dataset.sliced === 'true') {
-				// A sliced preset's own w/d is the preview layout (every piece
-				// side by side), not what has to fit the bed: the largest single
-				// piece does. data-pw/data-pd hold that piece's footprint and are
-				// absent only when largest_piece_mm could not be computed (no
-				// trimesh at build time), in which case fall back to the old,
-				// always-passes behaviour rather than block a preset on data we
-				// do not have.
-				fits = card.dataset.pw !== undefined
-					? Math.max(Number(card.dataset.pw), Number(card.dataset.pd)) <= limit
-					: true;
-			} else {
-				fits = Math.max(w, d) <= limit;
-			}
 			const matches = wanted.every((key) => card.dataset[key] === 'true');
-			const visible = fits && matches;
+			const visible = fits(card, limit) && matches;
 			card.hidden = !visible;
 			if (visible) shown += 1;
 		}
 		if (count) count.textContent = `${shown} of ${cards.length}`;
 		if (empty) empty.hidden = shown !== 0;
+		drawBed(bed?.value ? Number(bed.value) : null);
+	}
+
+	// data-fit is the longest side of the largest separately printed part (see
+	// bedFit() in the frontmatter). It is absent when the index cannot say, as
+	// for a sliced preset built without trimesh, and then the preset is shown
+	// rather than hidden on data we do not have.
+	function fits(el: HTMLElement, limit: number): boolean {
+		return el.dataset.fit === undefined || Number(el.dataset.fit) <= limit;
+	}
+
+	// The footprint chart: one dashed bed outline per preset, at the chart's
+	// scale. Every cell shares one viewBox, so a bed larger than the cell grows
+	// all of them together and the presets stay comparable.
+	const chart = document.querySelector<HTMLElement>('.footprints');
+	const baseCell = Number(chart?.dataset.cell ?? 300);
+	function drawBed(size: number | null) {
+		if (!chart) return;
+		const cell = size ? Math.max(baseCell, size + 20) : baseCell;
+		for (const item of Array.from(chart.querySelectorAll<HTMLElement>('li'))) {
+			const svg = item.querySelector('svg');
+			const rect = item.querySelector<SVGRectElement>('.bed');
+			if (!svg || !rect) continue;
+			svg.setAttribute('viewBox', `${-cell / 2} ${-cell / 2} ${cell} ${cell}`);
+			svg.style.backgroundSize = `${(100 * 50) / cell}% ${(100 * 50) / cell}%`;
+			if (!size) {
+				rect.setAttribute('display', 'none');
+				item.classList.remove('over');
+				continue;
+			}
+			rect.removeAttribute('display');
+			for (const [k, v] of [['x', -size / 2], ['y', -size / 2], ['width', size], ['height', size]] as const)
+				rect.setAttribute(k, String(v));
+			item.classList.toggle('over', !fits(item, size));
+		}
 	}
 
 	form?.addEventListener('input', apply);

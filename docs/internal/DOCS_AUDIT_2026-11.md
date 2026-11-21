@@ -434,11 +434,13 @@ one sentence under the options guide intro that names the colours.
   "Validation" section serves contributors and sits before the licence. The
   hero render appears after the install steps, far from the top. Move the
   contributor sections to the end, or to `CONTRIBUTING.md`.
-- **F-19 (library render framing).** I measured all nine `box-and-lid` images. The
-  part fills between 38 and 78 percent of the frame width, so the same card
-  shows `usb-charger` (38), `gridfinity-module` (40) and `desk-compact` (44)
-  small beside `surge-strip-6` (78). Frame each preset to a similar fill in
-  `scripts/build_library.py`. Confidence: high (Seen and measured).
+- **F-19 (library render framing). Withdrawn 2026-11-20.** I measured all nine
+  `box-and-lid` images. The part fills between 38 and 78 percent of the frame
+  width. That is deliberate, and I missed the comment that says so:
+  `build_library.py` renders this one view at a fixed camera distance, so the
+  library grid reads as a size comparison. Five presets differ only in
+  dimensions, and framing each to fit would hide the one difference they have.
+  The measurement stands; the proposed fix does not.
 - **F-20 (`docs/FAQ.md` bare-path mentions).** Several answers named files
   without linking them. **Fixed** for the three I found: `docs/FAQ.md`,
   `docs/PARAMETER_REFERENCE.md` (two) and `docs/SCAD_ARCHITECTURE.md`.
@@ -583,6 +585,6 @@ tag for that one page.
 F-07 and F-10 (the image work, which is the largest remaining item), F-02
 (per-piece STLs for the sliced preset), F-09 (move maintainer material out of
 the user pages), F-11 (version history out of guidance), F-13 (options guide
-gaps), F-14's grouping, F-15's duplication, F-16, F-18, F-19. F-08 needs the
+gaps), F-14's grouping, F-15's duplication, F-16, F-18. F-08 needs the
 maintainer: only they know what `All_Openings_Up` was set to for the
 photographed print.

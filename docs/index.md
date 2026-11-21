@@ -20,6 +20,13 @@ Start here if you own a printer and want a part today.
 - [Printing guide](PRINTING.md): the baseline settings, which face lands on
   the bed, and the small fit test box to print before a full one.
 
+![The nine presets, each a box beside its lid, drawn at one scale](images/showcase_presets.png)
+
+*The nine presets, drawn at one scale, so the smallest charger box and the
+six-outlet strip compare directly. The
+[preset library](../library/) also draws each footprint from above against
+your printer's bed.*
+
 ## Change a box
 
 Start here when a preset is close but not quite right.
@@ -31,7 +38,11 @@ Start here when a preset is close but not quite right.
 - [FAQ](FAQ.md): the questions that come up most often, answered with the
   parameter names and the numbers.
 
-![The box and its lid, rendered from the model](images/hero_box-and-lid.png)
+![Eight variations on the default box, one change each](images/showcase_variations.png)
+
+*Eight variations on the default box, each a small change from it. Each
+view is framed to fit, so the sizes do not compare. The
+[options guide](OPTIONS_GUIDE.md) shows every option this way.*
 
 ## Reference
 
