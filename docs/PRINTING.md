@@ -48,6 +48,14 @@ row says so, because that failure is why the current shape exists.
 
 ## Orientation
 
+![The box and its seated lid cut through the middle, with the cut faces in yellow](images/showcase_section.png)
+
+*The default box with its lid seated, cut through the middle. The lid's
+plug drops just inside the wall, and the post rises into a socket in the lid.
+This is the lid in use: it prints the other way up, with the plug facing the
+nozzle. The left and right openings are turned off here, because the cut runs
+through them.*
+
 - Box: print it as exported, open top facing up.
 - Lid: print it as exported. Without a Gridfinity lid top, the lid turns over
   in use, so the face on the bed becomes the top of the closed box and gets the
@@ -94,6 +102,12 @@ and without magnets, on a Bambu Lab P1S printing PLA+.
 
 ## Slicing Mode Print Procedure
 
+![A two-piece box and lid pulled apart at the seam](images/showcase_exploded-sliced.png)
+
+*A default box with `Enable_Slicing=true`, pulled apart at its seam. The
+green clips on each floor and lid edge push into sockets in the other piece,
+and the sawtooth through the walls locks the pieces level.*
+
 1. Enable slicing and choose `Slice_Count`.
 2. Export each piece with `Slice_Piece_To_Render=1..Slice_Count`.
 3. Print one seam pair first: a two-slice [fit test box](#fit-test-box), or
@@ -129,6 +143,13 @@ piece on its clips. Re-export any sliced pieces from those releases.
 
 ## Gridfinity
 
+![A Gridfinity box with its baseplate lid seated, cut through the middle](images/showcase_section-gridfinity.png)
+
+*Both Gridfinity interfaces, cut through the middle with the lid seated. The
+solid feet stand under the floor, and the lid's baseplate pockets face up to
+take bins or a second box. The lid's plug is filled solid, because this lid
+prints with that face on the bed.*
+
 - The box's feet are solid and stand on the bed. Their sides lean out at 45
   degrees or rise straight, so they need no support. Releases through
   2.0.0-rc.5 hollowed the base from below and left a 37 mm bridge in every
@@ -160,6 +181,12 @@ piece on its clips. Re-export any sliced pieces from those releases.
   baseplate before a full box anyway.
 
 ## Magnets
+
+![The box and lid cut through two magnet bosses, showing the pockets meeting at the rim](images/showcase_section-magnets.png)
+
+*Cut through the two back corners with `Enable_Lid_Magnets=true`. In each
+corner, the box's pocket opens at the rim and the lid's pocket sits directly
+above it, so the two magnets meet across the joint.*
 
 - Pockets open at the box rim and at the lid's mating face, so both print
   facing up and the magnets go in after printing. No pause is needed.

@@ -176,4 +176,9 @@ cpSync(join(DOCS, 'images'), join(OUT, 'images'), { recursive: true });
 // The self-contained offline guide is served verbatim, not rendered as a page.
 cpSync(join(DOCS, 'options-guide.html'), join(WEB, 'public', 'options-guide.html'));
 
-console.log(`sync-docs: ${Object.keys(PAGES).length} pages, images, options-guide.html`);
+// The link preview image. It needs a fixed URL, which astro.config.mjs names in
+// og:image, so it is served from public/ rather than through the optimizer,
+// which would give it a hashed name.
+cpSync(join(DOCS, 'images', 'social-card.png'), join(WEB, 'public', 'social-card.png'));
+
+console.log(`sync-docs: ${Object.keys(PAGES).length} pages, images, options-guide.html, social-card.png`);

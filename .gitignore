@@ -53,4 +53,5 @@ web/dist/
 web/.astro/
 web/src/content/docs/
 web/public/options-guide.html
+web/public/social-card.png
 web/public/library/

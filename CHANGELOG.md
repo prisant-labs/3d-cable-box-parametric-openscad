@@ -97,6 +97,21 @@ identically and that magnets survive slicing.
   layer height you slice at. The default `0.2` reproduces the earlier steps
   exactly, and `Gridfinity_Magnet_Depth` may now reach
   `4.75 - 2 * Print_Layer_Height`.
+- **Views of the parts together.** `scripts/showcase/scenes.scad` draws the
+  box and lid as they are used, which the model never does: cut open with the
+  lid seated, and pulled apart. `scripts/build_readme_images.py` renders five
+  of these into the Printing guide and the FAQ: the default box, Gridfinity and
+  magnet corners in section, and the magnet and sliced boxes exploded. It also
+  assembles two composites for the landing page from images that already
+  exist: the nine presets at one scale, and eight variations on the default
+  box.
+- **Footprints to scale on the preset library page.** Every preset is drawn
+  from above at one scale, box and lid, with a sliced preset's seams marked.
+  Entering a printer bed size draws that bed over each one, in red where a part
+  will not fit.
+- **Link previews for the docs site.** Shared links now show a rendered box
+  and lid. The site sets `og:image` to a 1200 x 630 render that
+  `build_readme_images.py` produces and `web/sync-docs.mjs` publishes.
 
 ### Changed
 - **A Gridfinity base rounds the box up to whole cells, and its feet follow the
@@ -192,6 +207,12 @@ identically and that magnets survive slicing.
   retired lid studs, and the hero showed openings flush with the floor.
 
 ### Fixed
+- **The preset library's bed filter counts the lid.** It compared only the
+  box, but the lid prints separately and is 4 mm larger each way at the
+  defaults. So `under-desk-passthrough`, a 180 mm box with a 184 mm lid, passed
+  a 180 mm bed. The filter now takes the larger of the two parts. For a sliced
+  preset it also counts the lid's depth, though the index does not record the
+  width of the lid's pieces.
 - **The lid fits the box.** In every version from v1.0.0 to v2.0.0-rc.4,
   including v1.4.1, the lid's lip ring was sized to land on top of the box
   wall: on a 50 mm box it spanned 48.25 to 50.10 mm against a wall from 46.30

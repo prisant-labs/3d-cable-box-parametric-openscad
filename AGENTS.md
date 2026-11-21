@@ -23,7 +23,7 @@ clone.
 | Calibration coupons (local only) | `python _local/calibration/build_calibration.py [--only NAME ...]` |
 | Preset library | `python scripts/build_library.py` (`--no-stl --no-png --no-glb` for metadata only) |
 | Options guide | `python scripts/build_options_guide.py [--no-render] [--only SLUG ...]` |
-| README images | `python scripts/build_readme_images.py` |
+| README, landing and Printing images | `python scripts/build_readme_images.py [--only STEM ...] [--composites-only]` |
 | Release assets | `python scripts/package_release.py`, then `python scripts/release_notes.py vX.Y.Z[-rc.N]` |
 | Docs site | `cd web && npm ci && npm run build` |
 
