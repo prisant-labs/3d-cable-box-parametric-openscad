@@ -7,18 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.0] - 2026-08-07
+## [2.0.0] - 2026-11-26
 
-Major release, because `Enable_Gridfinity_Lid_Top` now renders different
-geometry from the same parameter set. Under
-[E-10 (versioning)](docs/internal/E-10_versioning.md) that is a major bump even
-though the new geometry is the one the parameter always claimed to produce.
+Major release, because the same parameter set now renders different geometry in
+several places. `Enable_Gridfinity_Lid_Top` produces spec baseplate pockets
+where it once produced studs, a Gridfinity base rounds the footprint up to whole
+cells, `Lid_Style` defaults to `Plug`, `Lid_Lip_Gap` became a clearance on each
+side defaulting to 0.15 mm, and `All_Openings_Up` defaults to 5 rather than 0.
+Under [E-10 (versioning)](docs/internal/E-10_versioning.md) a changed default is
+a major bump on its own, even where the new value is the better one. The code
+inherited from the 2022 original was also rewritten in this release.
 
-**Not yet print-validated.** The Gridfinity socket clearances and the lid clip
-placement are arithmetic, not measurements. E-10's flow for this state is a
-`v2.0.0-rc.1` prerelease with STLs attached, so the print test has a citable
-artifact; the date above belongs to the final release and should be corrected
-when it ships.
+**Partly print-validated.** What has been printed, on a Bambu Lab P1S with a
+0.4 mm nozzle, 0.2 mm layers and PLA+: the edge treatment and side opening
+coupons passed at `v2.0.0-rc.4`, and the `v2.0.0-rc.5` reprints fitted well with
+both lid styles, with and without magnets, at the default 0.15 mm `Lid_Lip_Gap`.
+
+What has not been printed: a Gridfinity base seated in a standard baseplate, the
+reworked lid top of this release, the 45 degree seam teeth, and either clip style
+since the floor clips were fixed. The Gridfinity clearances in particular are
+arithmetic rather than measurements. The open checks are listed in
+[E-12 (Gridfinity to spec)](docs/internal/E-12_gridfinity-to-spec.md) and
+[E-13 (seam joints)](docs/internal/E-13_seam-joints.md), and one of them would
+settle whether `Clip_Style` should stay `"Tab"` by default. This release ships
+that default as it stands, so changing it later would be another major bump.
 
 ### Added
 - **Edge treatment.** `Bottom_Edge_Fillet` rounds the box's outer bottom edge
@@ -240,7 +252,9 @@ identically and that magnets survive slicing.
 
 - **BREAKING: `Enable_Gridfinity_Lid_Top` now produces sockets, not studs.**
   Under [E-10 (versioning)](docs/internal/E-10_versioning.md) this is a major
-  bump, because the same parameter set renders different geometry.
+  bump, because the same parameter set renders different geometry. The sockets
+  this describes were themselves reworked later in the 2.0.0 line, to the spec
+  profile in the entry above; this entry records the first step.
 
   The lid inverts in use: its lip is the mating face, so the panel's other side
   is the exposed top of a closed box. The previous implementation added a
@@ -254,12 +268,16 @@ identically and that magnets survive slicing.
 
   The socket mouth is sized from the widest part of a foot (`GF_BASE_CELL`,
   41.5 mm) plus clearance, not from `GF_CAVITY_ENTRY_SIZE`. That constant is
-  39.4 mm and describes the cavity hollowed *into* the box base, which is the
+  39.4 mm and described the cavity hollowed *into* the box base, which is the
   inside of the male half; a mouth that size held every part 1.85 mm proud.
-  Verified: the model's own base fits with 0.25 mm clearance, and a standard bin
-  foot seats on the shoulder at 3.2 mm depth.
+  Verified by render at the time: the model's own base fitted with 0.25 mm
+  clearance, and a standard bin foot seated on the shoulder at 3.2 mm depth. The
+  rework above replaced that pocket profile, so those two figures describe the
+  first implementation rather than what ships.
 
-  Lid height with the feature on goes from 4.5 mm to 4.75 mm added. Constants
+  Lid height with the feature on went from 4.5 mm to 4.75 mm added, and the
+  rework above raised it again to 5.0 mm, which is what a spec pocket needs.
+  Constants
   `GF_LIDTOP_BASE_HEIGHT`, `GF_LIDTOP_TOP_HEIGHT`, `GF_LIDTOP_BASE_SIZE` and
   `GF_LIDTOP_TOP_SIZE` are replaced by `GF_LIDTOP_PLATE_HEIGHT`.
 
