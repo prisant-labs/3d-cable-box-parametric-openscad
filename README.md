@@ -29,9 +29,9 @@ records which features have been printed on a real machine.
 
 Both track `main`, so they match the current model. The
 [Releases page](https://github.com/prisant-labs/3d-cable-box-parametric-openscad/releases) holds fixed, tested snapshots, and from `v2.0.0-rc.4` on
-each release attaches all nine presets as `cable-box-presets.zip`. Until 2.0.0
-ships as final, GitHub's "Latest" release is still `v1.4.1`, from before the
-2.0.0 changes, so take the newest "Pre-release" for the current geometry.
+each release attaches all nine presets as `cable-box-presets.zip`. GitHub's
+"Latest" release is `v2.0.0`, which matches the current model; the
+`v2.0.0-rc.*` prereleases before it are earlier steps toward it.
 
 Printing a feature for the first time, such as a Gridfinity base, snap clips,
 or magnets? Print a small [fit test box](docs/PRINTING.md#fit-test-box) with

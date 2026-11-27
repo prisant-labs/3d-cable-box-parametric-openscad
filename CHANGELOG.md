@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-11-26
+
+Major release, because the same parameter set now renders different geometry in
+several places. `Enable_Gridfinity_Lid_Top` produces spec baseplate pockets
+where it once produced studs, a Gridfinity base rounds the footprint up to whole
+cells, `Lid_Style` defaults to `Plug`, `Lid_Lip_Gap` became a clearance on each
+side defaulting to 0.15 mm, and `All_Openings_Up` defaults to 5 rather than 0.
+Under [E-10 (versioning)](docs/internal/E-10_versioning.md) a changed default is
+a major bump on its own, even where the new value is the better one. The code
+inherited from the 2022 original was also rewritten in this release.
+
+**Partly print-validated.** What has been printed, on a Bambu Lab P1S with a
+0.4 mm nozzle, 0.2 mm layers and PLA+: the edge treatment and side opening
+coupons passed at `v2.0.0-rc.4`, and the `v2.0.0-rc.5` reprints fitted well with
+both lid styles, with and without magnets, at the default 0.15 mm `Lid_Lip_Gap`.
+
+What has not been printed: a Gridfinity base seated in a standard baseplate, the
+reworked lid top of this release, the 45 degree seam teeth, and either clip style
+since the floor clips were fixed. The Gridfinity clearances in particular are
+arithmetic rather than measurements. The open checks are listed in
+[E-12 (Gridfinity to spec)](docs/internal/E-12_gridfinity-to-spec.md) and
+[E-13 (seam joints)](docs/internal/E-13_seam-joints.md), and one of them would
+settle whether `Clip_Style` should stay `"Tab"` by default. This release ships
+that default as it stands, so changing it later would be another major bump.
+
 ### Added
 - **Edge treatment.** `Bottom_Edge_Fillet` rounds the box's outer bottom edge
   and `Top_Edge_Chamfer` chamfers the box's top rim and both exposed lid edges.
@@ -113,6 +138,25 @@ identically and that magnets survive slicing.
   and lid. The site sets `og:image` to a 1200 x 630 render that
   `build_readme_images.py` produces and `web/sync-docs.mjs` publishes.
 
+- **A preset browser on the docs site**, at `/library/`. A card grid filterable
+  by printer bed size and by feature, and a page per preset with an orbitable
+  3D view of each part, the parameters that define it, and downloads. Cards use
+  the fixed-camera render, so the grid reads as a size comparison rather than
+  nine models each zoomed to fill its own frame.
+- **`library/index.json`**, the machine-readable twin of `library/README.md`:
+  every preset with its overrides, printed envelope, feature flags, and file
+  paths, plus the model's full parameter defaults once at the top. It carries a
+  schema version, and like the README it always covers every preset even when
+  `--only` rebuilt one.
+- **A GLB beside every library STL**, converted at build time by
+  `scripts/build_library.py`, for 3D preview in a browser. About a tenth the
+  size: the 481 KB `gridfinity-module` box-and-lid becomes 51 KB. The mesh is
+  canonicalised before export, which is not cosmetic: OpenSCAD emits identical
+  geometry in a different facet order every run, so a straight conversion
+  produced 27 changed binaries on every rebuild and a canonical one produces
+  zero. `trimesh` is an optional dependency; without it the GLBs are skipped
+  and the rest of the build is unaffected.
+
 ### Changed
 - **A Gridfinity base rounds the box up to whole cells, and its feet follow the
   spec.** With `Enable_Gridfinity_Bottom` on, `Box_Width` and `Box_Depth` each
@@ -205,6 +249,58 @@ identically and that magnets survive slicing.
   rendered by `scripts/build_readme_images.py` instead of by hand, which
   also corrects two that had drifted: the Gridfinity image still showed the
   retired lid studs, and the hero showed openings flush with the floor.
+
+- **BREAKING: `Enable_Gridfinity_Lid_Top` now produces sockets, not studs.**
+  Under [E-10 (versioning)](docs/internal/E-10_versioning.md) this is a major
+  bump, because the same parameter set renders different geometry. The sockets
+  this describes were themselves reworked later in the 2.0.0 line, to the spec
+  profile in the entry above; this entry records the first step.
+
+  The lid inverts in use: its lip is the mating face, so the panel's other side
+  is the exposed top of a closed box. The previous implementation added a
+  two-stage stud to that face, which meant a closed box carried Gridfinity feet
+  pointing at the ceiling. Nothing can rest on a foot. The feature's own
+  documentation described a baseplate, so the code and the docs had disagreed
+  since the feature shipped.
+
+  It is now a 4.75 mm plate spanning the lid, with a mating socket cut into each
+  cell, so a Gridfinity bin or another box drops onto the closed lid.
+
+  The socket mouth is sized from the widest part of a foot (`GF_BASE_CELL`,
+  41.5 mm) plus clearance, not from `GF_CAVITY_ENTRY_SIZE`. That constant is
+  39.4 mm and described the cavity hollowed *into* the box base, which is the
+  inside of the male half; a mouth that size held every part 1.85 mm proud.
+  Verified by render at the time: the model's own base fitted with 0.25 mm
+  clearance, and a standard bin foot seated on the shoulder at 3.2 mm depth. The
+  rework above replaced that pocket profile, so those two figures describe the
+  first implementation rather than what ships.
+
+  Lid height with the feature on went from 4.5 mm to 4.75 mm added, and the
+  rework above raised it again to 5.0 mm, which is what a spec pocket needs.
+  Constants
+  `GF_LIDTOP_BASE_HEIGHT`, `GF_LIDTOP_TOP_HEIGHT`, `GF_LIDTOP_BASE_SIZE` and
+  `GF_LIDTOP_TOP_SIZE` are replaced by `GF_LIDTOP_PLATE_HEIGHT`.
+
+  **Still unvalidated by print.** Nothing here has been fitted to physical
+  Gridfinity hardware. The clearance is a number, not a measurement.
+- **Docs site rebuilt on Astro Starlight, replacing MkDocs.** Same URL, same
+  page set, same nav structure. The site lives in `web/` and syncs its content
+  from `docs/` at build time (`web/sync-docs.mjs`), so `docs/` remains the
+  single source of truth: README links keep working, GitHub browsing keeps
+  working, and `build_options_guide.py` keeps generating into the same place.
+  Page URLs changed from uppercase (`/PARAMETER_REFERENCE/`) to kebab-case
+  (`/parameter-reference/`); old deep links 404. `mkdocs.yml` is gone, its nav
+  now lives in `web/astro.config.mjs`, and the Pages workflow builds with Node
+  instead of Python. The offline `options-guide.html` is served unchanged. The
+  landing page's stale claim that Gridfinity was developed outside this
+  repository is corrected.
+- `docs/RELEASE.md` rewritten from a seven-line checklist to the actual release
+  process: which of the three generated artifacts embed `Model_Version`, the
+  version consistency check, the standard release assets, and the snapshot step.
+- `docs/FAQ.md` gains preset-loading instructions and the recovery note for the
+  1.4.0 `config.json` type error.
+- `docs/WORKFLOWS.md` quick start covers starting from a preset.
+- `README.md` and `docs/DOCS_INDEX.md` document `cable-box-parametric.json`.
 
 ### Fixed
 - **The preset library's bed filter counts the lid.** It compared only the
@@ -313,69 +409,6 @@ seam that `Seam_Tooth_Depth=0` keeps.
   They now say what the pockets take: one magnet per pocket, up to 2.4 mm
   thick.
 
-## [2.0.0] - 2026-08-07
-
-Major release, because `Enable_Gridfinity_Lid_Top` now renders different
-geometry from the same parameter set. Under
-[E-10 (versioning)](docs/internal/E-10_versioning.md) that is a major bump even
-though the new geometry is the one the parameter always claimed to produce.
-
-**Not yet print-validated.** The Gridfinity socket clearances and the lid clip
-placement are arithmetic, not measurements. E-10's flow for this state is a
-`v2.0.0-rc.1` prerelease with STLs attached, so the print test has a citable
-artifact; the date above belongs to the final release and should be corrected
-when it ships.
-
-### Added
-- **A preset browser on the docs site**, at `/library/`. A card grid filterable
-  by printer bed size and by feature, and a page per preset with an orbitable
-  3D view of each part, the parameters that define it, and downloads. Cards use
-  the fixed-camera render, so the grid reads as a size comparison rather than
-  nine models each zoomed to fill its own frame.
-- **`library/index.json`**, the machine-readable twin of `library/README.md`:
-  every preset with its overrides, printed envelope, feature flags, and file
-  paths, plus the model's full parameter defaults once at the top. It carries a
-  schema version, and like the README it always covers every preset even when
-  `--only` rebuilt one.
-- **A GLB beside every library STL**, converted at build time by
-  `scripts/build_library.py`, for 3D preview in a browser. About a tenth the
-  size: the 481 KB `gridfinity-module` box-and-lid becomes 51 KB. The mesh is
-  canonicalised before export, which is not cosmetic: OpenSCAD emits identical
-  geometry in a different facet order every run, so a straight conversion
-  produced 27 changed binaries on every rebuild and a canonical one produces
-  zero. `trimesh` is an optional dependency; without it the GLBs are skipped
-  and the rest of the build is unaffected.
-
-### Changed
-- **BREAKING: `Enable_Gridfinity_Lid_Top` now produces sockets, not studs.**
-  Under [E-10 (versioning)](docs/internal/E-10_versioning.md) this is a major
-  bump, because the same parameter set renders different geometry.
-
-  The lid inverts in use: its lip is the mating face, so the panel's other side
-  is the exposed top of a closed box. The previous implementation added a
-  two-stage stud to that face, which meant a closed box carried Gridfinity feet
-  pointing at the ceiling. Nothing can rest on a foot. The feature's own
-  documentation described a baseplate, so the code and the docs had disagreed
-  since the feature shipped.
-
-  It is now a 4.75 mm plate spanning the lid, with a mating socket cut into each
-  cell, so a Gridfinity bin or another box drops onto the closed lid.
-
-  The socket mouth is sized from the widest part of a foot (`GF_BASE_CELL`,
-  41.5 mm) plus clearance, not from `GF_CAVITY_ENTRY_SIZE`. That constant is
-  39.4 mm and describes the cavity hollowed *into* the box base, which is the
-  inside of the male half; a mouth that size held every part 1.85 mm proud.
-  Verified: the model's own base fits with 0.25 mm clearance, and a standard bin
-  foot seats on the shoulder at 3.2 mm depth.
-
-  Lid height with the feature on goes from 4.5 mm to 4.75 mm added. Constants
-  `GF_LIDTOP_BASE_HEIGHT`, `GF_LIDTOP_TOP_HEIGHT`, `GF_LIDTOP_BASE_SIZE` and
-  `GF_LIDTOP_TOP_SIZE` are replaced by `GF_LIDTOP_PLATE_HEIGHT`.
-
-  **Still unvalidated by print.** Nothing here has been fitted to physical
-  Gridfinity hardware. The clearance is a number, not a measurement.
-
-### Fixed
 - **Lid magnet pockets were unusable and are now magnet-only.** (Found by
   adversarial review.) The pocket cut still started at the lid-panel interface
   as in the stud era, so it overlapped the socket void and left a 0.45 mm
@@ -436,26 +469,6 @@ when it ships.
 - `docs/WORKFLOWS.md` told contributors to add presets to `library/` by hand.
   Everything in that directory is generated and hand-added files are overwritten
   on the next build.
-
-### Changed
-- **Docs site rebuilt on Astro Starlight, replacing MkDocs.** Same URL, same
-  page set, same nav structure. The site lives in `web/` and syncs its content
-  from `docs/` at build time (`web/sync-docs.mjs`), so `docs/` remains the
-  single source of truth: README links keep working, GitHub browsing keeps
-  working, and `build_options_guide.py` keeps generating into the same place.
-  Page URLs changed from uppercase (`/PARAMETER_REFERENCE/`) to kebab-case
-  (`/parameter-reference/`); old deep links 404. `mkdocs.yml` is gone, its nav
-  now lives in `web/astro.config.mjs`, and the Pages workflow builds with Node
-  instead of Python. The offline `options-guide.html` is served unchanged. The
-  landing page's stale claim that Gridfinity was developed outside this
-  repository is corrected.
-- `docs/RELEASE.md` rewritten from a seven-line checklist to the actual release
-  process: which of the three generated artifacts embed `Model_Version`, the
-  version consistency check, the standard release assets, and the snapshot step.
-- `docs/FAQ.md` gains preset-loading instructions and the recovery note for the
-  1.4.0 `config.json` type error.
-- `docs/WORKFLOWS.md` quick start covers starting from a preset.
-- `README.md` and `docs/DOCS_INDEX.md` document `cable-box-parametric.json`.
 
 ## [1.4.1] - 2026-08-04
 
