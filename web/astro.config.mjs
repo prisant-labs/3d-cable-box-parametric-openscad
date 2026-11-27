@@ -24,6 +24,11 @@ export default defineConfig({
 			// checklist in E-03 (openings array). Until then this title stands
 			// and the landing page uses its shorter form.
 			title: 'Ultimate Cable Box Parametric OpenSCAD',
+			// Every image in docs/ is a render on an off-white background, so
+			// on the dark theme a bare one is a white slab. This gives each a
+			// panel, matching what docs/options-guide.html already does. See
+			// F-26 in docs/internal/DOCS_AUDIT_2026-11_visuals.md.
+			customCss: ['./src/styles/docs.css'],
 			description:
 				'A cable box you size to your own gear: an OpenSCAD model with nine ready-to-print presets, configurable openings, and Gridfinity interfaces.',
 			social: [

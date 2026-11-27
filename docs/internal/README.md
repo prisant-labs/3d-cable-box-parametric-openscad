@@ -36,6 +36,18 @@ Effort key: S = under a day, M = a few days, L = a week or more.
 Ideas not yet scoped as an effort, and known problems still open, are in
 [BACKLOG.md](BACKLOG.md).
 
+## Audits
+
+Point-in-time reviews of the documentation and the site. Each records what was
+checked, what was not, and which findings the maintainer decided on. Findings
+are numbered in one sequence across both, so an ID identifies a finding
+uniquely.
+
+| Audit | Covers | Findings |
+|---|---|---|
+| [Documentation and site audit](DOCS_AUDIT_2026-11.md) | Accuracy, links, anchors and the newcomer path | F-01 to F-23 |
+| [Second pass: legibility and visuals](DOCS_AUDIT_2026-11_visuals.md) | Mobile, dark mode, the pages the first pass did not view, and the agent-facing docs | F-24 to F-32 |
+
 ## What is left
 
 The infrastructure efforts are done: testing (E-09), versioning (E-10), the

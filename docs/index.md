@@ -27,6 +27,19 @@ six-outlet strip compare directly. The
 [preset library](../library/) also draws each footprint from above against
 your printer's bed.*
 
+The names in that image are drawn into it, so here they are as links. Each
+page says what the preset fits, and carries its parameters and downloads:
+
+[Compact desk tidy](../library/desk-compact/) &middot;
+[Laptop brick and cables](../library/laptop-brick/) &middot;
+[Multi-port USB-C charger](../library/usb-charger/) &middot;
+[Dual-monitor cable junction](../library/monitor-junction/) &middot;
+[Six-outlet surge protector](../library/surge-strip-6/) &middot;
+[Six-outlet strip, split for a 180 mm bed](../library/surge-strip-6-sliced/) &middot;
+[Gridfinity desk module](../library/gridfinity-module/) &middot;
+[Router and modem shelf tidy](../library/router-shelf/) &middot;
+[Under-desk pass-through](../library/under-desk-passthrough/)
+
 ## Change a box
 
 Start here when a preset is close but not quite right.
