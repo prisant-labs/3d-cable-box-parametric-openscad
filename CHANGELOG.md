@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.0] - 2026-11-26
+## [2.0.0] - 2026-11-27
 
 Major release, because the same parameter set now renders different geometry in
 several places. `Enable_Gridfinity_Lid_Top` produces spec baseplate pockets
