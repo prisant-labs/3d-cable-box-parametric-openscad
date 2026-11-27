@@ -27,27 +27,18 @@ six-outlet strip compare directly. The
 [preset library](../library/) also draws each footprint from above against
 your printer's bed.*
 
-The captions above are drawn into that image, so here they are as links:
+The names in that image are drawn into it, so here they are as links. Each
+page says what the preset fits, and carries its parameters and downloads:
 
-- [Compact desk tidy](../library/desk-compact/): a short power strip plus 3 or
-  4 cables, on a minimal desk footprint.
-- [Laptop brick and cables](../library/laptop-brick/): one laptop charger up to
-  about 150 x 75 x 40 mm, plus 3 cables.
-- [Multi-port USB-C charger](../library/usb-charger/): a GaN multi-port charger
-  and 4 to 6 USB-C cables.
-- [Dual-monitor cable junction](../library/monitor-junction/): two monitor power
-  bricks and their signal cables.
-- [Six-outlet surge protector](../library/surge-strip-6/): a standard 6-outlet
-  strip up to about 250 x 60 mm, with its cord.
-- [Six-outlet strip, split for a 180 mm bed](../library/surge-strip-6-sliced/):
-  the same box, printed in two halves that clip together.
-- [Gridfinity desk module](../library/gridfinity-module/): sits in a Gridfinity
-  baseplate on a 3 x 2 cell footprint.
-- [Router and modem shelf tidy](../library/router-shelf/): a small router or
-  modem plus its power supply, with tall openings for stiff coax and ethernet.
-- [Under-desk pass-through](../library/under-desk-passthrough/): a junction box
-  where cables enter one side and leave the other, with no post, so the
-  interior is one clear channel.
+[Compact desk tidy](../library/desk-compact/) &middot;
+[Laptop brick and cables](../library/laptop-brick/) &middot;
+[Multi-port USB-C charger](../library/usb-charger/) &middot;
+[Dual-monitor cable junction](../library/monitor-junction/) &middot;
+[Six-outlet surge protector](../library/surge-strip-6/) &middot;
+[Six-outlet strip, split for a 180 mm bed](../library/surge-strip-6-sliced/) &middot;
+[Gridfinity desk module](../library/gridfinity-module/) &middot;
+[Router and modem shelf tidy](../library/router-shelf/) &middot;
+[Under-desk pass-through](../library/under-desk-passthrough/)
 
 ## Change a box
 
