@@ -80,6 +80,10 @@ python tests/run_tests.py          # full geometry suite
         -D 'Enable_Gridfinity_Magnet_Screw=true' -D 'Enable_Lid_Magnets=true' \
         -D 'All_Opening_Top_Style="Teardrop"'
       ```
+      If that command fails with `openscad: command not found`, the binary
+      is installed but not on PATH. Set `OPENSCAD_BIN` to its full path, which
+      is the same variable the test harness honours, and which `docs/FAQ.md`
+      and `docs/WORKFLOWS.md` describe.
 - [ ] Docs reflect any parameter or behaviour change
       (`PARAMETER_REFERENCE.md`, `FAQ.md`, `README.md`).
 - [ ] Licence and third-party notices current (`THIRD_PARTY_NOTICES.md`).

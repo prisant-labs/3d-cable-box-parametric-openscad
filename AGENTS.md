@@ -12,6 +12,19 @@ Astro + Starlight docs site in `web/`. Calibration coupons are maintainer
 tooling in `_local/calibration/`, which is gitignored and absent from a fresh
 clone.
 
+## Where things are
+
+Read these before changing geometry. The model file is large, and each of
+these answers a question that reading it from the top does not.
+
+| Question | Document |
+|---|---|
+| How does a parameter set become geometry, and which way do the axes point? | `docs/SCAD_ARCHITECTURE.md` |
+| Which module builds this part, and in what order are they called? | `docs/MODULE_REFERENCE.md` |
+| Which parameters constrain each other, and in what order should they be tuned? | `docs/PARAMETER_INTERACTIONS.md` |
+| What does this parameter default to, and what does it mean? | `docs/PARAMETER_REFERENCE.md` |
+| Which assertion did I just trip, and how is it resolved? | `docs/VALIDATION_RULES.md` |
+
 ## Commands
 
 | Task | Command |
