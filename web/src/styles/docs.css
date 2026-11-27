@@ -1,0 +1,31 @@
+/*
+ * Give every rendered image a panel rather than leaving it a bare slab.
+ *
+ * Each image under docs/ is an OpenSCAD render on an off-white background,
+ * and the model itself is dark slate. On the site's dark theme a bare render
+ * is a hard white rectangle against near-black, and the options guide stacks
+ * 54 of them. Rendering with a transparent background would not help: dark
+ * slate on near-black reads worse than the slab does.
+ *
+ * docs/options-guide.html, which this repository also generates, already
+ * solves this. It puts each render in a bordered figure with its own light
+ * backing, in both colour schemes. These rules bring the site up to it.
+ *
+ * See F-26 in docs/internal/DOCS_AUDIT_2026-11_visuals.md.
+ */
+.sl-markdown-content img {
+	display: block;
+	margin-inline: auto;
+	padding: 0.75rem;
+	border: 1px solid var(--sl-color-gray-5);
+	border-radius: 0.5rem;
+	background: var(--sl-color-gray-6);
+}
+
+/*
+ * The mount, not the image, is what carries the theme. The renders are opaque,
+ * so the padding ring is the only part that shows this background: on the dark
+ * theme it is a dark surround, which turns a white rectangle into a framed
+ * plate rather than a hole in the page. A first attempt set the padding to the
+ * render's own off-white, which drew no frame at all and changed nothing.
+ */

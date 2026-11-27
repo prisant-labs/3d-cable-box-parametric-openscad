@@ -119,7 +119,17 @@ that commit changes a site page, so these pages are as they were at `b88ec42`.
   A bordered card reads as a deliberate panel. A bare image on a black page
   reads as a hole.
 - **Fix.** Give synced images the same figure treatment on the site, in CSS.
-  Nothing needs re-rendering.
+  Nothing needs re-rendering. **Done in this change**, as
+  `web/src/styles/docs.css`, registered through Starlight's `customCss`. The
+  mount carries the theme and the render does not, because the renders are
+  opaque and only the padding ring shows the background. A first attempt set
+  that ring to the render's own off-white, which drew no frame and changed
+  nothing on screen; the second sets it to a Starlight surface token, so a
+  white render reads as a framed plate rather than a hole. Verified on a local
+  build in both colour schemes.
+- **What it does not do.** The page is still mostly white rectangles. A frame
+  improves how they sit on the page; it does not change the renders. That is
+  the first pass's F-07.
 - **Do not reach for a transparent background.** The model renders dark slate,
   so a transparent image on the dark theme would be dark on dark, which is
   worse than the slab. I also did not confirm that OpenSCAD 2021.01 can export
@@ -152,8 +162,13 @@ that commit changes a site page, so these pages are as they were at `b88ec42`.
   and a 3.0 mm wall are identical at box scale. Side by side at the same
   camera, the difference reads without any new camera work.
 - **Fix.** Group a parameter's variants into one row on the site, as the
-  offline guide does. Markdown cannot express that, so it belongs either in
-  the site's CSS for that page or in what `sync-docs.mjs` emits for it.
+  offline guide does. **Not done, and not doable in CSS alone.** Each variant
+  is a flat run of siblings, an `h3`, a paragraph holding a code span and a
+  paragraph holding the image, with nothing wrapping the three. A grid needs a
+  wrapper per variant. There is also no per-page hook to scope the rule to
+  this page: Astro hashes the asset filenames, so the `images/options/` path a
+  selector would key on is gone from the built markup. The route is a rehype
+  step in `web/sync-docs.mjs` that wraps each variant for this page only.
 - **Confidence: high** on both layouts, read from the generator and seen on
   the site. **Medium** on how many F-07 entries it closes, since I re-rendered
   nothing.
@@ -285,10 +300,10 @@ that commit changes a site page, so these pages are as they were at `b88ec42`.
 ## Suggested order of work
 
 1. F-24, the eager hero. One attribute, and it changes the first impression.
-2. F-26, the figure treatment, copied from the offline guide's CSS. No
-   re-rendering.
-3. F-27, the grid for the options guide, from the same source.
-4. F-27 together with the first pass's F-07, which is the remaining image work
-   and the only part that re-renders anything.
+2. ~~F-26, the figure treatment.~~ Done in this change.
+3. F-27, the grid for the options guide, which needs a wrapper per variant in
+   `sync-docs.mjs` before any CSS can place them.
+4. The first pass's F-07, the remaining image work, and the only part that
+   re-renders anything.
 5. F-28, the viewer's lighting and frame.
 6. F-30 and F-31, the diagrams, the lookup table and the FAQ grouping.
